@@ -22,7 +22,7 @@
             Un entrenador personal se pondrá en contacto contigo en las próximas 24 horas.
         </p>
 
-        <form action="#" method="POST" class="text-left space-y-6">
+        <form action="{{ route('valoracion.enviar') }}" method="POST" class="text-left space-y-6">
             @csrf
             
             {{-- Nombre Completo --}}

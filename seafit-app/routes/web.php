@@ -29,7 +29,7 @@ Route::get('/agenda', [ServicioController::class, 'agenda'])->name('agenda');
 
 // --- VALORACIÓN (Entrenador Personal) ---
 Route::get('/valoracion', function () {
-    return view('paginas.valoracion');
+    return view('servicios.valoracion');
 })->name('valoracion');
 
 // --- REGISTRO Y LOGIN ---

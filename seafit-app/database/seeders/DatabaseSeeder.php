@@ -15,11 +15,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Llama al seeder de las clases para que la agenda no salga vacía
+        $this->call([
+            ClaseSeeder::class,
+        ]);
 
+        // Crea un usuario de prueba para que puedas entrar sin registrarte
         User::factory()->create([
-            'name' => 'Test User',
+            'nombre' => 'Test',
+            'apellidos' => 'User',
             'email' => 'test@example.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('123456'),
         ]);
     }
 }
