@@ -47,7 +47,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // --- RESERVAS Y PERFIL (Protegidos) ---
 Route::middleware(['auth'])->group(function () {
     Route::get('/perfil', function () {
-        return view('usuario.perfil');
+        // Obtenemos al usuario con sus clases reservadas
+        $user = Auth::user()->load('clases'); 
+        return view('usuario.perfil', compact('user'));
     })->name('perfil');
     
     Route::post('/reservar/{id}', [ReservaController::class, 'reservar'])->name('clase.reservar');

@@ -5,9 +5,10 @@ const FormularioRegistro = () => {
     const [paso, setPaso] = useState(1);
     const [datos, setDatos] = useState({
         nombre: '', apellidos: '', dni: '', fecha_nacimiento: '',
-        telefono: '', email: '', password: '', // Añadido password
+        telefono: '', email: '', password: '',
         domicilio: '', tarifa: '',
-        metodo_pago: 'bizum', numero_tarjeta: '', exp_tarjeta: '', cvv: ''
+        metodo_pago: 'bizum', numero_tarjeta: '', exp_tarjeta: '', cvv: '',
+        cupon: ''
     });
     const [errores, setErrores] = useState({});
 
@@ -60,7 +61,12 @@ const FormularioRegistro = () => {
                 const resultado = await respuesta.json();
 
                 if (respuesta.ok) {
-                    alert(resultado.mensaje);
+                    // Si el controlador devolvió un mensaje de descuento, lo mostramos en el alert
+                    const mensajeExito = resultado.descuento
+                        ? `${resultado.mensaje} \nStatus: ${resultado.descuento}`
+                        : resultado.mensaje;
+
+                    alert(mensajeExito);
                     window.location.href = '/login';
                 } else {
                     alert("Error: " + (resultado.error || "No se pudo completar el registro"));
@@ -215,7 +221,24 @@ const FormularioRegistro = () => {
                                 Guardar este método de pago para futuras compras
                             </label>
                         </div>
-
+                        {/* SECCIÓN DE CUPÓN (AÑADIR ESTO ANTES DEL BOTÓN DE PAGAR) */}
+                        <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                            <label className="block text-sm font-bold text-[#0A1931] mb-2">
+                                ¿Tienes un código de descuento?
+                            </label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Ej: SEAFIT20"
+                                    value={datos.cupon}
+                                    onChange={(e) => setDatos({ ...datos, cupon: e.target.value.toUpperCase() })}
+                                    className="flex-1 p-2 border rounded-md text-sm uppercase"
+                                />
+                            </div>
+                            <p className="text-[10px] text-gray-500 mt-1 italic">
+                                *Los descuentos se aplicarán al procesar el pago.
+                            </p>
+                        </div>
                         <div className="mt-8">
                             <button
                                 onClick={siguientePaso}

@@ -9,9 +9,8 @@ class Clase extends Model
 {
     use HasFactory;
 
-    protected $table = 'clases'; // Aseguramos que apunte a la tabla correcta
+    protected $table = 'clases';
 
-    // Lista de campos que se pueden llenar (MUY IMPORTANTE)
     protected $fillable = [
         'nombre', 
         'instructor', 
@@ -22,4 +21,12 @@ class Clase extends Model
         'descripcion', 
         'imagen'
     ];
+
+    /**
+     * RELACIÓN: Una clase puede tener muchos usuarios (socios) inscritos.
+     */
+    public function usuarios()
+    {
+        return $this->belongsToMany(User::class, 'clase_user');
+    }
 }

@@ -11,8 +11,8 @@
             <a href="#" class="nav-item active">
                 <span class="material-symbols-outlined">person</span> Mi Perfil
             </a>
-            <a href="#" class="nav-item">
-                <span class="material-symbols-outlined">calendar_month</span> Mis Reservas
+            <a href="{{ route('agenda') }}" class="nav-item">
+                <span class="material-symbols-outlined">calendar_month</span> Reservar Clase
             </a>
             <a href="#" class="nav-item">
                 <span class="material-symbols-outlined">payments</span> Gestión de Pago
@@ -26,74 +26,76 @@
     {{-- CONTENIDO PRINCIPAL --}}
     <main class="content-perfil">
         <header class="header-bienvenida">
-            <h1>¡Hola, {{ Auth::user()->nombre }}! 👋</h1>
-            <p>Bienvenida a tu panel personal. Aquí puedes gestionar tu cuenta y revisar tu progreso.</p>
+            <h1>¡Hola, {{ $user->nombre }}! 👋</h1>
+            <p>Bienvenido a tu panel personal de SeaFit. Aquí puedes gestionar tu cuenta y revisar tus clases.</p>
         </header>
 
         {{-- TARJETA DE MEMBRESÍA --}}
         <section class="tarjeta-membresia">
             <div class="membresia-info">
                 <p class="label-membresia">Membresía Actual</p>
-                <h2 class="tipo-membresia">Acceso Total {{ ucfirst(Auth::user()->tarifa) }}</h2>
-                <p class="validez-membresia">Válido hasta: 24/12/2025</p>
+                <h2 class="tipo-membresia">Acceso Total {{ ucfirst($user->tarifa) }}</h2>
+                <p class="validez-membresia">Estado: <span style="color: #a3e635; font-weight: bold;">Activa</span></p>
             </div>
             <button class="btn-cambiar-plan">
                 <span class="material-symbols-outlined">upgrade</span> Cambiar Plan
             </button>
         </section>
 
-        {{-- DATOS DE CUENTA --}}
+        {{-- DATOS DE CUENTA DINÁMICOS --}}
         <section class="seccion-blanca">
             <div class="seccion-header">
                 <h3>Datos de Cuenta</h3>
             </div>
             <div class="grid-datos">
                 <div class="dato-item">
-                    <p class="dato-label">Nombre:</p>
-                    <p class="dato-valor">{{ Auth::user()->nombre }} {{ Auth::user()->apellidos }}</p>
+                    <p class="dato-label">Nombre completo:</p>
+                    <p class="dato-valor">{{ $user->nombre }} {{ $user->apellidos }}</p>
                 </div>
                 <div class="dato-item">
                     <p class="dato-label">Email:</p>
-                    <p class="dato-valor">{{ Auth::user()->email }}</p>
+                    <p class="dato-valor">{{ $user->email }}</p>
                 </div>
                 <div class="dato-item">
                     <p class="dato-label">DNI:</p>
-                    <p class="dato-valor">{{ Auth::user()->dni }}</p>
+                    <p class="dato-valor">{{ $user->dni }}</p>
                 </div>
                 <div class="dato-item">
                     <p class="dato-label">Teléfono:</p>
-                    <p class="dato-valor">{{ Auth::user()->telefono }}</p>
+                    <p class="dato-valor">{{ $user->telefono }}</p>
                 </div>
                 <div class="dato-item full-width">
                     <p class="dato-label">Domicilio:</p>
-                    <p class="dato-valor">{{ Auth::user()->domicilio }}</p>
+                    <p class="dato-valor">{{ $user->domicilio }}</p>
                 </div>
             </div>
             <a href="#" class="enlace-editar">Editar información</a>
         </section>
 
-        {{-- PRÓXIMAS RESERVAS --}}
+        {{-- PRÓXIMAS RESERVAS REALES --}}
         <section class="seccion-blanca">
             <div class="seccion-header">
-                <h3>Próximas Reservas</h3>
+                <h3>Mis Reservas Actuales</h3>
             </div>
             <div class="lista-reservas">
-                <div class="reserva-card">
-                    <div class="reserva-info">
-                        <h4>Yoga (Sala 1)</h4>
-                        <p>Miércoles, 26 Nov | 18:30 h</p>
+                @forelse($user->clases as $reserva)
+                    <div class="reserva-card">
+                        <div class="reserva-info">
+                            <h4>{{ $reserva->nombre }}</h4>
+                            <p>{{ $reserva->dia_semana }} | {{ substr($reserva->hora_inicio, 0, 5) }} h | {{ $reserva->sala }}</p>
+                        </div>
+                        <span class="status-badge confirmado">✓ Confirmada</span>
                     </div>
-                    <span class="status-badge confirmado">✓ Confirmada</span>
-                </div>
-                <div class="reserva-card">
-                    <div class="reserva-info">
-                        <h4>Sesión con Entrenador Personal</h4>
-                        <p>Viernes, 28 Nov | 10:00 h</p>
+                @empty
+                    <div style="text-align: center; padding: 20px;">
+                        <p style="color: #64748b; margin-bottom: 15px;">Aún no tienes clases reservadas para esta semana.</p>
+                        <a href="{{ route('agenda') }}" class="btn-reg" style="text-decoration: none; display: inline-block;">Ver Agenda</a>
                     </div>
-                    <span class="status-badge pendiente">🕒 Pendiente</span>
-                </div>
+                @endforelse
             </div>
-            <a href="#" class="enlace-ver-mas">Ver todas mis reservas</a>
+            @if($user->clases->count() > 0)
+                <a href="#" class="enlace-ver-mas">Ver historial de clases</a>
+            @endif
         </section>
     </main>
 </div>

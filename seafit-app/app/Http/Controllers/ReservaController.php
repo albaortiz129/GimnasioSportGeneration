@@ -10,12 +10,29 @@ class ReservaController extends Controller
 {
     public function reservar(Request $request, $id)
     {
-        // Si no está logueado, lo mandamos al login
-        if (!Auth::check()) {
-            return redirect()->route('login');
+        $clase = Clase::findOrFail($id);
+        $user = Auth::user();
+
+        // 1. Cargamos las clases del usuario para evitar errores de null
+        // y poder usar el método 'contains' correctamente.
+        $user->load('clases');
+
+        // 2. Verificar si el usuario ya está apuntado (Evitamos duplicados)
+        if ($user->clases->contains($clase->id)) {
+            return back()->with('info', 'Ya tienes una reserva para esta clase.');
         }
 
-        // Lógica de reserva (V1: Simulación de éxito)
-        return back()->with('success', '¡Reserva confirmada!');
+        // 3. Gestión de Disponibilidad: Verificar si hay plazas libres
+        if ($clase->capacidad_max <= 0) {
+            return back()->with('error', 'Lo sentimos, esta clase ya está llena.');
+        }
+
+        // 4. Realizar la reserva en la tabla pivote (clase_user)
+        $user->clases()->attach($clase->id);
+
+        // 5. Restar una plaza de la disponibilidad real
+        $clase->decrement('capacidad_max');
+
+        return back()->with('success', '¡Reserva confirmada! Te quedan ' . $clase->capacidad_max . ' plazas libres.');
     }
 }
