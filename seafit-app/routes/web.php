@@ -50,13 +50,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // =======================================================
 Route::middleware(['auth'])->group(function () {
     
-    // 1. Panel Principal (Perfil)
+    // Panel Principal (Perfil)
     Route::get('/perfil', function () {
         $user = Auth::user()->load('clases'); 
         return view('usuario.perfil', compact('user'));
     })->name('perfil');
 
-    // 2. Gestión de Reservas
+    // Gestión de Reservas
     Route::get('/mis-reservas', function () {
         $user = Auth::user()->load('clases');
         return view('usuario.mis-reservas', compact('user'));
@@ -64,14 +64,37 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/reservar/{id}', [ReservaController::class, 'reservar'])->name('clase.reservar');
     Route::delete('/reservar/{id}', [ReservaController::class, 'cancelar'])->name('clase.cancelar');
 
-    // 3. Gestión de Pago y Facturación
+    // Gestión de Pago y Facturación
     Route::get('/gestion-pago', [PagoController::class, 'index'])->name('pago.gestion');
     Route::post('/plan/cancelar', [PagoController::class, 'cancelarPlan'])->name('plan.cancelar');
     Route::get('/factura/descargar/{id}', [PagoController::class, 'descargarFactura'])->name('factura.descargar');
     
-    // 4. Gestión de Tarjetas / Métodos de Pago
+    // Gestión de Tarjetas / Métodos de Pago
     Route::get('/pago/nuevo', [PagoController::class, 'nuevoMetodo'])->name('pago.nuevo');
     Route::post('/pago/principal', [PagoController::class, 'establecerPrincipal'])->name('pago.principal');
     Route::delete('/pago/eliminar', [PagoController::class, 'eliminarMetodo'])->name('pago.eliminar');
 
+    // Configuracion
+    Route::get('/configuracion', function () {
+        $user = Auth::user();
+        return view('usuario.configuracion', compact('user'));
+    })->name('configuracion');
+
+    Route::post('/configuracion/actualizar', function (\Illuminate\Http\Request $request) {
+        $user = Auth::user();
+        
+        // Validamos que los datos sean correctos
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$user->id,
+            'dni' => 'required|string',
+            'telefono' => 'required|string',
+            'domicilio' => 'required|string|max:255',
+        ]);
+
+        // Actualizamos en la base de datos
+        $user->update($request->only('nombre', 'email', 'dni', 'telefono', 'domicilio'));
+
+        return back()->with('success', 'Tus datos se han actualizado correctamente.');
+    })->name('configuracion.actualizar');
 });

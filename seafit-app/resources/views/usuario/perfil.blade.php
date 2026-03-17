@@ -17,7 +17,7 @@
                 <a href="{{ route('pago.gestion') }}" class="nav-item">
                     <span class="material-symbols-outlined">payments</span> Gestión de Pago
                 </a>
-                <a href="#" class="nav-item">
+                <a href="{{ route('configuracion') }}" class="nav-item">
                     <span class="material-symbols-outlined">settings</span> Configuración
                 </a>
             </nav>

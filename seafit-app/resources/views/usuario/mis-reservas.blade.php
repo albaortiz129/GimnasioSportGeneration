@@ -17,7 +17,7 @@
                 <a href="{{ route('pago.gestion') }}" class="nav-item">
                     <span class="material-symbols-outlined">payments</span> Gestión de Pago
                 </a>
-                <a href="#" class="nav-item">
+                <a href="{{ route('configuracion') }}" class="nav-item">
                     <span class="material-symbols-outlined">settings</span> Configuración
                 </a>
             </nav>
@@ -52,7 +52,8 @@
                                 <h4 style="font-size: 1.1rem; color: #0A1931; margin: 0;">{{ $clase->nombre }}
                                     ({{ $clase->sala }})</h4>
                                 <p style="color: #64748b; margin: 5px 0 0 0;">{{ $clase->dia_semana }} |
-                                    {{ substr($clase->hora_inicio, 0, 5) }} h</p>
+                                    {{ substr($clase->hora_inicio, 0, 5) }} h
+                                </p>
                             </div>
 
                             <div style="display: flex; gap: 20px; align-items: center;">
