@@ -35,4 +35,18 @@ class ReservaController extends Controller
 
         return back()->with('success', '¡Reserva confirmada! Te quedan ' . $clase->capacidad_max . ' plazas libres.');
     }
+
+    public function cancelar($id)
+    {
+        $clase = Clase::findOrFail($id);
+        $user = Auth::user();
+
+        // Desvincular al usuario de la clase
+        $user->clases()->detach($clase->id);
+
+        // DEVOLVER LA PLAZA: Sumamos 1 a la capacidad máxima
+        $clase->increment('capacidad_max');
+
+        return back()->with('success', 'Reserva cancelada. Se ha liberado una plaza.');
+    }
 }

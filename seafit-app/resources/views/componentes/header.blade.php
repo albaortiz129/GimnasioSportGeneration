@@ -22,7 +22,7 @@
             @endguest
 
             @auth
-                {{-- Esto solo se muestra si SÍ están logueados --}}
+                {{-- Esto solo se muestra si están logueados --}}
                 <div class="user-logged-nav" style="display: flex; align-items: center; gap: 20px;">
                     <a href="{{ url('/perfil') }}" class="user-profile-link" style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: #0A1931; font-weight: 600;">
                         <span class="material-symbols-outlined">account_circle</span>

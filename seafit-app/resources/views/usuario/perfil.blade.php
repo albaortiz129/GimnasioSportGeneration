@@ -8,11 +8,11 @@
     <aside class="sidebar-perfil">
         <h2 class="sidebar-titulo">Panel de Socio</h2>
         <nav class="sidebar-nav">
-            <a href="#" class="nav-item active">
+            <a href="{{ route('perfil') }}" class="nav-item active">
                 <span class="material-symbols-outlined">person</span> Mi Perfil
             </a>
-            <a href="{{ route('agenda') }}" class="nav-item">
-                <span class="material-symbols-outlined">calendar_month</span> Reservar Clase
+            <a href="{{ route('mis.reservas') }}" class="nav-item">
+                <span class="material-symbols-outlined">calendar_month</span> Mis Reservas
             </a>
             <a href="#" class="nav-item">
                 <span class="material-symbols-outlined">payments</span> Gestión de Pago
@@ -25,9 +25,16 @@
 
     {{-- CONTENIDO PRINCIPAL --}}
     <main class="content-perfil">
+        {{-- Mensajes de éxito al cancelar --}}
+        @if(session('success'))
+            <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #bbf7d0;">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <header class="header-bienvenida">
             <h1>¡Hola, {{ $user->nombre }}! 👋</h1>
-            <p>Bienvenido a tu panel personal de SeaFit. Aquí puedes gestionar tu cuenta y revisar tus clases.</p>
+            <p>Bienvenido a tu panel personal. Aquí puedes gestionar tu cuenta y revisar tu progreso.</p>
         </header>
 
         {{-- TARJETA DE MEMBRESÍA --}}
@@ -35,21 +42,21 @@
             <div class="membresia-info">
                 <p class="label-membresia">Membresía Actual</p>
                 <h2 class="tipo-membresia">Acceso Total {{ ucfirst($user->tarifa) }}</h2>
-                <p class="validez-membresia">Estado: <span style="color: #a3e635; font-weight: bold;">Activa</span></p>
+                <p class="validez-membresia">Válido hasta: 24/12/2025</p>
             </div>
             <button class="btn-cambiar-plan">
                 <span class="material-symbols-outlined">upgrade</span> Cambiar Plan
             </button>
         </section>
 
-        {{-- DATOS DE CUENTA DINÁMICOS --}}
+        {{-- DATOS DE CUENTA --}}
         <section class="seccion-blanca">
             <div class="seccion-header">
                 <h3>Datos de Cuenta</h3>
             </div>
             <div class="grid-datos">
                 <div class="dato-item">
-                    <p class="dato-label">Nombre completo:</p>
+                    <p class="dato-label">Nombre:</p>
                     <p class="dato-valor">{{ $user->nombre }} {{ $user->apellidos }}</p>
                 </div>
                 <div class="dato-item">
@@ -72,29 +79,45 @@
             <a href="#" class="enlace-editar">Editar información</a>
         </section>
 
-        {{-- PRÓXIMAS RESERVAS REALES --}}
+        {{-- ESTA ES LA SECCIÓN DE LA FOTO: MIS RESERVAS --}}
         <section class="seccion-blanca">
             <div class="seccion-header">
-                <h3>Mis Reservas Actuales</h3>
+                <h3>Mis Reservas ({{ $user->clases->count() }})</h3>
             </div>
+            
             <div class="lista-reservas">
-                @forelse($user->clases as $reserva)
-                    <div class="reserva-card">
+                @forelse($user->clases as $clase)
+                    <div class="reserva-card" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee;">
                         <div class="reserva-info">
-                            <h4>{{ $reserva->nombre }}</h4>
-                            <p>{{ $reserva->dia_semana }} | {{ substr($reserva->hora_inicio, 0, 5) }} h | {{ $reserva->sala }}</p>
+                            <h4 style="margin: 0; color: #0A1931;">{{ $clase->nombre }} ({{ $clase->sala }})</h4>
+                            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem;">
+                                {{ $clase->dia_semana }} | {{ substr($clase->hora_inicio, 0, 5) }} h
+                            </p>
                         </div>
-                        <span class="status-badge confirmado">✓ Confirmada</span>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <span class="status-badge confirmado" style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 15px; font-size: 0.75rem; font-weight: bold;">
+                                ✓ Confirmada
+                            </span>
+                            
+                            {{-- Formulario para que el botón de cancelar funcione de verdad --}}
+                            <form action="{{ route('clase.cancelar', $clase->id) }}" method="POST" onsubmit="return confirm('¿Quieres cancelar esta reserva?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" style="color: #ef4444; background: none; border: none; font-weight: bold; cursor: pointer; text-decoration: underline; font-size: 0.85rem;">
+                                    Cancelar
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 @empty
-                    <div style="text-align: center; padding: 20px;">
-                        <p style="color: #64748b; margin-bottom: 15px;">Aún no tienes clases reservadas para esta semana.</p>
-                        <a href="{{ route('agenda') }}" class="btn-reg" style="text-decoration: none; display: inline-block;">Ver Agenda</a>
+                    <div style="text-align: center; padding: 30px;">
+                        <p style="color: #64748b;">No tienes reservas para esta semana.</p>
+                        <a href="{{ route('agenda') }}" style="color: #1A3878; font-weight: bold;">Ver horario de clases</a>
                     </div>
                 @endforelse
             </div>
             @if($user->clases->count() > 0)
-                <a href="#" class="enlace-ver-mas">Ver historial de clases</a>
+                <a href="{{ route('mis.reservas') }}" class="enlace-ver-mas">Ver todas mis reservas</a>
             @endif
         </section>
     </main>

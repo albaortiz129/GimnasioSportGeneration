@@ -51,7 +51,11 @@ Route::middleware(['auth'])->group(function () {
         $user = Auth::user()->load('clases'); 
         return view('usuario.perfil', compact('user'));
     })->name('perfil');
-    
+    Route::get('/mis-reservas', function () {
+        $user = Auth::user()->load('clases');
+        return view('usuario.mis-reservas', compact('user'));
+    })->name('mis.reservas');
+    Route::delete('/reservar/{id}', [ReservaController::class, 'cancelar'])->name('clase.cancelar');
     Route::post('/reservar/{id}', [ReservaController::class, 'reservar'])->name('clase.reservar');
 });
 
