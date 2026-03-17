@@ -6,7 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\ValoracionController;
-
+use App\Http\Controllers\PagoController;
 
 // --- INICIO ---
 Route::get('/', function () {
@@ -23,7 +23,6 @@ Route::get('/contacto', function () {
 })->name('contacto');
 
 // --- SERVICIOS Y AGENDA ---
-// Una sola definición para cada una vinculada al controlador
 Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios');
 Route::get('/agenda', [ServicioController::class, 'agenda'])->name('agenda');
 
@@ -31,6 +30,7 @@ Route::get('/agenda', [ServicioController::class, 'agenda'])->name('agenda');
 Route::get('/valoracion', function () {
     return view('servicios.valoracion');
 })->name('valoracion');
+Route::post('/valoracion', [ValoracionController::class, 'enviar'])->name('valoracion.enviar');
 
 // --- REGISTRO Y LOGIN ---
 Route::get('/registro', function () {
@@ -44,21 +44,34 @@ Route::get('/login', function () {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// --- RESERVAS Y PERFIL (Protegidos) ---
+
+// =======================================================
+// --- ZONA PRIVADA DEL SOCIO (Requiere iniciar sesión) ---
+// =======================================================
 Route::middleware(['auth'])->group(function () {
+    
+    // 1. Panel Principal (Perfil)
     Route::get('/perfil', function () {
-        // Obtenemos al usuario con sus clases reservadas
         $user = Auth::user()->load('clases'); 
         return view('usuario.perfil', compact('user'));
     })->name('perfil');
+
+    // 2. Gestión de Reservas
     Route::get('/mis-reservas', function () {
         $user = Auth::user()->load('clases');
         return view('usuario.mis-reservas', compact('user'));
     })->name('mis.reservas');
-    Route::delete('/reservar/{id}', [ReservaController::class, 'cancelar'])->name('clase.cancelar');
     Route::post('/reservar/{id}', [ReservaController::class, 'reservar'])->name('clase.reservar');
+    Route::delete('/reservar/{id}', [ReservaController::class, 'cancelar'])->name('clase.cancelar');
+
+    // 3. Gestión de Pago y Facturación
+    Route::get('/gestion-pago', [PagoController::class, 'index'])->name('pago.gestion');
+    Route::post('/plan/cancelar', [PagoController::class, 'cancelarPlan'])->name('plan.cancelar');
+    Route::get('/factura/descargar/{id}', [PagoController::class, 'descargarFactura'])->name('factura.descargar');
+    
+    // 4. Gestión de Tarjetas / Métodos de Pago
+    Route::get('/pago/nuevo', [PagoController::class, 'nuevoMetodo'])->name('pago.nuevo');
+    Route::post('/pago/principal', [PagoController::class, 'establecerPrincipal'])->name('pago.principal');
+    Route::delete('/pago/eliminar', [PagoController::class, 'eliminarMetodo'])->name('pago.eliminar');
+
 });
-
-
-// Esta ruta es la que procesará el botón de valoracion
-Route::post('/valoracion', [ValoracionController::class, 'enviar'])->name('valoracion.enviar');
