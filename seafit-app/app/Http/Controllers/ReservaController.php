@@ -47,6 +47,6 @@ class ReservaController extends Controller
         // DEVOLVER LA PLAZA: Sumamos 1 a la capacidad máxima
         $clase->increment('capacidad_max');
 
-        return back()->with('success', 'Reserva cancelada. Se ha liberado una plaza.');
+        return back()->with('success', 'Plaza liberada correctamente.');
     }
 }

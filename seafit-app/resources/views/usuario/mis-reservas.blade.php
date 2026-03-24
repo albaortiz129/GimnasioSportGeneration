@@ -3,103 +3,101 @@
 @section('titulo', 'Mis Reservas - SeaFit')
 
 @section('contenido')
-    <div class="main-container-perfil">
+    <div class="flex flex-col md:flex-row min-h-screen bg-[#f8fafc] font-sans">
+        
         {{-- BARRA LATERAL --}}
-        <aside class="sidebar-perfil">
-            <h2 class="sidebar-titulo">Panel de Socio</h2>
-            <nav class="sidebar-nav">
-                <a href="{{ route('perfil') }}" class="nav-item">
+        <aside class="w-full md:w-[280px] md:min-w-[280px] bg-white p-6 md:p-8 border-b md:border-b-0 md:border-r border-gray-200">
+            <h2 class="text-xl font-extrabold text-[#0A1931] mb-8">Panel de Socio</h2>
+            <nav class="flex flex-col gap-2">
+                <a href="{{ route('perfil') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
                     <span class="material-symbols-outlined">person</span> Mi Perfil
                 </a>
-                <a href="{{ route('mis.reservas') }}" class="nav-item active">
+                {{-- Link Activo --}}
+                <a href="{{ route('mis.reservas') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors bg-[#e6f3ff] text-[#1A3878]">
                     <span class="material-symbols-outlined">calendar_month</span> Mis Reservas
                 </a>
-                <a href="{{ route('pago.gestion') }}" class="nav-item">
+                <a href="{{ route('pago.gestion') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
                     <span class="material-symbols-outlined">payments</span> Gestión de Pago
                 </a>
-                <a href="{{ route('configuracion') }}" class="nav-item">
+                <a href="{{ route('configuracion') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
                     <span class="material-symbols-outlined">settings</span> Configuración
                 </a>
             </nav>
         </aside>
 
         {{-- CONTENIDO PRINCIPAL --}}
-        <main class="content-perfil">
-            {{-- Bloque de Alertas de Éxito o Info --}}
+        <main class="flex-1 p-6 md:p-10 lg:p-12 max-w-[1000px]">
+            
+            {{-- Bloque de Alertas de Éxito --}}
             @if(session('success'))
-                <div
-                    style="background-color: #dcfce7; color: #166534; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #bbf7d0; display: flex; align-items: center; gap: 10px;">
+                <div class="bg-green-100 text-green-800 p-4 rounded-xl mb-6 border border-green-200 font-medium flex items-center gap-3">
                     <span class="material-symbols-outlined">check_circle</span>
                     <strong>{{ session('success') }}</strong>
                 </div>
             @endif
 
-            <header class="header-bienvenida">
-                <h1>Mis Reservas</h1>
-                <p>Aquí puedes ver y gestionar tus próximas clases y sesiones reservadas.</p>
+            <header class="mb-8">
+                <h1 class="text-3xl md:text-4xl font-black text-[#0A1931] mb-2">Mis Reservas</h1>
+                <p class="text-gray-500 text-[15px]">Aquí puedes ver y gestionar tus próximas clases y sesiones reservadas.</p>
             </header>
 
-            <section class="seccion-blanca">
-                <div class="seccion-header">
-                    <h3>Próximas Clases ({{ $user->clases->count() }})</h3>
+            {{-- PRÓXIMAS CLASES --}}
+            <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-[#0A1931]">Próximas Clases ({{ $user->clases->count() }})</h3>
                 </div>
 
-                <div class="lista-reservas">
+                <div class="flex flex-col gap-4">
                     @forelse($user->clases as $clase)
-                        <div class="reserva-card"
-                            style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border: 1px solid #e2e8f0; border-radius: 15px; margin-bottom: 15px;">
-                            <div class="reserva-info">
-                                <h4 style="font-size: 1.1rem; color: #0A1931; margin: 0;">{{ $clase->nombre }}
-                                    ({{ $clase->sala }})</h4>
-                                <p style="color: #64748b; margin: 5px 0 0 0;">{{ $clase->dia_semana }} |
-                                    {{ substr($clase->hora_inicio, 0, 5) }} h
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 bg-white border border-gray-200 rounded-xl gap-4 shadow-sm hover:shadow-md transition-shadow">
+                            
+                            <div>
+                                <h4 class="m-0 font-bold text-[#0A1931] text-lg">{{ $clase->nombre }} ({{ $clase->sala }})</h4>
+                                <p class="m-0 mt-1 text-sm text-gray-500 font-medium">
+                                    {{ $clase->dia_semana }} | {{ substr($clase->hora_inicio, 0, 5) }} h
                                 </p>
                             </div>
 
-                            <div style="display: flex; gap: 20px; align-items: center;">
-                                <span class="status-badge confirmado"
-                                    style="background: #dcfce7; color: #166534; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">
+                            <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-gray-100 pt-4 sm:pt-0 mt-2 sm:mt-0">
+                                <span class="bg-green-100 text-green-800 px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
                                     ✓ Confirmada
                                 </span>
 
-                                {{-- FORMULARIO DE CANCELACIÓN REAL --}}
-                                <form action="{{ route('clase.cancelar', $clase->id) }}" method="POST"
-                                    onsubmit="return confirm('¿Seguro que quieres cancelar tu plaza en {{ $clase->nombre }}?')">
+                                <form action="{{ route('clase.cancelar', $clase->id) }}" method="POST" onsubmit="return confirm('¿Seguro que quieres cancelar tu plaza en {{ $clase->nombre }}?')" class="m-0">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit"
-                                        style="background: none; border: none; color: #ef4444; font-size: 0.85rem; font-weight: 700; text-decoration: underline; cursor: pointer; padding: 0;">
+                                    <button type="submit" class="text-red-500 bg-transparent border-none font-bold text-sm underline cursor-pointer hover:text-red-700 transition-colors">
                                         Cancelar
                                     </button>
                                 </form>
                             </div>
                         </div>
                     @empty
-                        <div style="text-align: center; padding: 40px;">
-                            <p style="color: #64748b;">No tienes clases reservadas actualmente.</p>
-                            <a href="{{ route('agenda') }}" class="btn-reg"
-                                style="display: inline-block; margin-top: 15px; text-decoration: none; background-color: #1A3878; color: white; padding: 10px 20px; border-radius: 8px;">Ir
-                                a la Agenda</a>
+                        <div class="text-center py-10 px-5 border-2 border-dashed border-gray-200 rounded-xl">
+                            <p class="text-gray-500 mb-4">No tienes clases reservadas actualmente.</p>
+                            <a href="{{ route('agenda') }}" class="inline-block bg-[#1A3878] text-white py-2.5 px-6 rounded-lg font-bold transition-transform hover:scale-105 shadow-md">
+                                Ir a la Agenda
+                            </a>
                         </div>
                     @endforelse
                 </div>
             </section>
 
             {{-- SECCIÓN DE HISTORIAL --}}
-            <section class="seccion-blanca" style="opacity: 0.6;">
-                <div class="seccion-header">
-                    <h3>Reservas Anteriores</h3>
+            <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100 opacity-60 hover:opacity-100 transition-opacity duration-300">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-[#0A1931]">Reservas Anteriores</h3>
                 </div>
-                <div class="reserva-card"
-                    style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px;">
-                    <div class="reserva-info">
-                        <h4 style="color: #475569; margin: 0;">Spinning Avanzado</h4>
-                        <p style="margin: 5px 0 0 0;">24 Nov | 10:30 h</p>
+                
+                <div class="bg-[#f1f5f9] border border-gray-200 p-5 rounded-xl flex justify-between items-center">
+                    <div>
+                        <h4 class="m-0 text-gray-700 font-bold">Spinning Avanzado</h4>
+                        <p class="m-0 mt-1 text-sm text-gray-500">24 Nov | 10:30 h</p>
                     </div>
-                    <span
-                        style="color: #64748b; font-size: 0.8rem; font-weight: bold; float: right; margin-top: -25px;">Finalizada</span>
+                    <span class="text-gray-500 text-xs font-bold uppercase tracking-wider">Finalizada</span>
                 </div>
             </section>
+            
         </main>
     </div>
 @endsection

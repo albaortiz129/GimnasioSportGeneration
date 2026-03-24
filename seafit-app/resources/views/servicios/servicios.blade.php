@@ -14,171 +14,217 @@
                 <h1 class="text-gray-900 text-4xl lg:text-5xl font-black leading-tight tracking-tighter">
                     Descubre la Oferta Completa de SeaFit
                 </h1>
-                <p class="text-lg mt-3 max-w-3xl mx-auto">
+                <p class="text-lg mt-3 max-w-3xl mx-auto px-4">
                     Selecciona el camino que mejor se adapta a tus objetivos: entrenamientos grupales, soporte personal o acceso ilimitado.
                 </p>
             </div>
 
-            <div class="layout-content-container flex flex-col w-full max-w-6xl flex-1 gap-16 px-4 py-16 lg:py-24">
+            <div class="layout-content-container flex flex-col w-full max-w-7xl flex-1 gap-16 px-4 py-16 lg:py-24">
 
-                {{-- SECCIÓN CLASES COLECTIVAS --}}
-                <section id="clases" class="grid grid-cols-1 lg:grid-cols-2 gap-12 p-10 rounded-3xl bg-white border border-gray-100 shadow-2xl transition-all hover:shadow-gray-200">
-                    <div class="flex flex-col gap-6">
+                {{-- MENSAJES DE ÉXITO O ERROR --}}
+                @if(session('success'))
+                    <div class="bg-green-100 text-green-800 p-4 rounded-2xl border border-green-200 font-bold text-center animate-bounce">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                {{-- SECCIÓN CLASES COLECTIVAS (CALENDARIO VISUAL) --}}
+                <section id="clases" class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-8 p-6 lg:p-10 rounded-[3rem] bg-white border border-gray-100 shadow-2xl transition-all">
+                    
+                    {{-- Texto descriptivo (Izquierda) --}}
+                    <div class="flex flex-col gap-6 justify-center">
                         <div class="w-14 h-14 rounded-full flex items-center justify-center bg-[#1A3878]/10">
                             <span class="material-symbols-outlined text-4xl text-[#1A3878]">groups</span>
                         </div>
-                        <h2 class="text-gray-900 text-4xl font-black tracking-tight">Clases Colectivas</h2>
+                        <h2 class="text-gray-900 text-4xl font-black tracking-tight italic">Clases Colectivas</h2>
                         <p class="text-gray-600 text-lg leading-relaxed">
-                            Disfruta de la energía del grupo y entrena con expertos en distintas disciplinas. Tenemos clases para todos los niveles y objetivos.
+                            Reserva tu plaza de forma visual en nuestro calendario interactivo. Cambia de día para ver toda la oferta semanal.
                         </p>
-                        <ul class="space-y-3 text-gray-700">
-                            <li class="flex items-center gap-3">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#1A3878]"></span> Yoga & Meditación: Encuentra tu equilibrio.
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#1A3878]"></span> Pilates & Core: Fortalece tu centro.
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#1A3878]"></span> Spinning & Cardio: Quema calorías al máximo.
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#1A3878]"></span> Zumba & Baile: Diviértete en movimiento.
-                            </li>
-                        </ul>
+                        
+                        <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 space-y-4">
+                            <h4 class="font-black text-[#0A1931] uppercase text-sm tracking-widest">Leyenda</h4>
+                            <div class="flex items-center gap-3 text-sm font-bold text-gray-500">
+                                <span class="w-4 h-4 rounded-full bg-[#a3e635] shadow-sm"></span> Disponible
+                            </div>
+                            <div class="flex items-center gap-3 text-sm font-bold text-gray-500">
+                                <span class="w-4 h-4 rounded-full bg-[#1A3878] shadow-sm"></span> Tu Reserva
+                            </div>
+                            <div class="flex items-center gap-3 text-sm font-bold text-gray-500">
+                                <span class="w-4 h-4 rounded-full bg-gray-200 shadow-sm"></span> Clase Llena
+                            </div>
+                        </div>
+
                         <button onclick="window.location.href='{{ route('agenda') }}'"
-                            class="flex w-fit min-w-[180px] items-center justify-center rounded-xl h-14 px-8 bg-[#1A3878] text-white text-lg font-bold hover:bg-[#0A1931] transition-all shadow-lg hover:shadow-[#1A3878]/30 mt-4">
+                            class="flex w-fit items-center justify-center rounded-2xl h-14 px-8 bg-[#1A3878] text-white text-lg font-bold hover:bg-[#0A1931] transition-all shadow-lg mt-4 uppercase tracking-tighter">
                             Ver Agenda Completa
                         </button>
                     </div>
 
-                    {{-- LISTADO DINÁMICO --}}
-                    <div class="bg-[#F8F9FA] p-8 rounded-3xl border border-gray-200 shadow-inner max-h-[550px] overflow-y-auto">
-                        <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-                            <h3 class="text-gray-900 font-extrabold text-2xl uppercase">Clases del {{ request('dia', 'Lunes') }}</h3>
-                            <span class="text-gray-500 font-medium text-base">{{ now()->translatedFormat('d M') }}</span>
-                        </div>
-
-                        {{-- Selector de días Funcional --}}
-                        <div class="flex gap-3 overflow-x-auto pb-6 mb-2">
+                    {{-- CALENDARIO TIPO GOOGLE CALENDAR (Derecha) --}}
+                    <div class="bg-[#F8F9FA] rounded-[2.5rem] border border-gray-200 shadow-inner overflow-hidden flex flex-col h-[750px]">
+                        {{-- Selector de días mejorado --}}
+                        <div class="p-4 bg-white border-b border-gray-200 flex gap-2 overflow-x-auto no-scrollbar">
                             @php 
-                                $diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']; 
+                                $diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']; 
                                 $diaActivo = request('dia', 'Lunes');
                             @endphp
                             @foreach($diasSemana as $dia)
                                 <a href="{{ route('servicios', ['dia' => $dia]) }}#clases"
-                                    class="flex-shrink-0 text-sm font-bold px-6 py-2 rounded-full transition-all 
-                                    {{ $diaActivo == $dia ? 'bg-[#1A3878] text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100' }}">
+                                    class="flex-shrink-0 text-xs font-black px-6 py-2.5 rounded-full transition-all uppercase tracking-widest
+                                    {{ $diaActivo == $dia ? 'bg-[#1A3878] text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-400 hover:bg-gray-200' }}">
                                     {{ $dia }}
                                 </a>
                             @endforeach
                         </div>
 
-                        <div class="space-y-4">
-                            @forelse($clases as $clase)
-                                @php 
-                                    $estaCompleto = $clase->capacidad_max <= 0;
-                                    $yaReservado = Auth::check() && Auth::user()->clases && Auth::user()->clases->contains($clase->id);
-                                @endphp
-
-                                <div class="flex items-center justify-between p-5 rounded-2xl border {{ $estaCompleto ? 'border-red-200 bg-red-50/50' : 'border-white bg-white shadow-sm' }} hover:shadow-md transition-all">
-                                    <div class="flex-1 text-left">
-                                        <p class="font-black text-gray-900 text-lg">
-                                            {{ substr($clase->hora_inicio, 0, 5) }}h - {{ \Carbon\Carbon::parse($clase->hora_inicio)->addHour()->format('H:i') }}h
-                                        </p>
-                                        <p class="{{ $estaCompleto ? 'text-red-600' : 'text-[#1A3878]' }} font-bold text-xl uppercase tracking-tight">
-                                            {{ $clase->nombre }} {{ $estaCompleto ? '(COMPLETO)' : '' }}
-                                        </p>
-                                        <p class="text-sm font-medium {{ $estaCompleto ? 'text-red-400' : 'text-gray-500' }}">
-                                            {{ $clase->sala }} | Aforo: {{ $estaCompleto ? 'Lleno' : $clase->capacidad_max . ' plazas' }}
-                                        </p>
+                        {{-- Rejilla de Tiempo --}}
+                        <div class="flex-1 overflow-y-auto relative grid grid-cols-[80px_1fr] bg-white scroll-smooth" id="calendar-body">
+                            {{-- Columna de Horas --}}
+                            <div class="bg-gray-50/50 border-r border-gray-100">
+                                @for($h = 8; $h <= 21; $h++)
+                                    <div class="h-[100px] border-b border-gray-100/50 text-[11px] font-black text-gray-400 flex items-start justify-center pt-3">
+                                        {{ str_pad($h, 2, '0', STR_PAD_LEFT) }}:00
                                     </div>
+                                @endfor
+                            </div>
 
-                                    @if($yaReservado)
-                                        <button class="bg-[#00AEEF] text-white text-xs font-bold px-4 py-3 rounded-xl cursor-default" style="min-width: 140px;">
-                                            Reservado
-                                        </button>
-                                    @elseif($estaCompleto)
-                                        <button class="bg-red-300 text-white text-sm font-bold px-6 py-3 rounded-xl cursor-not-allowed opacity-80" disabled>
-                                            Agotado
-                                        </button>
-                                    @else
-                                        <form action="{{ route('clase.reservar', $clase->id) }}" method="POST" class="form-reserva">
-                                            @csrf
-                                            <button type="button" class="btn-reserva-confirmar bg-[#1A3878] text-white text-sm font-bold px-6 py-3 rounded-xl hover:bg-[#00AEEF] transition-all" style="min-width: 120px;">
-                                                Reservar
-                                            </button>
-                                        </form>
-                                    @endif
-                                </div>
-                            @empty
-                                <div class="text-center py-10">
-                                    <p class="text-gray-400 font-bold">No hay clases para este día.</p>
-                                </div>
-                            @endforelse
+                            {{-- Área de Clases con líneas de fondo --}}
+                            <div class="relative min-h-[1400px] bg-[linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:100%_100px]">
+                                @forelse($clases as $clase)
+                                    @php 
+                                        $hora = (int)substr($clase->hora_inicio, 0, 2);
+                                        $minutos = (int)substr($clase->hora_inicio, 3, 2);
+                                        $top = ($hora - 8) * 100 + ($minutos * 100 / 60);
+                                        
+                                        $yaReservado = Auth::check() && Auth::user()->clases->contains($clase->id);
+                                        $estaCompleto = $clase->capacidad_max <= 0;
+                                    @endphp
+
+                                    {{-- CARD DE CLASE DINÁMICA --}}
+                                    <div class="absolute left-4 right-4 rounded-3xl p-5 border-l-[8px] shadow-sm transition-all group overflow-hidden
+                                        {{ $yaReservado ? 'bg-[#e6f3ff] border-[#1A3878] ring-1 ring-inset ring-blue-200' : ($estaCompleto ? 'bg-gray-100 border-gray-400' : 'bg-white border-[#a3e635] hover:shadow-xl hover:-translate-y-0.5 border shadow-sm') }}"
+                                        style="top: {{ $top }}px; height: 95px;">
+                                        
+                                        <div class="flex justify-between items-center h-full">
+                                            <div>
+                                                <div class="flex items-center gap-2 mb-1">
+                                                    <span class="text-[11px] font-black uppercase {{ $yaReservado ? 'text-[#1A3878]' : 'text-gray-400' }}">
+                                                        {{ substr($clase->hora_inicio, 0, 5) }}h - {{ \Carbon\Carbon::parse($clase->hora_inicio)->addHour()->format('H:i') }}h
+                                                    </span>
+                                                </div>
+                                                <h4 class="font-black text-lg text-gray-900 leading-tight uppercase tracking-tighter">{{ $clase->nombre }}</h4>
+                                                <p class="text-[11px] font-bold text-gray-500 uppercase italic">{{ $clase->sala }} · con {{ $clase->instructor }}</p>
+                                            </div>
+
+                                            {{-- Acciones con Confirmación --}}
+                                            <div class="flex items-center">
+                                                @if($yaReservado)
+                                                    {{-- Estado Reservado: Muestra check, en Hover muestra Cancelar --}}
+                                                    <div class="flex items-center">
+                                                        <div class="group-hover:hidden bg-[#1A3878] text-white flex items-center gap-1.5 px-4 py-2 rounded-2xl text-[10px] font-black">
+                                                            <span class="material-symbols-outlined text-sm">check_circle</span> RESERVADO
+                                                        </div>
+                                                        <form action="{{ route('clase.cancelar', $clase->id) }}" method="POST" class="hidden group-hover:block transition-all"
+                                                              onsubmit="return confirm('¿Seguro que quieres CANCELAR tu reserva en {{ $clase->nombre }}?')">
+                                                            @csrf @method('DELETE')
+                                                            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-2xl text-[10px] font-black shadow-lg shadow-red-200 hover:bg-red-600">
+                                                                CANCELAR PLAZA
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                @elseif($estaCompleto)
+                                                    <span class="bg-gray-200 text-gray-400 px-4 py-2 rounded-2xl text-[10px] font-black uppercase">Lleno</span>
+                                                @else
+                                                    {{-- Botón Reservar con Confirmación --}}
+                                                    <form action="{{ route('clase.reservar', $clase->id) }}" method="POST"
+                                                          onsubmit="return confirm('¿Confirmas tu reserva para {{ $clase->nombre }} a las {{ substr($clase->hora_inicio, 0, 5) }}h?')">
+                                                        @csrf
+                                                        <button type="submit" class="bg-[#0A1931] text-white px-6 py-2.5 rounded-2xl text-[10px] font-black hover:bg-[#1A3878] hover:scale-105 transition-all shadow-md">
+                                                            RESERVAR
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="flex flex-col items-center justify-center h-[300px] text-gray-300">
+                                        <span class="material-symbols-outlined text-5xl mb-2">event_busy</span>
+                                        <p class="italic font-bold">No hay clases programadas</p>
+                                    </div>
+                                @endforelse
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 {{-- SECCIÓN ENTRENADOR PERSONAL --}}
-                <section id="entrenador" class="grid grid-cols-1 lg:grid-cols-2 gap-12 p-8 rounded-xl bg-[#F4F4F4] border border-gray-200 shadow-lg">
-                    <div class="rounded-xl overflow-hidden shadow-lg h-full min-h-[300px] bg-gray-300"
-                        style="background-image: url('{{ asset('imagenes/imagenEntrenador.jpg') }}'); background-size: cover;">
+                <section id="entrenador" class="grid grid-cols-1 lg:grid-cols-2 gap-12 p-8 lg:p-12 rounded-[2.5rem] bg-[#F4F4F4] border border-gray-200 shadow-lg">
+                    <div class="rounded-[2rem] overflow-hidden shadow-2xl h-full min-h-[350px] bg-gray-300 relative group">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all"></div>
+                        <img src="{{ asset('imagenes/imagenEntrenador.jpg') }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Entrenador">
                     </div>
-                    <div class="flex flex-col gap-4 text-left">
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-[#1A3878]/10">
-                            <span class="material-symbols-outlined text-3xl text-[#1A3878]">fitness_center</span>
+                    <div class="flex flex-col gap-6 justify-center text-left">
+                        <div class="w-16 h-16 rounded-3xl flex items-center justify-center bg-[#1A3878] text-white rotate-3">
+                            <span class="material-symbols-outlined text-4xl">fitness_center</span>
                         </div>
-                        <h2 class="text-gray-900 text-3xl font-black">Entrenador Personal</h2>
-                        <p class="text-lg">Planes 100% adaptados a tus metas monitorizando tu progreso.</p>
-{{-- Busca este botón cerca de la línea 106 de tu archivo servicios --}}
-<button onclick="window.location.href='{{ route('valoracion') }}'" 
-    class="flex w-fit min-w-[200px] items-center justify-center rounded-lg h-12 px-6 bg-[#1A3878] text-white font-bold mt-4">
-    Solicitar Sesión de Valoración
-</button>
+                        <h2 class="text-gray-900 text-4xl font-black italic tracking-tighter">Entrenador Personal</h2>
+                        <p class="text-lg text-gray-600 leading-relaxed">
+                            Lleva tu físico al siguiente nivel con planes 100% personalizados. Evaluación mensual de grasa corporal, masa muscular y rendimiento.
+                        </p>
+                        <button onclick="window.location.href='{{ route('valoracion') }}'" 
+                            class="flex w-fit min-w-[240px] items-center justify-center rounded-2xl h-14 px-8 bg-[#1A3878] text-white font-black text-lg hover:bg-[#0A1931] shadow-xl hover:shadow-[#1A3878]/40 transition-all uppercase tracking-widest">
+                            Solicitar Valoración
+                        </button>
                     </div>
                 </section>
 
                 {{-- SECCIÓN MEMBRESÍA --}}
-                <section id="membresia" class="p-8 rounded-xl bg-white border border-gray-200 shadow-lg text-center">
-                    <div class="flex flex-col gap-4 items-center">
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-[#1A3878]/10">
-                            <span class="material-symbols-outlined text-3xl text-[#1A3878]">pool</span>
+                <section id="membresia" class="p-10 lg:p-16 rounded-[3rem] bg-[#0A1931] text-white shadow-2xl text-center relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32"></div>
+                    <div class="relative z-10 flex flex-col gap-6 items-center">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center bg-white/10">
+                            <span class="material-symbols-outlined text-4xl text-[#a3e635]">workspace_premium</span>
                         </div>
-                        <h2 class="text-gray-900 text-3xl font-black">Acceso Total (Membresía)</h2>
-                        <p class="text-lg max-w-4xl mx-auto">Tu llave a todas nuestras instalaciones. Disfruta sin restricciones del gimnasio, la piscina y zonas relax.</p>
+                        <h2 class="text-5xl font-black italic tracking-tighter">Acceso Total SeaFit</h2>
+                        <p class="text-xl text-gray-300 max-w-3xl mx-auto font-medium">
+                            Olvídate de las restricciones. Tu membresía te da acceso ilimitado a la sala de máquinas, clases de natación y spa.
+                        </p>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
-                        <div class="p-4 rounded-lg bg-[#F4F4F4] border border-gray-200">
-                            <span class="material-symbols-outlined text-4xl text-[#1A3878]">fitness_center</span>
-                            <h4 class="font-bold text-gray-900 mt-2">Gimnasio y Cardio</h4>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12 relative z-10">
+                        <div class="p-8 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all">
+                            <span class="material-symbols-outlined text-5xl text-[#a3e635]">bolt</span>
+                            <h4 class="font-black text-xl mt-4 uppercase tracking-tighter">Gimnasio 24/7</h4>
                         </div>
-                        <div class="p-4 rounded-lg bg-[#F4F4F4] border border-gray-200">
-                            <span class="material-symbols-outlined text-4xl text-[#1A3878]">pool</span>
-                            <h4 class="font-bold text-gray-900 mt-2">Piscina Climatizada</h4>
+                        <div class="p-8 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all">
+                            <span class="material-symbols-outlined text-5xl text-[#a3e635]">waves</span>
+                            <h4 class="font-black text-xl mt-4 uppercase tracking-tighter">Piscina y Spa</h4>
                         </div>
-                        <div class="p-4 rounded-lg bg-[#F4F4F4] border border-gray-200">
-                            <span class="material-symbols-outlined text-4xl text-[#1A3878]">sauna</span>
-                            <h4 class="font-bold text-gray-900 mt-2">Zonas Wellness</h4>
+                        <div class="p-8 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all">
+                            <span class="material-symbols-outlined text-5xl text-[#a3e635]">self_improvement</span>
+                            <h4 class="font-black text-xl mt-4 uppercase tracking-tighter">Zonas Relax</h4>
                         </div>
                     </div>
-                    <button class="mt-8 min-w-[250px] h-12 px-6 bg-[#1A3878] text-white font-bold rounded-lg" onclick="window.location.href='{{ url('/tarifas') }}'">
-                        Ver Planes y Precios de Membresía
+
+                    <button class="mt-12 min-w-[300px] h-16 px-10 bg-[#a3e635] text-[#0A1931] font-black rounded-2xl text-xl hover:scale-105 transition-all shadow-2xl uppercase tracking-tighter" 
+                            onclick="window.location.href='{{ url('/tarifas') }}'">
+                        Ver Planes de Precios
                     </button>
                 </section>
             </div>
         </main>
     </div>
 
-    <script>
-        document.querySelectorAll('.btn-reserva-confirmar').forEach(button => {
-            button.addEventListener('click', function() {
-                if (this.textContent.trim() === 'Reservar') {
-                    this.textContent = 'Confirmar Reserva';
-                    this.classList.replace('bg-[#1A3878]', 'bg-[#E11D48]'); 
-                } else {
-                    this.closest('form').submit();
-                }
-            });
-        });
-    </script>
+    <style>
+        .font-display { font-family: 'Lexend', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Estilo sutil de puntos para el fondo del calendario */
+        #calendar-body {
+            background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+        }
+    </style>
 @endsection

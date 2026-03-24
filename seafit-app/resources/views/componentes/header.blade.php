@@ -1,42 +1,61 @@
-<header class="site-header">
-    <div class="container">
-        <div class="left-side">
-            <a href="{{ url('/') }}" class="logo">
-                <img src="{{ asset('imagenes/Logo transparente.png') }}" alt="Sea Fit">
+<header class="w-full bg-white shadow-sm">
+    <div class="flex justify-between items-center max-w-[1200px] mx-auto py-[10px] px-5">
+
+        {{-- Lado Izquierdo: Logo --}}
+        {{-- Le ponemos flex-1 para que empuje al centro exactamente igual que el lado derecho --}}
+        <div class="flex-1">
+            <a href="{{ url('/') }}" class="block">
+                <img src="{{ asset('imagenes/Logo transparente.png') }}" alt="Sea Fit" class="h-[55px] block">
             </a>
         </div>
 
-        <div class="center">
-            <nav class="nav-links">
-                <a href="{{ url('/') }}" class="{{ Request::is('/') ? 'active' : '' }}">Inicio</a>
-                <a href="{{ url('/servicios') }}" class="{{ Request::is('servicios') ? 'active' : '' }}">Servicios</a>
-                <a href="{{ url('/tarifas') }}" class="{{ Request::is('tarifas') ? 'active' : '' }}">Tarifas</a>
+        {{-- Centro: Navegación --}}
+        <div class="flex justify-center flex-[2]">
+            <nav class="flex gap-[25px]">
+                <a href="{{ url('/') }}"
+                    class="{{ Request::is('/') ? 'text-[#1A3878] font-bold' : 'text-gray-600 font-medium hover:text-[#1A3878] transition-colors duration-300' }}">Inicio</a>
+                <a href="{{ url('/servicios') }}"
+                    class="{{ Request::is('servicios') ? 'text-[#1A3878] font-bold' : 'text-gray-600 font-medium hover:text-[#1A3878] transition-colors duration-300' }}">Servicios</a>
+                <a href="{{ url('/tarifas') }}"
+                    class="{{ Request::is('tarifas') ? 'text-[#1A3878] font-bold' : 'text-gray-600 font-medium hover:text-[#1A3878] transition-colors duration-300' }}">Tarifas</a>
             </nav>
         </div>
 
-        <div class="right-group">
+        {{-- Lado Derecho: Botones --}}
+        <div class="flex items-center justify-end flex-1">
             @guest
-                {{-- Esto solo se muestra si NO están logueados --}}
-                <a href="{{ url('/registro') }}" class="btn-reg">Regístrate</a>
-                <a href="{{ url('/login') }}" class="btn-login">Iniciar Sesión</a>
+                {{-- Botones unidos (Regístrate e Iniciar Sesión) --}}
+                <div class="flex">
+                    <a href="{{ url('/registro') }}"
+                        class="bg-[#1A3878] text-white py-2 px-5 border-2 border-[#1A3878] rounded-l-xl font-bold text-sm">
+                        Regístrate
+                    </a>
+                    <a href="{{ url('/login') }}"
+                        class="bg-transparent text-[#1A3878] py-2 px-5 border-2 border-[#1A3878] border-l-0 rounded-r-xl font-bold text-sm transition-colors duration-300 hover:bg-gray-50">
+                        Iniciar Sesión
+                    </a>
+                </div>
             @endguest
 
             @auth
-                {{-- Esto solo se muestra si están logueados --}}
-                <div class="user-logged-nav" style="display: flex; align-items: center; gap: 20px;">
-                    <a href="{{ url('/perfil') }}" class="user-profile-link" style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: #0A1931; font-weight: 600;">
+                {{-- Panel de usuario logueado --}}
+                <div class="flex items-center gap-5">
+                    <a href="{{ url('/perfil') }}"
+                        class="flex items-center gap-1 text-[#0A1931] font-semibold text-base hover:text-[#1A3878] transition-colors">
                         <span class="material-symbols-outlined">account_circle</span>
                         Mi Perfil
                     </a>
-                    
-                    <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
+
+                    <form action="{{ route('logout') }}" method="POST" class="m-0">
                         @csrf
-                        <button type="submit" class="btn-logout" style="background-color: #0A1931; color: white; padding: 8px 18px; border-radius: 25px; border: none; font-weight: 700; cursor: pointer; font-size: 0.9rem;">
+                        <button type="submit"
+                            class="bg-[#0A1931] text-white py-2 px-[18px] rounded-full font-bold text-sm transition-colors hover:bg-[#1A3878]">
                             Cerrar sesión
                         </button>
                     </form>
                 </div>
             @endauth
         </div>
+
     </div>
 </header>

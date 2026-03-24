@@ -1,132 +1,129 @@
 @extends('moldes.inicio')
 
-@section('titulo', 'Agenda Semanal de Clases - SeaFit')
+@section('titulo', 'Agenda Pro - SeaFit')
 
 @section('contenido')
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;900&display=swap" rel="stylesheet" />
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+<div class="bg-[#F8F8F8] min-h-screen py-10 font-sans">
+    <div class="container mx-auto max-w-6xl px-4">
+        
+        <header class="text-center mb-10">
+            <h1 class="text-[#0A1931] text-4xl font-black tracking-tighter mb-2 italic">CALENDARIO DE CLASES</h1>
+            <p class="text-gray-500 font-medium">Gestiona tus entrenamientos de forma visual</p>
+        </header>
 
-<div class="bg-[#F8F8F8] min-h-screen py-16 font-display">
-    <div class="container mx-auto max-w-5xl px-4 text-center">
-        {{-- TÍTULO PRINCIPAL --}}
-        <h1 class="text-gray-900 text-5xl font-black mb-4 tracking-tighter">
-            Agenda Semanal de Clases
-        </h1>
-        <p class="text-gray-600 text-lg mb-12 max-w-2xl mx-auto">
-            Consulta los horarios. Para reservar, haz clic en el botón y gestiona tu plaza al instante.
-        </p>
-
-        {{-- SELECTOR DE DÍAS (Navegación Real) --}}
-        <div class="flex justify-center gap-3 mb-12 overflow-x-auto pb-4">
+        {{-- SELECTOR DE DÍAS --}}
+        <div class="flex justify-center gap-2 mb-8 bg-white p-2 rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
             @php 
                 $dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
                 $diaActual = request('dia', 'Lunes'); 
             @endphp
-            
             @foreach($dias as $dia)
                 <a href="{{ route('agenda', ['dia' => $dia]) }}" 
-                   class="px-6 py-2 rounded-full font-bold text-sm transition-all shadow-sm
-                    {{ $diaActual == $dia 
-                        ? 'bg-[#1A3878] text-white shadow-[#1A3878]/30' 
-                        : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50' }}">
+                   class="px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap
+                    {{ $diaActual == $dia ? 'bg-[#1A3878] text-white shadow-md' : 'text-gray-400 hover:bg-gray-50' }}">
                     {{ $dia }}
                 </a>
             @endforeach
         </div>
 
-        {{-- CONTENEDOR DE LA AGENDA --}}
-        <div class="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 p-10">
-            <div class="flex items-center justify-between mb-10 pb-4 border-b border-gray-100">
-                {{-- Título dinámico que cambia al pulsar los botones --}}
-                <h3 class="text-gray-900 font-black text-3xl">Clases del {{ $diaActual }}</h3>
-                <span class="bg-[#1A3878]/10 text-[#1A3878] px-4 py-1 rounded-full text-sm font-bold">Semana Actual</span>
-            </div>
-            
-            <div class="space-y-6">
-                @forelse($clases as $clase)
-                    @php 
-                        $yaReservado = Auth::check() && Auth::user()->clases && Auth::user()->clases->contains($clase->id);
-                        $estaCompleto = $clase->capacidad_max <= 0;
-                    @endphp
+        {{-- CONTENEDOR GOOGLE CALENDAR --}}
+        <div class="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden">
+            <div class="grid grid-cols-[100px_1fr] min-h-[800px] relative">
+                
+                {{-- COLUMNA DE HORAS --}}
+                <div class="bg-gray-50/50 border-r border-gray-100 flex flex-col">
+                    @for($h = 8; $h <= 21; $h++)
+                        <div class="h-[100px] border-b border-gray-100/50 text-[12px] font-black text-gray-400 flex items-start justify-center pt-4">
+                            {{ str_pad($h, 2, '0', STR_PAD_LEFT) }}:00
+                        </div>
+                    @endfor
+                </div>
 
-                    <div class="flex flex-col md:flex-row items-center justify-between p-7 border border-gray-100 rounded-[1.8rem] hover:bg-gray-50/50 transition-all hover:border-[#1A3878]/20 group">
-                        <div class="text-left mb-4 md:mb-0">
-                            <div class="flex items-center gap-3 mb-1">
-                                <span class="text-gray-900 font-black text-xl">
-                                    {{ substr($clase->hora_inicio, 0, 5) }} - {{ \Carbon\Carbon::parse($clase->hora_inicio)->addHour()->format('H:i') }}
-                                </span>
-                                <span class="h-1.5 w-1.5 rounded-full bg-gray-300"></span>
-                                <span class="text-[#1A3878] font-extrabold text-xl uppercase tracking-tight">{{ $clase->nombre }}</span>
+                {{-- REJILLA DE CLASES --}}
+                <div class="relative p-0" id="calendar-grid">
+                    {{-- Líneas de fondo --}}
+                    @for($i = 0; $i <= 13; $i++)
+                        <div class="absolute w-full border-b border-gray-100" style="top: {{ $i * 100 }}px; height: 100px;"></div>
+                    @endfor
+
+                    @forelse($clases as $clase)
+                        @php 
+                            $hora = (int)substr($clase->hora_inicio, 0, 2);
+                            $minutos = (int)substr($clase->hora_inicio, 3, 2);
+                            // Cada hora (8:00, 9:00...) son 100px de alto.
+                            $top = ($hora - 8) * 100 + ($minutos * 100 / 60);
+                            
+                            $yaReservado = Auth::check() && Auth::user()->clases->contains($clase->id);
+                            $estaCompleto = $clase->capacidad_max <= 0;
+                        @endphp
+
+                        {{-- CARD DE CLASE DINÁMICA --}}
+                        <div class="absolute left-6 right-6 rounded-[1.5rem] p-5 border-l-[6px] shadow-sm transition-all duration-300 group
+                            {{ $yaReservado 
+                                ? 'bg-[#e6f3ff] border-[#1A3878] ring-1 ring-[#1A3878]/10' 
+                                : ($estaCompleto ? 'bg-gray-100 border-gray-300 grayscale' : 'bg-white border-[#a3e635] hover:shadow-xl hover:-translate-y-1 border shadow-sm') }}"
+                            style="top: {{ $top }}px; height: 90px;">
+                            
+                            <div class="flex justify-between items-center h-full">
+                                <div class="flex flex-col">
+                                    <span class="text-[11px] font-black uppercase tracking-widest {{ $yaReservado ? 'text-[#1A3878]' : 'text-gray-400' }}">
+                                        {{ substr($clase->hora_inicio, 0, 5) }} - {{ \Carbon\Carbon::parse($clase->hora_inicio)->addHour()->format('H:i') }}
+                                    </span>
+                                    <h4 class="font-black text-xl {{ $yaReservado ? 'text-[#0A1931]' : 'text-gray-800' }} tracking-tight">
+                                        {{ $clase->nombre }}
+                                    </h4>
+                                    <p class="text-xs font-bold text-gray-500">{{ $clase->sala }} · con {{ $clase->instructor }}</p>
+                                </div>
+
+                                {{-- ACCIONES DINÁMICAS --}}
+                                <div class="relative flex items-center justify-end">
+                                    @if($yaReservado)
+                                        {{-- ESTADO RESERVADO (Muestra check, pero en HOVER muestra CANCELAR) --}}
+                                        <div class="flex items-center">
+                                            {{-- Icono Check (visible por defecto) --}}
+                                            <div class="group-hover:hidden flex items-center gap-1 bg-[#1A3878] text-white px-4 py-2 rounded-full text-xs font-black">
+                                                <span class="material-symbols-outlined text-sm">check_circle</span> RESERVADO
+                                            </div>
+
+                                            {{-- Botón Cancelar (aparece al pasar el ratón) --}}
+                                            <form action="{{ route('clase.cancelar', $clase->id) }}" method="POST" class="hidden group-hover:block transition-all animate-in fade-in zoom-in duration-200">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="bg-red-500 text-white px-5 py-2.5 rounded-2xl hover:bg-red-600 shadow-lg shadow-red-200 flex items-center gap-1 text-xs font-black">
+                                                    <span class="material-symbols-outlined text-sm">delete</span> CANCELAR PLAZA
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @elseif($estaCompleto)
+                                        <span class="bg-gray-200 text-gray-500 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-tighter">Lleno</span>
+                                    @else
+                                        {{-- BOTÓN RESERVAR --}}
+                                        <form action="{{ route('clase.reservar', $clase->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="bg-[#0A1931] text-white px-6 py-2.5 rounded-2xl hover:bg-[#1A3878] hover:scale-105 transition-all text-xs font-black shadow-md uppercase">
+                                                Reservar
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
                             </div>
-                            <p class="text-gray-500 font-medium flex items-center gap-2">
-                                <span class="material-symbols-outlined text-sm">person</span> Instructor: {{ $clase->instructor }} 
-                                <span class="mx-1">|</span> 
-                                <span class="material-symbols-outlined text-sm">location_on</span> {{ $clase->sala }}
-                            </p>
                         </div>
-
-                        {{-- LÓGICA DE BOTONES DE RESERVA --}}
-                        <div class="flex items-center gap-4">
-                            @if($yaReservado)
-                                <button class="bg-[#00AEEF] text-white text-sm font-bold px-8 py-3 rounded-2xl cursor-default shadow-lg shadow-[#00AEEF]/20" style="min-width: 160px;">
-                                    Reservado
-                                </button>
-                            @elseif($estaCompleto)
-                                <button class="bg-red-200 text-red-500 text-sm font-bold px-8 py-3 rounded-2xl cursor-not-allowed" disabled>
-                                    Agotado
-                                </button>
-                            @else
-                                <form action="{{ route('clase.reservar', $clase->id) }}" method="POST" class="form-reserva">
-                                    @csrf
-                                    <button type="button" 
-                                        class="btn-agenda-confirmar border-2 border-[#1A3878] text-[#1A3878] font-black px-10 py-3 rounded-2xl transition-all hover:bg-[#1A3878] hover:text-white"
-                                        style="min-width: 160px;">
-                                        Reservar
-                                    </button>
-                                </form>
-                            @endif
+                    @empty
+                        <div class="h-full flex flex-col items-center justify-center text-gray-300">
+                            <span class="material-symbols-outlined text-6xl mb-2">event_busy</span>
+                            <p class="italic font-bold">Sin entrenamientos para este día</p>
                         </div>
-                    </div>
-                @empty
-                    {{-- ESTADO VACÍO --}}
-                    <div class="py-20 text-center">
-                        <span class="material-symbols-outlined text-6xl text-gray-200 mb-4">calendar_today</span>
-                        <p class="text-gray-400 font-bold">No hay clases programadas para el {{ $diaActual }}.</p>
-                    </div>
-                @endforelse
+                    @endforelse
+                </div>
             </div>
         </div>
-
-        {{-- BOTÓN INFERIOR --}}
-        <button onclick="window.location.href='{{ route('servicios') }}'" 
-            class="mt-14 bg-[#1A3878] text-white font-black px-12 py-5 rounded-2xl shadow-2xl shadow-[#1A3878]/40 hover:scale-105 active:scale-95 transition-all text-lg">
-            Volver a Servicios
-        </button>
     </div>
 </div>
 
-{{-- SCRIPT PARA LA DOBLE CONFIRMACIÓN DEL BOTÓN --}}
-<script>
-    document.querySelectorAll('.btn-agenda-confirmar').forEach(button => {
-        button.addEventListener('click', function() {
-            if (this.textContent.trim() === 'Reservar') {
-                // Primer clic: Pasa a estado de confirmación
-                this.textContent = 'Confirmar Reserva';
-                this.classList.remove('border-[#1A3878]', 'text-[#1A3878]', 'hover:bg-[#1A3878]');
-                this.classList.add('bg-[#E11D48]', 'text-white', 'border-[#E11D48]', 'shadow-lg', 'shadow-red-200'); 
-            } else {
-                // Segundo clic: Envía el formulario
-                this.closest('form').submit();
-            }
-        });
-    });
-</script>
-
 <style>
-    .font-display { font-family: 'Lexend', sans-serif; }
-    /* Suavizar scroll horizontal en móviles para los días */
-    .overflow-x-auto { scrollbar-width: none; -ms-overflow-style: none; }
-    .overflow-x-auto::-webkit-scrollbar { display: none; }
+    /* Efecto de líneas punteadas en el calendario */
+    #calendar-grid {
+        background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+        background-size: 30px 30px;
+    }
 </style>
 @endsection

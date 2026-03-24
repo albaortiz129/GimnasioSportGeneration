@@ -21,7 +21,7 @@
         @yield('contenido')
     </main>
 
-    @include('componentes.footer-pagina')
+    @include('componentes.footer')
 
 </body>
 </html>
