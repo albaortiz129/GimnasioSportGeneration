@@ -179,52 +179,48 @@
                     </div>
                 </section>
 
-                {{-- SECCIÓN MEMBRESÍA --}}
-                <section id="membresia" class="p-10 lg:p-16 rounded-[3rem] bg-[#0A1931] text-white shadow-2xl text-center relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32"></div>
-                    <div class="relative z-10 flex flex-col gap-6 items-center">
-                        <div class="w-16 h-16 rounded-full flex items-center justify-center bg-white/10">
-                            <span class="material-symbols-outlined text-4xl text-[#a3e635]">workspace_premium</span>
-                        </div>
-                        <h2 class="text-5xl font-black italic tracking-tighter">Acceso Total SeaFit</h2>
-                        <p class="text-xl text-gray-300 max-w-3xl mx-auto font-medium">
-                            Olvídate de las restricciones. Tu membresía te da acceso ilimitado a la sala de máquinas, clases de natación y spa.
-                        </p>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12 relative z-10">
-                        <div class="p-8 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all">
-                            <span class="material-symbols-outlined text-5xl text-[#a3e635]">bolt</span>
-                            <h4 class="font-black text-xl mt-4 uppercase tracking-tighter">Gimnasio 24/7</h4>
-                        </div>
-                        <div class="p-8 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all">
-                            <span class="material-symbols-outlined text-5xl text-[#a3e635]">waves</span>
-                            <h4 class="font-black text-xl mt-4 uppercase tracking-tighter">Piscina y Spa</h4>
-                        </div>
-                        <div class="p-8 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all">
-                            <span class="material-symbols-outlined text-5xl text-[#a3e635]">self_improvement</span>
-                            <h4 class="font-black text-xl mt-4 uppercase tracking-tighter">Zonas Relax</h4>
-                        </div>
-                    </div>
+{{-- SECCIÓN MEMBRESÍA ESTILO CORPORATIVO --}}
+<section id="membresia" class="p-10 lg:p-16 rounded-[2.5rem] bg-white text-[#0A1931] shadow-[0_20px_50px_rgba(0,0,0,0.05)] text-center border border-gray-100 relative overflow-hidden">
+    
+    {{-- Cabecera con icono azul --}}
+    <div class="relative z-10 flex flex-col gap-4 items-center mb-12">
+        <div class="w-14 h-14 rounded-full flex items-center justify-center bg-[#1A3878]/10 mb-2">
+            <span class="material-symbols-outlined text-3xl text-[#1A3878]">pool</span>
+        </div>
+        <h2 class="text-4xl lg:text-5xl font-black tracking-tight text-[#0A1931]">Acceso Total (Membresía)</h2>
+        <p class="text-lg text-gray-500 max-w-3xl mx-auto font-medium leading-relaxed">
+            Tu llave a todas nuestras instalaciones. Elige la duración de tu plan y disfruta sin restricciones del gimnasio, la piscina y las zonas de relax.
+        </p>
+    </div>
+    
+    {{-- Grid de Beneficios con Tarjetas Claras --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
+        {{-- Tarjeta 1 --}}
+        <div class="p-10 rounded-2xl bg-[#F8FAFC] border border-gray-100 hover:border-blue-200 hover:bg-white transition-all duration-300 group shadow-sm hover:shadow-md">
+            <span class="material-symbols-outlined text-4xl text-[#1A3878] group-hover:scale-110 transition-transform">fitness_center</span>
+            <h4 class="font-black text-lg mt-5 text-[#0A1931]">Gimnasio y Cardio</h4>
+            <p class="text-sm text-gray-400 mt-1 font-medium italic">Maquinaria de última generación.</p>
+        </div>
+        
+        {{-- Tarjeta 2 --}}
+        <div class="p-10 rounded-2xl bg-[#F8FAFC] border border-gray-100 hover:border-blue-200 hover:bg-white transition-all duration-300 group shadow-sm hover:shadow-md">
+            <span class="material-symbols-outlined text-4xl text-[#1A3878] group-hover:scale-110 transition-transform">pool</span>
+            <h4 class="font-black text-lg mt-5 text-[#0A1931]">Piscina Climatizada</h4>
+            <p class="text-sm text-gray-400 mt-1 font-medium italic">Acceso a nado libre y clases.</p>
+        </div>
 
-                    <button class="mt-12 min-w-[300px] h-16 px-10 bg-[#a3e635] text-[#0A1931] font-black rounded-2xl text-xl hover:scale-105 transition-all shadow-2xl uppercase tracking-tighter" 
-                            onclick="window.location.href='{{ url('/tarifas') }}'">
-                        Ver Planes de Precios
-                    </button>
-                </section>
-            </div>
-        </main>
+        {{-- Tarjeta 3 --}}
+        <div class="p-10 rounded-2xl bg-[#F8FAFC] border border-gray-100 hover:border-blue-200 hover:bg-white transition-all duration-300 group shadow-sm hover:shadow-md">
+            <span class="material-symbols-outlined text-4xl text-[#1A3878] group-hover:scale-110 transition-transform">hot_tub</span>
+            <h4 class="font-black text-lg mt-5 text-[#0A1931]">Zonas Wellness</h4>
+            <p class="text-sm text-gray-400 mt-1 font-medium italic">Sauna, baño turco y vestuarios.</p>
+        </div>
     </div>
 
-    <style>
-        .font-display { font-family: 'Lexend', sans-serif; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Estilo sutil de puntos para el fondo del calendario */
-        #calendar-body {
-            background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
-            background-size: 20px 20px;
-        }
-    </style>
+    {{-- Botón Azul Marino Estilo Referencia --}}
+    <button class="mt-14 min-w-[320px] h-14 px-10 bg-[#1A3878] text-white font-black rounded-xl text-lg hover:bg-[#0A1931] hover:-translate-y-1 transition-all shadow-xl shadow-blue-900/10 uppercase tracking-tight" 
+            onclick="window.location.href='{{ url('/tarifas') }}'">
+        Ver Planes y Precios de Membresía
+    </button>
+</section>
 @endsection

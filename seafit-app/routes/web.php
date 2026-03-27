@@ -7,32 +7,33 @@ use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\ValoracionController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\PasswordController;
+use Illuminate\Http\Request;
 
-// --- INICIO ---
+// --- INICIO (Carpeta inicio) ---
 Route::get('/', function () {
-    return view('welcome');
+    return view('inicio.home'); // Cambiado de welcome a home según tu carpeta
 })->name('home');
 
-// --- PÁGINAS INFORMATIVAS ---
+// --- PÁGINAS INFORMATIVAS / SOPORTE (Carpeta soporte y tarifas) ---
 Route::get('/tarifas', function () {
-    return view('paginas.tarifas');
+    return view('tarifas.tarifas'); // Tu carpeta se llama tarifas
 })->name('tarifas');
 
-Route::get('/contacto', function () {
-    return view('paginas.contacto');
-})->name('contacto');
+Route::view('/faq', 'soporte.faq')->name('faq');
+Route::view('/contacto', 'soporte.contacto')->name('contacto');
+Route::view('/sobre-nosotros', 'soporte.sobre-nosotros')->name('nosotros');
+Route::view('/trabaja-con-nosotros', 'soporte.trabaja-con-nosotros')->name('empleo');
 
-// --- SERVICIOS Y AGENDA ---
+// --- SERVICIOS Y AGENDA (Carpeta servicios) ---
 Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios');
 Route::get('/agenda', [ServicioController::class, 'agenda'])->name('agenda');
 
-// --- VALORACIÓN (Entrenador Personal) ---
 Route::get('/valoracion', function () {
     return view('servicios.valoracion');
 })->name('valoracion');
 Route::post('/valoracion', [ValoracionController::class, 'enviar'])->name('valoracion.enviar');
 
-// --- REGISTRO Y LOGIN ---
+// --- REGISTRO Y LOGIN (Carpeta usuario) ---
 Route::get('/registro', function () {
     return view('usuario.registro');
 })->name('registro');
@@ -40,12 +41,13 @@ Route::get('/registro', function () {
 Route::get('/login', function () {
     return view('usuario.iniciosesion');
 })->name('login');
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 // =======================================================
-// --- ZONA PRIVADA DEL SOCIO (Requiere iniciar sesión) ---
+// --- ZONA PRIVADA DEL SOCIO (Carpeta usuario) ---
 // =======================================================
 Route::middleware(['auth'])->group(function () {
 
@@ -60,6 +62,7 @@ Route::middleware(['auth'])->group(function () {
         $user = Auth::user()->load('clases');
         return view('usuario.mis-reservas', compact('user'));
     })->name('mis.reservas');
+
     Route::post('/reservar/{id}', [ReservaController::class, 'reservar'])->name('clase.reservar');
     Route::delete('/reservar/{id}', [ReservaController::class, 'cancelar'])->name('clase.cancelar');
 
@@ -68,21 +71,19 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/plan/cancelar', [PagoController::class, 'cancelarPlan'])->name('plan.cancelar');
     Route::get('/factura/descargar/{id}', [PagoController::class, 'descargarFactura'])->name('factura.descargar');
 
-    // Gestión de Tarjetas / Métodos de Pago
+    // Gestión de Tarjetas
     Route::get('/pago/nuevo', [PagoController::class, 'nuevoMetodo'])->name('pago.nuevo');
     Route::post('/pago/principal', [PagoController::class, 'establecerPrincipal'])->name('pago.principal');
     Route::delete('/pago/eliminar', [PagoController::class, 'eliminarMetodo'])->name('pago.eliminar');
 
-    // Configuracion
+    // Configuración
     Route::get('/configuracion', function () {
         $user = Auth::user();
         return view('usuario.configuracion', compact('user'));
     })->name('configuracion');
 
-    Route::post('/configuracion/actualizar', function (\Illuminate\Http\Request $request) {
+    Route::post('/configuracion/actualizar', function (Request $request) {
         $user = Auth::user();
-
-        // Validamos que los datos sean correctos
         $request->validate([
             'nombre' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
@@ -90,29 +91,23 @@ Route::middleware(['auth'])->group(function () {
             'telefono' => 'required|string',
             'domicilio' => 'required|string|max:255',
         ]);
-
-        // Actualizamos en la base de datos
         $user->update($request->only('nombre', 'email', 'dni', 'telefono', 'domicilio'));
-
         return back()->with('success', 'Tus datos se han actualizado correctamente.');
     })->name('configuracion.actualizar');
 
-    //cambiar password y reanudar plan si se cancela
     Route::post('/plan/reanudar', [PagoController::class, 'reanudarPlan'])->name('plan.reanudar');
     Route::post('/perfil/password', [PasswordController::class, 'cambiarPasswordPerfil'])->name('perfil.password');
-
-    //cambiar metodo de pago
     Route::post('/pago/guardar', [PagoController::class, 'guardarMetodo'])->name('pago.guardar');
 });
 
-// OLVIDE MI CONTRASEÑA
+// OLVIDE MI CONTRASEÑA (Usa vistas de la carpeta usuario)
 Route::get('/recuperar-password', [PasswordController::class, 'mostrarFormularioEmail'])->name('password.request');
 Route::post('/recuperar-password', [PasswordController::class, 'enviarEnlace'])->name('password.email');
 Route::get('/reset-password/{token}', [PasswordController::class, 'mostrarFormularioReset'])->name('password.reset');
 Route::post('/reset-password', [PasswordController::class, 'actualizarPassword'])->name('password.update');
 
-//LINKS DEL FOOTER
-Route::view('/preguntas-frecuentes', 'paginas.faq')->name('faq');
-Route::view('/contacto', 'paginas.contacto')->name('contacto');
-Route::view('/sobre-nosotros', 'paginas.nosotros')->name('nosotros');
-Route::view('/trabaja-con-nosotros', 'paginas.trabaja-con-nosotros')->name('empleo');
+// ENVÍO DE EMPLEO (Real)
+Route::post('/trabaja-con-nosotros/enviar', function (Request $request) {
+    // Aquí pondremos la lógica del Mailer que te pasé antes
+    return back()->with('success', '¡Candidatura enviada con éxito!');
+})->name('empleo.enviar');

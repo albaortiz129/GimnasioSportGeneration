@@ -1,5 +1,4 @@
 import './bootstrap';
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import FormularioRegistro from './componentes/formularioRegistro'; 
 
@@ -7,7 +6,7 @@ import FormularioRegistro from './componentes/formularioRegistro';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
-// 2. Cargamos tu clave pública (Copia la que empieza por pk_test de tu .env)
+// 2. Cargamos tu clave pública
 const stripePromise = loadStripe('pk_test_51TEX1vLV86wly52B4QWT61O9A8VQauOMPGGP8wwsNucKZoT2hFYJG4vOWwHNHziOcgEWEBEnVWaNN5tVKLWw212W000QGBAbAp');
 
 const rootElement = document.getElementById('react-root');
