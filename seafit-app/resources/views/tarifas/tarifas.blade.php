@@ -108,9 +108,33 @@
                         <span id="precio-mes" class="text-xl text-gray-500 font-medium">/mes</span>
                     </div>
 
-                    <a href="{{ url('/registro') }}"
-                        class="block bg-[#0A1931] text-white text-center py-4 rounded-xl font-bold transition-transform hover:scale-105 mb-6">¡Únete
-                        Ahora!</a>
+                    {{-- LÓGICA DE SEGURIDAD PARA SOCIOS --}}
+                    @auth
+                        @if(auth()->user()->subscribed('default'))
+                            {{-- Caso 1: Ya es socio con suscripción activa --}}
+                            <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl text-center mb-6">
+                                <span class="material-symbols-outlined text-[#1A3878] mb-1">verified</span>
+                                <p class="text-[#1A3878] font-black text-sm uppercase tracking-wider">Membresía Activa</p>
+                                <p class="text-[11px] text-blue-400 font-medium mt-1">Ya estás disfrutando de Acceso Total</p>
+                            </div>
+                            <button disabled
+                                class="w-full bg-gray-100 text-gray-400 py-4 rounded-xl font-bold cursor-not-allowed mb-6">
+                                Plan en curso
+                            </button>
+                        @else
+                            {{-- Caso 2: Está logueado pero NO tiene plan activo --}}
+                            <a href="{{ url('/registro') }}"
+                                class="block bg-[#0A1931] text-white text-center py-4 rounded-xl font-bold transition-transform hover:scale-105 mb-6 shadow-lg shadow-blue-900/20">
+                                Activar mi Plan
+                            </a>
+                        @endif
+                    @else
+                        {{-- Caso 3: No está logueado (público general) --}}
+                        <a href="{{ url('/registro') }}"
+                            class="block bg-[#0A1931] text-white text-center py-4 rounded-xl font-bold transition-transform hover:scale-105 mb-6 shadow-lg shadow-blue-900/20">
+                            ¡Únete Ahora!
+                        </a>
+                    @endauth
 
                     <div class="mt-8">
                         <h4 class="text-xs tracking-wider text-[#0A1931] font-bold mb-4 uppercase">ACCESO ILIMITADO INCLUYE:
@@ -136,48 +160,44 @@
                 </div>
             </aside>
 
-        </div>
-    </div>
+            <script>
+                const btnMensual = document.getElementById('btn-mensual');
+                const btnTrimestral = document.getElementById('btn-trimestral');
+                const btnAnual = document.getElementById('btn-anual');
 
-    {{-- Script de JS corregido para usar las nuevas IDs --}}
-    <script>
-        const btnMensual = document.getElementById('btn-mensual');
-        const btnTrimestral = document.getElementById('btn-trimestral');
-        const btnAnual = document.getElementById('btn-anual');
-        
-        const precioMonto = document.getElementById('precio-monto');
-        const precioMes = document.getElementById('precio-mes');
-        const textoPermanencia = document.getElementById('texto-permanencia');
+                const precioMonto = document.getElementById('precio-monto');
+                const precioMes = document.getElementById('precio-mes');
+                const textoPermanencia = document.getElementById('texto-permanencia');
 
-        const botones = [btnMensual, btnTrimestral, btnAnual];
+                const botones = [btnMensual, btnTrimestral, btnAnual];
 
-        function actualizarUI(btnActivo, precio, sufijo, permanencia) {
-            // Resetear todos los botones
-            botones.forEach(btn => {
-                btn.classList.remove('bg-[#0A1931]', 'text-white');
-                btn.classList.add('bg-transparent', 'text-gray-500');
-            });
+                function actualizarUI(btnActivo, precio, sufijo, permanencia) {
+                    // Resetear todos los botones
+                    botones.forEach(btn => {
+                        btn.classList.remove('bg-[#0A1931]', 'text-white');
+                        btn.classList.add('bg-transparent', 'text-gray-500');
+                    });
 
-            // Activar el seleccionado
-            btnActivo.classList.add('bg-[#0A1931]', 'text-white');
-            btnActivo.classList.remove('bg-transparent', 'text-gray-500');
+                    // Activar el seleccionado
+                    btnActivo.classList.add('bg-[#0A1931]', 'text-white');
+                    btnActivo.classList.remove('bg-transparent', 'text-gray-500');
 
-            // Actualizar textos
-            precioMonto.innerText = precio;
-            precioMes.innerText = sufijo;
-            textoPermanencia.innerText = permanencia;
-        }
+                    // Actualizar textos
+                    precioMonto.innerText = precio;
+                    precioMes.innerText = sufijo;
+                    textoPermanencia.innerText = permanencia;
+                }
 
-        btnMensual.addEventListener('click', () => {
-            actualizarUI(btnMensual, '29,99€', '/mes', 'Sin permanencia obligatoria');
-        });
+                btnMensual.addEventListener('click', () => {
+                    actualizarUI(btnMensual, '29,99€', '/mes', 'Sin permanencia obligatoria');
+                });
 
-        btnTrimestral.addEventListener('click', () => {
-            actualizarUI(btnTrimestral, '75,00€', '/total', 'Pago único cada 3 meses');
-        });
+                btnTrimestral.addEventListener('click', () => {
+                    actualizarUI(btnTrimestral, '75,00€', '/total', 'Pago único cada 3 meses');
+                });
 
-        btnAnual.addEventListener('click', () => {
-            actualizarUI(btnAnual, '250,00€', '/año', 'El mejor precio por mes');
-        });
-    </script>
+                btnAnual.addEventListener('click', () => {
+                    actualizarUI(btnAnual, '250,00€', '/año', 'El mejor precio por mes');
+                });
+            </script>
 @endsection
