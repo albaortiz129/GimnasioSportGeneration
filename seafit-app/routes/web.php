@@ -110,3 +110,9 @@ Route::get('/recuperar-password', [PasswordController::class, 'mostrarFormulario
 Route::post('/recuperar-password', [PasswordController::class, 'enviarEnlace'])->name('password.email');
 Route::get('/reset-password/{token}', [PasswordController::class, 'mostrarFormularioReset'])->name('password.reset');
 Route::post('/reset-password', [PasswordController::class, 'actualizarPassword'])->name('password.update');
+
+//LINKS DEL FOOTER
+Route::view('/preguntas-frecuentes', 'paginas.faq')->name('faq');
+Route::view('/contacto', 'paginas.contacto')->name('contacto');
+Route::view('/sobre-nosotros', 'paginas.nosotros')->name('nosotros');
+Route::view('/trabaja-con-nosotros', 'paginas.trabaja-con-nosotros')->name('empleo');
