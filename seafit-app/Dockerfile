@@ -57,5 +57,7 @@ RUN mkdir -p /var/www/html/storage/framework/views \
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Comando para ejecutar el servidor de Apache
-CMD ["apache2-foreground"]
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
+CMD ["/usr/local/bin/start.sh"]
