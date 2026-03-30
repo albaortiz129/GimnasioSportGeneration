@@ -21,4 +21,4 @@ php artisan migrate --force || true
 
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-apache2-foreground
+exec apache2-foreground
