@@ -111,3 +111,8 @@ Route::post('/trabaja-con-nosotros/enviar', function (Request $request) {
     // Aquí pondremos la lógica del Mailer que te pasé antes
     return back()->with('success', '¡Candidatura enviada con éxito!');
 })->name('empleo.enviar');
+
+//Ruta de prueba para Render
+Route::get('/healthz', function () {
+    return response('ok', 200);
+});

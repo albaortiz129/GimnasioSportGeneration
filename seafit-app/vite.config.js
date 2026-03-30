@@ -5,8 +5,7 @@ import react from '@vitejs/plugin-react'; // Asegúrate de que esto esté aquí
 export default defineConfig({
     plugins: [
         laravel({
-            // Quitamos el CSS de aquí porque tú lo cargas por <link> manual
-            input: ['resources/js/app.jsx'], 
+            input: ['resources/js/app.jsx'],
             refresh: true,
         }),
         react(),
