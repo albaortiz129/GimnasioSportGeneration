@@ -8,6 +8,7 @@ use App\Http\Controllers\ValoracionController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\PasswordController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\AdminController;
 
 // --- INICIO (Carpeta inicio) ---
 Route::get('/', function () {
@@ -112,7 +113,11 @@ Route::post('/trabaja-con-nosotros/enviar', function (Request $request) {
     return back()->with('success', '¡Candidatura enviada con éxito!');
 })->name('empleo.enviar');
 
-//Ruta de prueba para Render
-Route::get('/healthz', function () {
-    return response('ok', 200);
+// Rutas protegidas para el admin
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    // Rutas para acciones
+    Route::get('/usuario/editar/{id}', [AdminController::class, 'edit'])->name('admin.user.edit');
+    Route::put('/usuario/actualizar/{id}', [AdminController::class, 'update'])->name('admin.user.update');
+    Route::delete('/usuario/eliminar/{id}', [AdminController::class, 'destroy'])->name('admin.user.delete');
 });

@@ -27,7 +27,7 @@
             <p class="text-gray-600 text-lg m-0">Todo lo que necesitas para empezar</p>
         </section>
 
-        {{-- 3. Cuadrícula de Servicios (Esta parte ya la tenías muy bien con Tailwind, solo la he pulido) --}}
+        {{-- 3. Cuadrícula de Servicios --}}
         <section class="px-5 py-12 max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
 
             {{-- Tarjeta: Clases Colectivas --}}

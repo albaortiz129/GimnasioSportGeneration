@@ -40,6 +40,16 @@
             @auth
                 {{-- Panel de usuario logueado --}}
                 <div class="flex items-center gap-5">
+
+                    {{-- BOTÓN EXCLUSIVO PARA ADMINISTRADORES --}}
+                    @if(auth()->user()->is_admin)
+                        <a href="{{ route('admin.dashboard') }}"
+                            class="flex items-center gap-1 text-red-600 font-bold text-base hover:text-red-800 transition-colors bg-red-50 px-3 py-1 rounded-lg border border-red-200">
+                            <span class="material-symbols-outlined">admin_panel_settings</span>
+                            Panel Admin
+                        </a>
+                    @endif
+
                     <a href="{{ url('/perfil') }}"
                         class="flex items-center gap-1 text-[#0A1931] font-semibold text-base hover:text-[#1A3878] transition-colors">
                         <span class="material-symbols-outlined">account_circle</span>

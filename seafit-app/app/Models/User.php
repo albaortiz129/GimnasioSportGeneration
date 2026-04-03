@@ -22,6 +22,7 @@ class User extends Authenticatable
         'tarifa',
         'metodo_pago',
         'password',
+        'is_admin', 
     ];
 
     protected $hidden = [
@@ -34,12 +35,10 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 
-    /**
-     * RELACIÓN: Un usuario puede reservar muchas clases.
-     */
     public function clases()
     {
         return $this->belongsToMany(Clase::class, 'clase_user');
