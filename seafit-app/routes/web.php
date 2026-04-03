@@ -121,9 +121,3 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::put('/usuario/actualizar/{id}', [AdminController::class, 'update'])->name('admin.user.update');
     Route::delete('/usuario/eliminar/{id}', [AdminController::class, 'destroy'])->name('admin.user.delete');
 });
-
-Route::get('/debug-config', function() {
-    Artisan::call('config:clear');
-    Artisan::call('cache:clear');
-    return "Configuración reseteada. Servidor listo para usar smtp.gmail.com";
-});

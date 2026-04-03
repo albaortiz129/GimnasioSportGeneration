@@ -6,20 +6,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth; // <-- IMPORTANTE: Añade esta línea
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\User;
 use Carbon\Carbon;
 
 class PasswordController extends Controller
 {
-    // 1. Muestra la pantalla donde el usuario escribe su email para recuperar
     public function mostrarFormularioEmail()
     {
         return view('usuario.recuperar-password'); 
     }
 
-    // 2. Procesa el email y envía el correo de recuperación
     public function enviarEnlace(Request $request)
     {
         $request->validate(['email' => 'required|email']);
@@ -34,7 +32,10 @@ class PasswordController extends Controller
 
         DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $request->email],
-            ['token' => $token, 'created_at' => Carbon::now()]
+            [
+                'token' => $token, 
+                'created_at' => Carbon::now()
+            ]
         );
 
         Mail::send('emails.recuperar-password', ['token' => $token], function($message) use($request){
@@ -42,16 +43,15 @@ class PasswordController extends Controller
             $message->subject('Recuperar contraseña - SeaFit');
         });
 
-        return back()->with('success', '¡Te hemos enviado un enlace a tu correo para restablecer tu contraseña!');
+        // Cambiado a 'status' para que coincida con @if (session('status')) en tu Blade
+        return back()->with('status', '¡Listo! Revisa tu bandeja de entrada, te hemos enviado el enlace de recuperación.');
     }
 
-    // 3. Muestra la pantalla para escribir la nueva contraseña desde el email
     public function mostrarFormularioReset($token)
     {
         return view('usuario.reset-password', ['token' => $token]);
     }
 
-    // 4. Guarda la nueva contraseña (vía recuperación)
     public function actualizarPassword(Request $request)
     {
         $request->validate([
@@ -75,10 +75,10 @@ class PasswordController extends Controller
 
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-        return redirect()->route('login')->with('success', '¡Tu contraseña ha sido cambiada con éxito!');
+        // Redirigimos al login con mensaje de éxito
+        return redirect()->route('login')->with('success', '¡Tu contraseña ha sido cambiada con éxito! Ya puedes entrar.');
     }
 
-    // 5. CAMBIO DE CONTRASEÑA DESDE EL PERFIL (Logueado)
     public function cambiarPasswordPerfil(Request $request)
     {
         $request->validate([
@@ -91,7 +91,6 @@ class PasswordController extends Controller
 
         $user = Auth::user();
 
-        // Verificamos que la contraseña antigua sea correcta
         if (!Hash::check($request->password_actual, $user->password)) {
             return back()->withErrors(['password_actual' => 'La contraseña actual no es correcta.']);
         }
