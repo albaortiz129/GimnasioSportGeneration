@@ -121,3 +121,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::put('/usuario/actualizar/{id}', [AdminController::class, 'update'])->name('admin.user.update');
     Route::delete('/usuario/eliminar/{id}', [AdminController::class, 'destroy'])->name('admin.user.delete');
 });
+
+use Illuminate\Support\Facades\Artisan;
+
+// RUTA TEMPORAL PARA CREAR AL ADMIN EN LA NUBE
+Route::get('/crear-admin-secreto', function () {
+    try {
+        // Ejecuta las migraciones y el seeder desde el código
+        Artisan::call('migrate', ['--force' => true]);
+        Artisan::call('db:seed', ['--force' => true]);
+        
+        return "¡Éxito! El administrador ha sido creado en la base de datos de Aiven.";
+    } catch (\Exception $e) {
+        return "Error al crear admin: " . $e->getMessage();
+    }
+});
