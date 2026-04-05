@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Middleware de autorizacion: restringe rutas administrativas a usuarios con rol admin.
+ */
 namespace App\Http\Middleware;
 
 use Closure;
@@ -9,17 +12,16 @@ use Symfony\Component\HttpFoundation\Response;
 class AdminMiddleware
 {
     /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Permite continuar solo a usuarios administradores.
      */
-    public function handle($request, \Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         if (auth()->check() && auth()->user()->is_admin) {
             return $next($request);
         }
 
-        // Si no es admin, lo mandamos a la home (puedes cambiarlo a un 403)
+        // Si no cumple permisos, se devuelve al inicio con mensaje de error.
         return redirect('/')->with('error', 'Acceso denegado. No eres administrador.');
     }
 }
+

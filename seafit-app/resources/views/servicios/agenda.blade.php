@@ -1,3 +1,4 @@
+{{-- Vista de agenda semanal de clases con reservas y cancelaciones. --}}
 @extends('moldes.inicio')
 
 @section('titulo', 'Agenda Pro - SeaFit')

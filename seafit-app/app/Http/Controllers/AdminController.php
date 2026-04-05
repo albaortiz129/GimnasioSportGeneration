@@ -1,40 +1,67 @@
 <?php
 
+/**
+ * Controlador del panel de administracion: lista, edita y elimina usuarios.
+ */
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    public function index() {
-        $usuarios = User::all();
+    /**
+     * Lista completa de usuarios para gestion administrativa.
+     */
+    public function index()
+    {
+        $usuarios = User::orderBy('id')->get();
+
         return view('admin.dashboard', compact('usuarios'));
     }
 
-    // Mostrar formulario de edición (opcional, si quieres una página aparte)
-    public function edit($id) {
+    /**
+     * Formulario de edicion de un usuario.
+     */
+    public function edit($id)
+    {
         $user = User::findOrFail($id);
+
         return view('admin.edit_user', compact('user'));
     }
 
-    // Actualizar datos
-    public function update(Request $request, $id) {
+    /**
+     * Actualiza campos basicos del usuario desde admin.
+     */
+    public function update(Request $request, $id)
+    {
         $user = User::findOrFail($id);
-        $user->update($request->all());
-        return redirect()->route('admin.dashboard')->with('success', 'Usuario actualizado');
+
+        $data = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        $user->update($data);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Usuario actualizado.');
     }
 
-    // Eliminar usuario
-    public function destroy($id) {
+    /**
+     * Elimina un usuario (excepto el administrador autenticado).
+     */
+    public function destroy($id)
+    {
         $user = User::findOrFail($id);
-        
-        // Seguridad: No dejar que el admin se borre a sí mismo
+
+        // Seguridad: evitar que el admin se borre a si mismo.
         if ($user->id === auth()->id()) {
             return back()->with('error', 'No puedes eliminarte a ti mismo.');
         }
 
         $user->delete();
+
         return redirect()->route('admin.dashboard')->with('success', 'Usuario eliminado correctamente.');
     }
 }
+

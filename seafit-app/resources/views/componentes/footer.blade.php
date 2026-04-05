@@ -1,3 +1,4 @@
+{{-- Componente de pie de pagina global con enlaces corporativos y redes. --}}
 <footer class="bg-[#051221] text-white py-[60px] shrink-0">
     {{-- Contenedor principal: columna en móvil, fila en PC --}}
     <div

@@ -1,9 +1,10 @@
+{{-- Vista principal del panel de socio con estado de cuenta y seguridad. --}}
 @extends('moldes.inicio')
 
 @section('titulo', 'Panel de Socio - SeaFit')
 
 @section('contenido')
-    {{-- Contenedor Principal: Fila en PC, Columna en Móvil --}}
+    {{-- Contenedor Principal --}}
     <div class="flex flex-col md:flex-row min-h-screen bg-[#f8fafc] font-sans">
 
         {{-- BARRA LATERAL (SIDEBAR) --}}
@@ -55,7 +56,7 @@
             @php
                 $suscripcion = $user->subscription('default');
                 $cancelada = ($user->tarifa == 'cancelada');
-                $enPeriodoGracia = ($suscripcion && $suscripcion->onGracePeriod());
+                $enPeriodo = ($suscripcion && $suscripcion->onGracePeriod());
             @endphp
 
             <section
@@ -67,14 +68,14 @@
                 <div class="relative z-10">
                     <p class="text-xs uppercase tracking-widest text-gray-400 font-bold mb-1">Membresía Actual</p>
                     <h2 class="text-2xl md:text-3xl font-bold mb-1">
-                        @if($cancelada && !$enPeriodoGracia)
+                        @if($cancelada && !$enPeriodo)
                             Sin suscripción activa
                         @else
                             Acceso Total {{ ucfirst($user->tarifa) }}
                         @endif
                     </h2>
                     <p class="text-sm text-gray-400">
-                        @if($enPeriodoGracia)
+                        @if($enPeriodo)
                             Acceso hasta: <strong>{{ $suscripcion->ends_at->format('d/m/Y') }}</strong> (Cancelada)
                         @elseif($cancelada)
                             Estado: Suscripción inactiva
@@ -85,11 +86,11 @@
                 </div>
 
                 <div class="relative z-10 flex gap-3">
-                    {{-- FIX: Ambos casos abren el modal para preguntar el plan --}}
-                    @if($enPeriodoGracia || $cancelada)
+                    {{-- Ambos casos abren el modal para preguntar el plan --}}
+                    @if($enPeriodo || $cancelada)
                         <button onclick="document.getElementById('modalPlanes').classList.remove('hidden')"
                             class="bg-[#a3e635] text-[#0A1931] px-6 py-3 rounded-xl font-bold hover:scale-105 transition-transform shadow-md">
-                            {{ $enPeriodoGracia ? 'Reanudar / Cambiar Plan' : 'Elegir Nuevo Plan' }}
+                            {{ $enPeriodo ? 'Reanudar / Cambiar Plan' : 'Elegir Nuevo Plan' }}
                         </button>
                     @else
                         <a href="{{ route('pago.gestion') }}"

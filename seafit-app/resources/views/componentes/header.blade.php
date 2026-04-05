@@ -1,3 +1,4 @@
+{{-- Componente de cabecera global con navegacion y estado de sesion. --}}
 <header class="w-full bg-white shadow-sm">
     <div class="flex justify-between items-center max-w-[1200px] mx-auto py-[10px] px-5">
 

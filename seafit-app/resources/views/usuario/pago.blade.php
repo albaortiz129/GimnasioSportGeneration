@@ -1,3 +1,4 @@
+{{-- Vista de gestion de pago: suscripcion, tarjetas y facturas. --}}
 @extends('moldes.inicio')
 
 @section('titulo', 'Gestión de Pago - SeaFit')

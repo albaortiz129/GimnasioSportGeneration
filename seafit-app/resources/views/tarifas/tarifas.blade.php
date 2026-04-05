@@ -1,3 +1,4 @@
+{{-- Vista de tarifas y comparativa visual de planes de membresia. --}}
 @extends ('moldes.inicio')
 
 @section('titulo', 'Membresía y Tarifas - SeaFit')

@@ -1,16 +1,18 @@
 <?php
 
+/**
+ * Migracion de tabla pivote clase_user para reservas de socios.
+ */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * TABLA PIVOTE: RELACIÓN MUCHOS A MUCHOS (Usuarios <-> Clases)
-     * * Esta tabla es el "corazón" de las reservas de SeaFit. 
+     * * Esta tabla es el "corazón" de las reservas de SeaFit.
      * Sirve para saber qué socio se ha apuntado a qué clase.
-     * * Lógica: 
+     * * Lógica:
      * - Un usuario puede reservar muchas clases.
      * - Una clase puede tener muchos usuarios apuntados.
      */
