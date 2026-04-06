@@ -44,19 +44,26 @@
 
         <section class="bg-white border rounded-2xl p-4 mb-6">
             <h2 class="text-lg font-bold mb-3 text-red-700">Clientes con impago o pago vencido</h2>
-            @forelse($impagados as $u)
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between border rounded-xl p-3 mb-2">
-                    <div>
-                        <p class="font-bold">{{ $u->nombre }} {{ $u->apellidos }} ({{ $u->dni }})</p>
-                        <p class="text-sm text-gray-600">{{ $u->email }} | Estado: {{ $u->payment_status }}</p>
+            @if(!($billingColumnsReady ?? false))
+                <p class="text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+                    El modulo de cobros aun no esta disponible en esta base de datos.
+                    Ejecuta las migraciones pendientes para activar esta seccion.
+                </p>
+            @else
+                @forelse($impagados as $u)
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between border rounded-xl p-3 mb-2">
+                        <div>
+                            <p class="font-bold">{{ $u->nombre }} {{ $u->apellidos }} ({{ $u->dni }})</p>
+                            <p class="text-sm text-gray-600">{{ $u->email }} | Estado: {{ $u->payment_status }}</p>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            Proximo cobro: {{ optional($u->next_payment_at)->format('d/m/Y') ?? 'Sin fecha' }}
+                        </div>
                     </div>
-                    <div class="text-sm text-gray-600">
-                        Proximo cobro: {{ optional($u->next_payment_at)->format('d/m/Y') ?? 'Sin fecha' }}
-                    </div>
-                </div>
-            @empty
-                <p class="text-sm text-gray-500">No hay clientes en impago.</p>
-            @endforelse
+                @empty
+                    <p class="text-sm text-gray-500">No hay clientes en impago.</p>
+                @endforelse
+            @endif
         </section>
 
         <div class="space-y-4">
@@ -68,58 +75,69 @@
                             <p class="text-sm text-gray-600">{{ $user->email }} | DNI: {{ $user->dni }}</p>
                         </div>
                         <div class="text-sm">
-                            <span class="font-bold">Plan:</span> {{ ucfirst($user->tarifa) }} |
-                            <span class="font-bold">Pago:</span> {{ $user->payment_status }}
+                            <span class="font-bold">Plan:</span> {{ ucfirst($user->tarifa) }}
+                            @if($billingColumnsReady ?? false)
+                                |
+                                <span class="font-bold">Pago:</span> {{ $user->payment_status }}
+                            @endif
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 xl:grid-cols-4 gap-3">
-                        <form action="{{ route('admin.user.plan', $user) }}" method="POST" class="border rounded-xl p-3">
-                            @csrf
-                            @method('PUT')
-                            <p class="font-bold text-sm mb-2">Cambiar plan</p>
-                            <select name="tarifa" class="w-full border rounded p-2 mb-2">
-                                @foreach(['mensual', 'trimestral', 'anual', 'cancelada'] as $tarifa)
-                                    <option value="{{ $tarifa }}" @selected($user->tarifa === $tarifa)>{{ ucfirst($tarifa) }}</option>
-                                @endforeach
-                            </select>
-                            <button class="w-full bg-[#1A3878] text-white py-2 rounded font-bold text-sm">Guardar plan</button>
-                        </form>
-
-                        <form action="{{ route('admin.user.manual_charge', $user) }}" method="POST"
-                            class="border rounded-xl p-3">
-                            @csrf
-                            <p class="font-bold text-sm mb-2">Cobro manual</p>
-                            <select name="tarifa" class="w-full border rounded p-2 mb-2" required>
-                                <option value="mensual">Mensual</option>
-                                <option value="trimestral">Trimestral</option>
-                                <option value="anual">Anual</option>
-                            </select>
-                            <select name="metodo_manual" class="w-full border rounded p-2 mb-2" required>
-                                <option value="efectivo">Efectivo</option>
-                                <option value="bizum">Bizum</option>
-                                <option value="transferencia">Transferencia</option>
-                                <option value="tarjeta">Tarjeta</option>
-                                <option value="paypal">PayPal</option>
-                            </select>
-                            <input type="text" name="nota" class="w-full border rounded p-2 mb-2"
-                                placeholder="Nota (opcional)">
-                            <button class="w-full bg-[#0A1931] text-white py-2 rounded font-bold text-sm">Registrar cobro</button>
-                        </form>
-
-                        <div class="border rounded-xl p-3 flex flex-col gap-2">
-                            <p class="font-bold text-sm mb-1">Acciones de pago</p>
-                            <form action="{{ route('admin.user.renew', $user) }}" method="POST">
+                        @if($billingColumnsReady ?? false)
+                            <form action="{{ route('admin.user.plan', $user) }}" method="POST" class="border rounded-xl p-3">
                                 @csrf
-                                <button class="w-full bg-green-600 text-white py-2 rounded font-bold text-sm">Renovar
-                                    suscripcion</button>
+                                @method('PUT')
+                                <p class="font-bold text-sm mb-2">Cambiar plan</p>
+                                <select name="tarifa" class="w-full border rounded p-2 mb-2">
+                                    @foreach(['mensual', 'trimestral', 'anual', 'cancelada'] as $tarifa)
+                                        <option value="{{ $tarifa }}" @selected($user->tarifa === $tarifa)>{{ ucfirst($tarifa) }}</option>
+                                    @endforeach
+                                </select>
+                                <button class="w-full bg-[#1A3878] text-white py-2 rounded font-bold text-sm">Guardar plan</button>
                             </form>
-                            <form action="{{ route('admin.user.mark_unpaid', $user) }}" method="POST">
+
+                            <form action="{{ route('admin.user.manual_charge', $user) }}" method="POST"
+                                class="border rounded-xl p-3">
                                 @csrf
-                                <button class="w-full bg-yellow-600 text-white py-2 rounded font-bold text-sm">Marcar
-                                    impagado</button>
+                                <p class="font-bold text-sm mb-2">Cobro manual</p>
+                                <select name="tarifa" class="w-full border rounded p-2 mb-2" required>
+                                    <option value="mensual">Mensual</option>
+                                    <option value="trimestral">Trimestral</option>
+                                    <option value="anual">Anual</option>
+                                </select>
+                                <select name="metodo_manual" class="w-full border rounded p-2 mb-2" required>
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="bizum">Bizum</option>
+                                    <option value="transferencia">Transferencia</option>
+                                    <option value="tarjeta">Tarjeta</option>
+                                    <option value="paypal">PayPal</option>
+                                </select>
+                                <input type="text" name="nota" class="w-full border rounded p-2 mb-2"
+                                    placeholder="Nota (opcional)">
+                                <button class="w-full bg-[#0A1931] text-white py-2 rounded font-bold text-sm">Registrar cobro</button>
                             </form>
-                        </div>
+
+                            <div class="border rounded-xl p-3 flex flex-col gap-2">
+                                <p class="font-bold text-sm mb-1">Acciones de pago</p>
+                                <form action="{{ route('admin.user.renew', $user) }}" method="POST">
+                                    @csrf
+                                    <button class="w-full bg-green-600 text-white py-2 rounded font-bold text-sm">Renovar
+                                        suscripcion</button>
+                                </form>
+                                <form action="{{ route('admin.user.mark_unpaid', $user) }}" method="POST">
+                                    @csrf
+                                    <button class="w-full bg-yellow-600 text-white py-2 rounded font-bold text-sm">Marcar
+                                        impagado</button>
+                                </form>
+                            </div>
+                        @else
+                            <div class="border rounded-xl p-3 xl:col-span-3">
+                                <p class="text-sm text-yellow-700">
+                                    Las acciones de cobro estan desactivadas hasta ejecutar las migraciones pendientes.
+                                </p>
+                            </div>
+                        @endif
 
                         <div class="border rounded-xl p-3 flex flex-col gap-2">
                             <p class="font-bold text-sm mb-1">Gestion de usuario</p>

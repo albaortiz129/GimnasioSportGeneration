@@ -9,8 +9,10 @@ namespace App\Http\Controllers;
 use App\Models\Clase;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
@@ -36,20 +38,33 @@ class AdminController extends Controller
             ->orderBy('apellidos')
             ->get();
 
-        $impagados = User::query()
-            ->where('is_admin', false)
-            ->where(function ($query) {
-                $query->where('payment_status', 'impagado')
-                    ->orWhere(function ($sub) {
-                        $sub->where('payment_status', '!=', 'al_dia')
-                            ->whereNotNull('next_payment_at')
-                            ->whereDate('next_payment_at', '<', today());
-                    });
-            })
-            ->orderBy('next_payment_at')
-            ->get();
+        $impagados = collect();
+        $billingColumnsReady = Schema::hasColumn('users', 'payment_status')
+            && Schema::hasColumn('users', 'next_payment_at');
 
-        return view('admin.dashboard', compact('usuarios', 'impagados', 'buscar'));
+        if ($billingColumnsReady) {
+            try {
+                $impagados = User::query()
+                    ->where('is_admin', false)
+                    ->where(function ($query) {
+                        $query->where('payment_status', 'impagado')
+                            ->orWhere(function ($sub) {
+                                $sub->where('payment_status', '!=', 'al_dia')
+                                    ->whereNotNull('next_payment_at')
+                                    ->whereDate('next_payment_at', '<', today());
+                            });
+                    })
+                    ->orderBy('next_payment_at')
+                    ->get();
+            } catch (QueryException $exception) {
+                // Si Render aun no tiene migrada la DB, no rompemos el dashboard.
+                report($exception);
+                $billingColumnsReady = false;
+                $impagados = collect();
+            }
+        }
+
+        return view('admin.dashboard', compact('usuarios', 'impagados', 'buscar', 'billingColumnsReady'));
     }
 
     /**
