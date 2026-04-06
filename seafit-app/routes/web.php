@@ -170,59 +170,64 @@ Route::get('/ops/migrar', function (Request $request) {
         abort(403, 'No autorizado.');
     }
 
+    $avisoMigracion = null;
+    $salidaMigrate = '';
+
     try {
         Artisan::call('migrate', ['--force' => true]);
         $salidaMigrate = trim(Artisan::output());
-
-        // Fallback para Render: crea columnas de cobro si por cualquier motivo no existen.
-        Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'must_change_password')) {
-                $table->boolean('must_change_password')->default(false);
-            }
-            if (!Schema::hasColumn('users', 'payment_status')) {
-                $table->string('payment_status')->default('pendiente');
-            }
-            if (!Schema::hasColumn('users', 'next_payment_at')) {
-                $table->date('next_payment_at')->nullable();
-            }
-            if (!Schema::hasColumn('users', 'last_manual_payment_at')) {
-                $table->timestamp('last_manual_payment_at')->nullable();
-            }
-            if (!Schema::hasColumn('users', 'manual_payment_note')) {
-                $table->string('manual_payment_note')->nullable();
-            }
-            if (!Schema::hasColumn('users', 'manual_payment_methods')) {
-                $table->json('manual_payment_methods')->nullable();
-            }
-        });
-
-        Artisan::call('optimize:clear');
-        $salidaClear = trim(Artisan::output());
-
-        return response()->json([
-            'ok' => true,
-            'mensaje' => 'Migraciones ejecutadas correctamente.',
-            'migrate' => $salidaMigrate,
-            'clear' => $salidaClear,
-            'columnas' => [
-                'must_change_password' => Schema::hasColumn('users', 'must_change_password'),
-                'payment_status' => Schema::hasColumn('users', 'payment_status'),
-                'next_payment_at' => Schema::hasColumn('users', 'next_payment_at'),
-                'last_manual_payment_at' => Schema::hasColumn('users', 'last_manual_payment_at'),
-                'manual_payment_note' => Schema::hasColumn('users', 'manual_payment_note'),
-                'manual_payment_methods' => Schema::hasColumn('users', 'manual_payment_methods'),
-            ],
-            'nota' => 'Elimina esta ruta despues de usarla.',
-        ], 200, [], JSON_UNESCAPED_UNICODE);
     } catch (\Throwable $e) {
         report($e);
-
-        return response()->json([
-            'ok' => false,
-            'mensaje' => 'Error ejecutando migraciones.',
-            'error' => $e->getMessage(),
-        ], 500, [], JSON_UNESCAPED_UNICODE);
+        $avisoMigracion = $e->getMessage();
     }
+
+    // Fallback para Render: crea columnas de cobro si por cualquier motivo no existen.
+    Schema::table('users', function (Blueprint $table) {
+        if (!Schema::hasColumn('users', 'must_change_password')) {
+            $table->boolean('must_change_password')->default(false);
+        }
+        if (!Schema::hasColumn('users', 'payment_status')) {
+            $table->string('payment_status')->default('pendiente');
+        }
+        if (!Schema::hasColumn('users', 'next_payment_at')) {
+            $table->date('next_payment_at')->nullable();
+        }
+        if (!Schema::hasColumn('users', 'last_manual_payment_at')) {
+            $table->timestamp('last_manual_payment_at')->nullable();
+        }
+        if (!Schema::hasColumn('users', 'manual_payment_note')) {
+            $table->string('manual_payment_note')->nullable();
+        }
+        if (!Schema::hasColumn('users', 'manual_payment_methods')) {
+            $table->json('manual_payment_methods')->nullable();
+        }
+    });
+
+    Artisan::call('optimize:clear');
+    $salidaClear = trim(Artisan::output());
+
+    $columnas = [
+        'must_change_password' => Schema::hasColumn('users', 'must_change_password'),
+        'payment_status' => Schema::hasColumn('users', 'payment_status'),
+        'next_payment_at' => Schema::hasColumn('users', 'next_payment_at'),
+        'last_manual_payment_at' => Schema::hasColumn('users', 'last_manual_payment_at'),
+        'manual_payment_note' => Schema::hasColumn('users', 'manual_payment_note'),
+        'manual_payment_methods' => Schema::hasColumn('users', 'manual_payment_methods'),
+    ];
+
+    $billingReady = $columnas['payment_status'] && $columnas['next_payment_at'];
+
+    return response()->json([
+        'ok' => $billingReady,
+        'mensaje' => $billingReady
+            ? 'Cobros activados correctamente.'
+            : 'No se pudo activar completamente el modulo de cobros.',
+        'migrate' => $salidaMigrate,
+        'clear' => $salidaClear,
+        'warning' => $avisoMigracion,
+        'columnas' => $columnas,
+        'nota' => 'Elimina esta ruta despues de usarla.',
+    ], $billingReady ? 200 : 500, [], JSON_UNESCAPED_UNICODE);
 })->name('ops.migrar');
 
 /*

@@ -13,9 +13,15 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('subscription_items', function (Blueprint $table) {
-            $table->string('meter_id')->nullable()->after('stripe_price');
-        });
+        if (!Schema::hasTable('subscription_items')) {
+            return;
+        }
+
+        if (!Schema::hasColumn('subscription_items', 'meter_id')) {
+            Schema::table('subscription_items', function (Blueprint $table) {
+                $table->string('meter_id')->nullable()->after('stripe_price');
+            });
+        }
     }
 
     /**
@@ -23,9 +29,15 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('subscription_items', function (Blueprint $table) {
-            $table->dropColumn('meter_id');
-        });
+        if (!Schema::hasTable('subscription_items')) {
+            return;
+        }
+
+        if (Schema::hasColumn('subscription_items', 'meter_id')) {
+            Schema::table('subscription_items', function (Blueprint $table) {
+                $table->dropColumn('meter_id');
+            });
+        }
     }
 };
 

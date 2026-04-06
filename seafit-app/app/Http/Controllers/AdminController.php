@@ -491,38 +491,58 @@ class AdminController extends Controller
      */
     public function activarCobros()
     {
+        $avisoMigracion = null;
+        $salidaMigrate = '';
+
         try {
             Artisan::call('migrate', ['--force' => true]);
             $salidaMigrate = trim(Artisan::output());
-
-            Schema::table('users', function (Blueprint $table) {
-                if (!Schema::hasColumn('users', 'must_change_password')) {
-                    $table->boolean('must_change_password')->default(false);
-                }
-                if (!Schema::hasColumn('users', 'payment_status')) {
-                    $table->string('payment_status')->default('pendiente');
-                }
-                if (!Schema::hasColumn('users', 'next_payment_at')) {
-                    $table->date('next_payment_at')->nullable();
-                }
-                if (!Schema::hasColumn('users', 'last_manual_payment_at')) {
-                    $table->timestamp('last_manual_payment_at')->nullable();
-                }
-                if (!Schema::hasColumn('users', 'manual_payment_note')) {
-                    $table->string('manual_payment_note')->nullable();
-                }
-                if (!Schema::hasColumn('users', 'manual_payment_methods')) {
-                    $table->json('manual_payment_methods')->nullable();
-                }
-            });
-
-            Artisan::call('optimize:clear');
-
-            return back()->with('success', 'Modulo de cobros activado. ' . ($salidaMigrate !== '' ? $salidaMigrate : ''));
         } catch (\Throwable $e) {
             report($e);
-            return back()->with('error', 'No se pudo activar cobros: ' . $e->getMessage());
+            $avisoMigracion = $e->getMessage();
         }
+
+        Schema::table('users', function (Blueprint $table) {
+            if (!Schema::hasColumn('users', 'must_change_password')) {
+                $table->boolean('must_change_password')->default(false);
+            }
+            if (!Schema::hasColumn('users', 'payment_status')) {
+                $table->string('payment_status')->default('pendiente');
+            }
+            if (!Schema::hasColumn('users', 'next_payment_at')) {
+                $table->date('next_payment_at')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'last_manual_payment_at')) {
+                $table->timestamp('last_manual_payment_at')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'manual_payment_note')) {
+                $table->string('manual_payment_note')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'manual_payment_methods')) {
+                $table->json('manual_payment_methods')->nullable();
+            }
+        });
+
+        Artisan::call('optimize:clear');
+
+        $billingReady = Schema::hasColumn('users', 'payment_status')
+            && Schema::hasColumn('users', 'next_payment_at');
+
+        if (!$billingReady) {
+            return back()->with('error', 'No se pudo activar cobros: faltan columnas en users.');
+        }
+
+        $mensaje = 'Modulo de cobros activado.';
+
+        if ($salidaMigrate !== '') {
+            $mensaje .= ' ' . $salidaMigrate;
+        }
+
+        if ($avisoMigracion) {
+            $mensaje .= ' Aviso de migracion global: ' . $avisoMigracion;
+        }
+
+        return back()->with('success', $mensaje);
     }
 
 }
