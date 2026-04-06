@@ -49,6 +49,12 @@
                     El modulo de cobros aun no esta disponible en esta base de datos.
                     Ejecuta las migraciones pendientes para activar esta seccion.
                 </p>
+                <form method="POST" action="{{ route('admin.ops.activar_cobros') }}" class="mt-3">
+                    @csrf
+                    <button class="bg-[#0A1931] text-white px-4 py-2 rounded-xl font-bold text-sm">
+                        Activar modulo de cobros
+                    </button>
+                </form>
             @else
                 @forelse($impagados as $u)
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between border rounded-xl p-3 mb-2">

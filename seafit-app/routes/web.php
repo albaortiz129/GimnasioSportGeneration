@@ -253,5 +253,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/clases/{clase}/usuarios/{user}', [AdminController::class, 'quitarUsuarioClase'])->name('admin.clases.usuarios.destroy');
     Route::post('/usuario/{user}/aprobar-manual', [AdminController::class, 'aprobarPagoManual'])
         ->name('admin.user.aprobar_manual');
+    Route::post('/ops/activar-cobros', [AdminController::class, 'activarCobros'])
+        ->name('admin.ops.activar_cobros');
 
 });
