@@ -19,7 +19,7 @@
 
     @endforeach
 
-    {{-- Boton de accion (opcional).
+    {{-- Boton de accion .
     Solo aparece cuando la notificacion trae texto de accion.
     El color cambia segun el tipo de mensaje. --}}
     @isset($actionText)
@@ -28,7 +28,7 @@
             'success', 'error' => $level,
             default => 'primary',
         };
-                    ?>
+                        ?>
         <x-mail::button :url="$actionUrl" :color="$color">
             {{ $actionText }}
         </x-mail::button>

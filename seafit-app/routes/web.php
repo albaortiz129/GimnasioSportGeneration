@@ -127,3 +127,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::put('/usuario/actualizar/{id}', [AdminController::class, 'update'])->name('admin.user.update');
     Route::delete('/usuario/eliminar/{id}', [AdminController::class, 'destroy'])->name('admin.user.delete');
 });
+
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/deploy/{token}', function (string $token) {
+    abort_unless($token === env('DEPLOY_TOKEN'), 403);
+
+    // Si quieres borrar todo y rehacer BD:
+    // $cmd = 'migrate:fresh --seed --force';
+
+    // Si NO quieres borrar datos:
+    $cmd = 'migrate --force';
+
+    Artisan::call($cmd);
+
+    return '<pre>' . e("Comando: $cmd\n\n" . Artisan::output()) . '</pre>';
+});
