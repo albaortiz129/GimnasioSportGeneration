@@ -1,4 +1,4 @@
-{{-- Vista de gestion de pago: suscripcion, tarjetas y facturas. --}}
+﻿{{-- Vista de gestion de pago: suscripcion, tarjetas y facturas. --}}
 @extends('moldes.inicio')
 
 @section('titulo', 'Gestión de Pago - SeaFit')
@@ -43,7 +43,7 @@
                 @endif
                 @if(session('error'))
                     <div class="bg-red-100 text-red-800 p-4 rounded-xl mb-4 border border-red-200 font-medium">
-                        ❌ {{ session('error') }}
+                        <span class="material-symbols-outlined text-[20px]">error</span> {{ session('error') }}
                     </div>
                 @endif
 
@@ -53,78 +53,52 @@
 
             {{-- RESUMEN DE FACTURACIÓN --}}
             @php
-                $suscripcion = $user->subscription('default');
-                $fechaCobro = 'N/A';
-
-                if ($suscripcion) {
-                    if ($suscripcion->active() && !$suscripcion->onGracePeriod()) {
-                        $stripeSub = $suscripcion->asStripeSubscription();
-                        $timestamp = $stripeSub->current_period_end;
-
-                        // Si el periodo termina hoy mismo (recién pagado), 
-                        // mostramos la fecha del mes/año que viene según el plan
-                        if (date('d/m/Y', $timestamp) == date('d/m/Y')) {
-                            $fecha = now();
-                            $proxima = match ($user->tarifa) {
-                                'mensual' => $fecha->addMonth(),
-                                'trimestral' => $fecha->addMonths(3),
-                                'anual' => $fecha->addYear(),
-                                default => $fecha->addMonth()
-                            };
-                            $fechaCobro = $proxima->format('d/m/Y');
-                        } else {
-                            $fechaCobro = date('d/m/Y', $timestamp);
-                        }
-                    } elseif ($suscripcion->onGracePeriod()) {
-                        $fechaCobro = $suscripcion->ends_at->format('d/m/Y');
-                    }
-                }
+                $planActivo = $user->planActivo();
+                $fechaCobro = optional($user->next_payment_at)->format('d/m/Y') ?? 'Pendiente';
             @endphp
+
 
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
                     <h3 class="text-xl font-bold text-[#0A1931]">Resumen de Facturación</h3>
                 </div>
 
-                @if($user->tarifa != 'cancelada' && $suscripcion)
-                    <div class="bg-[#f8fafc] border border-gray-200 rounded-xl p-6 relative">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <div>
-                                <h4 class="m-0 text-[#0A1931] font-extrabold text-lg">Próximo cobro (Membresía Total)</h4>
-                                <p class="m-0 mt-1 text-gray-500 text-sm">Se cargará automáticamente a tu método principal.</p>
-                            </div>
-                            <div class="text-left sm:text-right">
-                                <span class="block text-2xl sm:text-3xl font-black text-[#1A3878]">
-                                    {{ $user->tarifa == 'anual' ? '250,00€' : ($user->tarifa == 'trimestral' ? '79,99€' : '29,99€') }}
-                                </span>
-                                <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Fecha:
-                                    {{ $fechaCobro }}</span>
-                            </div>
-                        </div>
-
-                        <div
-                            class="mt-6 pt-5 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <span class="text-sm text-gray-500">Plan actual: <strong class="text-[#0A1931]">Acceso Total
-                                    {{ ucfirst($user->tarifa) }}</strong></span>
-
-                            <form action="{{ route('plan.cancelar') }}" method="POST"
-                                onsubmit="return confirm('¿Estás seguro de que deseas cancelar tu suscripción?')" class="m-0">
-                                @csrf
-                                <button type="submit"
-                                    class="bg-transparent border-none text-[#1A3878] font-bold cursor-pointer flex items-center gap-1.5 p-0 text-sm hover:text-red-500 transition-colors">
-                                    <span class="material-symbols-outlined text-[18px]">cancel</span> Cancelar suscripción
-                                </button>
-                            </form>
-                        </div>
+                @if($planActivo)
+                    <div class="rounded-xl border border-green-200 bg-green-50 p-4">
+                        <p class="font-bold text-green-800">Suscripcion activa</p>
+                        <p class="text-sm text-green-700 mt-1">
+                            Plan: {{ ucfirst($user->tarifa) }} | Metodo: {{ ucfirst($user->metodo_pago ?? 'sin definir') }}
+                        </p>
+                        <p class="text-sm text-green-700 mt-1">
+                            Proximo cobro: {{ $fechaCobro }}
+                        </p>
+                    </div>
+                @elseif($user->payment_status === 'pendiente')
+                    <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                        <p class="font-bold text-amber-800">Pago pendiente de validacion</p>
+                        <p class="text-sm text-amber-700 mt-1">
+                            Tu plan se activara cuando el administrador confirme el pago manual.
+                        </p>
+                        <p class="text-sm text-amber-700 mt-1">
+                            Metodo seleccionado: {{ ucfirst($user->metodo_pago ?? 'sin definir') }}
+                        </p>
+                    </div>
+                @elseif($user->payment_status === 'impagado')
+                    <div class="rounded-xl border border-red-200 bg-red-50 p-4">
+                        <p class="font-bold text-red-800">Suscripcion impagada</p>
+                        <p class="text-sm text-red-700 mt-1">
+                            Hay un pago pendiente. Revisa tu metodo de pago o solicita renovacion.
+                        </p>
                     </div>
                 @else
-                    <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-                        <span class="material-symbols-outlined text-[40px] text-red-500 mb-2">cancel</span>
-                        <h4 class="m-0 text-red-800 font-bold text-lg">Suscripción Inactiva</h4>
-                        <p class="m-0 mt-1 text-red-600">No tienes una suscripción activa. Puedes reactivarla desde tu Perfil.
+                    <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                        <p class="font-bold text-gray-800">Suscripcion inactiva</p>
+                        <p class="text-sm text-gray-600 mt-1">
+                            No tienes una suscripcion activa en este momento.
                         </p>
                     </div>
                 @endif
+
             </section>
 
             {{-- MÉTODOS DE PAGO GUARDADOS --}}
@@ -132,9 +106,12 @@
                 <div class="mb-6">
                     <h3 class="text-xl font-bold text-[#0A1931]">Métodos de Pago Guardados</h3>
                 </div>
+                @php
+                    $principalEsManual = in_array($user->metodo_pago, ['bizum', 'paypal'], true);
+                @endphp
 
                 @foreach($metodosPago as $metodo)
-                    @php $esPrincipal = ($metodoPrincipal && $metodo->id === $metodoPrincipal->id); @endphp
+                    @php $esPrincipal = !$principalEsManual && ($metodoPrincipal && $metodo->id === $metodoPrincipal->id); @endphp
 
                     <div
                         class="border {{ $esPrincipal ? 'border-green-300 bg-green-50' : 'border-gray-200 bg-[#f8fafc]' }} rounded-xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
@@ -159,28 +136,150 @@
                                     @csrf
                                     <input type="hidden" name="payment_method" value="{{ $metodo->id }}">
                                     <button type="submit"
-                                        class="text-[#1A3878] bg-transparent border-none font-bold text-sm cursor-pointer p-0 hover:underline">Establecer
-                                        Principal</button>
+                                        class="text-[#1A3878] bg-transparent border-none font-bold text-sm cursor-pointer p-0 hover:underline">
+                                        Establecer Principal
+                                    </button>
                                 </form>
-
-                                <form action="{{ route('pago.eliminar') }}" method="POST"
-                                    onsubmit="return confirm('¿Seguro que quieres borrar este método de pago?')" class="m-0">
-                                    @csrf @method('DELETE')
-                                    <input type="hidden" name="payment_method" value="{{ $metodo->id }}">
-                                    <button type="submit"
-                                        class="text-red-500 bg-transparent border-none font-bold text-sm cursor-pointer p-0 hover:text-red-700 hover:underline">Eliminar</button>
-                                </form>
-                            @else
-                                <span class="bg-green-200 text-green-800 px-3 py-1 rounded-full text-xs font-bold">Método
-                                    Principal</span>
                             @endif
+
+                            <form action="{{ route('pago.eliminar') }}" method="POST" class="m-0">
+                                @csrf
+                                @method('DELETE')
+                                <input type="hidden" name="payment_method" value="{{ $metodo->id }}">
+                                <button type="submit"
+                                    class="text-red-500 bg-transparent border-none font-bold text-sm cursor-pointer p-0 hover:text-red-700 hover:underline">
+                                    Eliminar
+                                </button>
+                            </form>
                         </div>
                     </div>
                 @endforeach
 
+                @foreach($metodosManuales as $manual)
+                    @php $esPrincipalManual = $principalEsManual && ($user->metodo_pago === $manual['code']); @endphp
+
+                    <div
+                        class="border {{ $esPrincipalManual ? 'border-green-300 bg-green-50' : 'border-gray-200 bg-[#f8fafc]' }} rounded-xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                        <div class="flex items-center gap-4">
+                            <span class="material-symbols-outlined text-[32px] text-[#0A1931]">payments</span>
+                            <div>
+                                <h4 class="m-0 text-[#0A1931] font-bold text-lg">{{ $manual['label'] }}</h4>
+                                <p
+                                    class="m-0 text-xs font-bold {{ $esPrincipalManual ? 'text-green-700' : 'text-gray-500' }} mt-1 uppercase tracking-wider">
+                                    {{ $esPrincipalManual ? 'Principal' : 'Manual guardado' }}
+                                </p>
+                                @if(!empty($manual['value_masked']))
+                                    <p class="m-0 text-sm text-gray-600 mt-1">
+                                        Dato: {{ $manual['value_masked'] }}
+                                    </p>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex items-center gap-5 border-t sm:border-t-0 border-gray-200 w-full sm:w-auto pt-4 sm:pt-0 mt-2 sm:mt-0">
+                            @if(!$esPrincipalManual)
+                                <form action="{{ route('pago.principal_manual') }}" method="POST" class="m-0">
+                                    @csrf
+                                    <input type="hidden" name="metodo_manual" value="{{ $manual['code'] }}">
+                                    <button type="submit"
+                                        class="text-[#1A3878] bg-transparent border-none font-bold text-sm cursor-pointer p-0 hover:underline">
+                                        Establecer Principal
+                                    </button>
+                                </form>
+                            @endif
+
+                            <form action="{{ route('pago.eliminar_manual') }}" method="POST" class="m-0">
+                                @csrf
+                                @method('DELETE')
+                                <input type="hidden" name="metodo_manual" value="{{ $manual['code'] }}">
+                                <button type="submit"
+                                    class="text-red-500 bg-transparent border-none font-bold text-sm cursor-pointer p-0 hover:text-red-700 hover:underline">
+                                    Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+
+                @if($metodosPago->isEmpty() && $metodosManuales->isEmpty())
+                    <p class="text-gray-500 text-sm">No tienes metodos guardados todavia.</p>
+                @endif
+
+                <form action="{{ route('pago.guardar_manual') }}" method="POST" class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3"
+                    id="form-metodo-manual">
+                    @csrf
+                    <div>
+                        <select name="metodo_manual" id="metodo_manual" class="border rounded p-3 w-full" required>
+                            <option value="">Guardar metodo manual...</option>
+                            <option value="bizum" {{ old('metodo_manual') === 'bizum' ? 'selected' : '' }}>Bizum</option>
+                            <option value="paypal" {{ old('metodo_manual') === 'paypal' ? 'selected' : '' }}>PayPal</option>
+                        </select>
+                        @error('metodo_manual')
+                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <input type="text" name="dato_manual" id="dato_manual" value="{{ old('dato_manual') }}"
+                            class="border rounded p-3 w-full" placeholder="Dato del metodo" required>
+                        <p id="ayuda_dato_manual" class="text-xs text-gray-500 mt-1"></p>
+                        @error('dato_manual')
+                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="bg-[#0A1931] text-white rounded p-3 font-bold h-fit">
+                        Guardar metodo
+                    </button>
+                </form>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const metodoInput = document.getElementById('metodo_manual');
+                        const datoInput = document.getElementById('dato_manual');
+                        const ayuda = document.getElementById('ayuda_dato_manual');
+
+                        if (!metodoInput || !datoInput || !ayuda) {
+                            return;
+                        }
+
+                        const actualizarCampoDato = () => {
+                            const metodo = metodoInput.value;
+
+                            if (metodo === 'bizum') {
+                                datoInput.type = 'text';
+                                datoInput.placeholder = 'Telefono Bizum (ejemplo: 612345678)';
+                                datoInput.setAttribute('inputmode', 'numeric');
+                                datoInput.setAttribute('pattern', '^[6789]\\d{8}$');
+                                ayuda.textContent = 'Telefono de 9 digitos, empezando por 6, 7, 8 o 9.';
+                                return;
+                            }
+
+                            if (metodo === 'paypal') {
+                                datoInput.type = 'email';
+                                datoInput.placeholder = 'Email de PayPal (ejemplo: correo@dominio.com)';
+                                datoInput.removeAttribute('inputmode');
+                                datoInput.removeAttribute('pattern');
+                                ayuda.textContent = 'Introduce un email valido para PayPal.';
+                                return;
+                            }
+
+                            datoInput.type = 'text';
+                            datoInput.placeholder = 'Dato del metodo';
+                            datoInput.removeAttribute('inputmode');
+                            datoInput.removeAttribute('pattern');
+                            ayuda.textContent = '';
+                        };
+
+                        metodoInput.addEventListener('change', actualizarCampoDato);
+                        actualizarCampoDato();
+                    });
+                </script>
+
                 <a href="{{ route('pago.nuevo') }}"
                     class="inline-flex items-center gap-2 text-[#1A3878] font-bold text-sm transition-colors hover:text-[#0A1931] mt-4">
-                    <span class="material-symbols-outlined">add_circle</span> Añadir Nuevo Método de Pago
+                    <span class="material-symbols-outlined">add_circle</span> Anadir tarjeta (Visa/Amex)
                 </a>
             </section>
 
@@ -212,6 +311,31 @@
                         <p class="text-gray-500 text-center py-4">Aún no tienes facturas disponibles.</p>
                     @endforelse
                 </div>
+                <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
+                    <h3 class="text-xl font-bold text-[#0A1931] mb-4">Cambiar plan y método de pago</h3>
+
+                    <form action="{{ route('pago.cambiar_plan_metodo') }}" method="POST"
+                        class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        @csrf
+                        <select name="tarifa" class="border rounded p-3" required>
+                            <option value="mensual">Mensual</option>
+                            <option value="trimestral">Trimestral</option>
+                            <option value="anual">Anual</option>
+                        </select>
+
+                        <select name="metodo_pago" class="border rounded p-3" required>
+                            <option value="visa">Visa</option>
+                            <option value="amex">Amex</option>
+                            <option value="bizum">Bizum</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="efectivo">Efectivo</option>
+                        </select>
+
+                        <button class="bg-[#0A1931] text-white rounded p-3 font-bold">Actualizar</button>
+                    </form>
+                </section>
+
             </section>
         </main>
     </div>

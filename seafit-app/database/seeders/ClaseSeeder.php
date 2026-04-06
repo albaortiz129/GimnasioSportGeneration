@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Seeder de clases: genera la oferta semanal inicial para pruebas y arranque.
+ * Seeder de clases: crea la oferta semanal inicial de SeaFit.
  */
 namespace Database\Seeders;
 
@@ -11,19 +11,19 @@ use Illuminate\Database\Seeder;
 class ClaseSeeder extends Seeder
 {
     /**
-     * Crea un conjunto base de clases para varios dias de la semana.
+     * Inserta clases base para pruebas y entorno local.
      */
     public function run(): void
     {
         $clases = [
             [
                 'nombre' => 'Yoga Flow',
-                'instructor' => 'Lucía Méndez',
+                'instructor' => 'Lucia Mendez',
                 'sala' => 'Sala Zen',
                 'hora_inicio' => '09:00:00',
                 'dia_semana' => 'Lunes',
                 'capacidad_max' => 15,
-                'descripcion' => 'Clase de yoga suave para empezar la semana con energía.',
+                'descripcion' => 'Clase de yoga suave para empezar la semana con energia.',
             ],
             [
                 'nombre' => 'Spinning Avanzado',
@@ -32,7 +32,7 @@ class ClaseSeeder extends Seeder
                 'hora_inicio' => '10:30:00',
                 'dia_semana' => 'Lunes',
                 'capacidad_max' => 20,
-                'descripcion' => 'Súbete a la bici a máxima potencia.',
+                'descripcion' => 'Subete a la bici a maxima potencia.',
             ],
             [
                 'nombre' => 'Crossfit Init',
@@ -41,14 +41,14 @@ class ClaseSeeder extends Seeder
                 'hora_inicio' => '08:30:00',
                 'dia_semana' => 'Martes',
                 'capacidad_max' => 12,
-                'descripcion' => 'Iniciación a movimientos de fuerza.',
+                'descripcion' => 'Iniciacion a movimientos de fuerza.',
             ],
             [
                 'nombre' => 'HIIT Intenso',
                 'instructor' => 'Carlos Fit',
                 'sala' => 'Zona Funcional',
                 'hora_inicio' => '18:00:00',
-                'dia_semana' => 'Miércoles',
+                'dia_semana' => 'Miercoles',
                 'capacidad_max' => 20,
                 'descripcion' => 'Quema grasa y mejora tu resistencia.',
             ],
@@ -59,7 +59,7 @@ class ClaseSeeder extends Seeder
                 'hora_inicio' => '19:00:00',
                 'dia_semana' => 'Jueves',
                 'capacidad_max' => 25,
-                'descripcion' => 'Diversión y cardio al ritmo de la música.',
+                'descripcion' => 'Diversion y cardio al ritmo de la musica.',
             ],
             [
                 'nombre' => 'Spinning Pro',
@@ -68,7 +68,7 @@ class ClaseSeeder extends Seeder
                 'hora_inicio' => '19:15:00',
                 'dia_semana' => 'Viernes',
                 'capacidad_max' => 25,
-                'descripcion' => 'Etapas virtuales a máxima potencia.',
+                'descripcion' => 'Etapas virtuales a maxima potencia.',
             ],
         ];
 
@@ -77,4 +77,3 @@ class ClaseSeeder extends Seeder
         }
     }
 }
-

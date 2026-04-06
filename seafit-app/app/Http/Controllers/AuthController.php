@@ -15,24 +15,33 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        // Validacion de entrada.
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'min:6'],
         ]);
 
-        // Intenta iniciar sesion con email y contrasena.
         if (Auth::attempt($credentials)) {
-            // regenerar sesion despues de autenticar.
             $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            if ($user->is_admin) {
+                return redirect()->route('admin.dashboard');
+            }
+
+            if ($user->must_change_password) {
+                return redirect()->route('password.force.form')
+                    ->with('warning', 'Debes cambiar tu contrasena temporal.');
+            }
+
             return redirect()->intended('/perfil');
         }
 
-        // Error si el correo no coincide.
         return back()->withErrors([
-            'email' => 'El correo electrónico o la contrasena no coinciden.',
+            'email' => 'El correo electronico o la contrasena no coinciden.',
         ])->onlyInput('email');
     }
+
 
     /**
      * Cierra sesion y limpia estado de seguridad.

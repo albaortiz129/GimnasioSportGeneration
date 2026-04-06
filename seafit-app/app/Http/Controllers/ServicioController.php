@@ -1,7 +1,8 @@
 <?php
 
 /**
- *Controlador de servicios: carga clases por dia para vistas de servicios y agenda.
+ * Controlador de servicios.
+ * Carga clases por dia para las vistas de servicios y agenda.
  */
 namespace App\Http\Controllers;
 
@@ -33,11 +34,19 @@ class ServicioController extends Controller
     }
 
     /**
-     * Punto unico de consulta para evitar duplicar la misma query.
+     * Query comun para obtener clases del dia seleccionado.
      */
     private function obtenerClasesPorDia(string $diaSeleccionado)
     {
-        return Clase::where('dia_semana', $diaSeleccionado)
+        $variantesDia = match ($diaSeleccionado) {
+            'Miércoles' => ['Miércoles', 'Miercoles'],
+            'Miercoles' => ['Miércoles', 'Miercoles'],
+            'Sábado' => ['Sábado', 'Sabado'],
+            'Sabado' => ['Sábado', 'Sabado'],
+            default => [$diaSeleccionado],
+        };
+
+        return Clase::whereIn('dia_semana', $variantesDia)
             ->orderBy('hora_inicio', 'asc')
             ->get();
     }

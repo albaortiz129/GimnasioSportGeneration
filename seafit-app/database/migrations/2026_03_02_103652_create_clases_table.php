@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Migracion de la tabla clases para agenda deportiva.
+ * Migracion de tabla clases para la agenda deportiva.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -9,26 +9,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**
-     * Run the migrations.
+     * Crea la tabla de clases.
      */
     public function up(): void
     {
         Schema::create('clases', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');          // Ej: Yoga, HIIT, Spinning
-            $table->string('instructor');      // Nombre del monitor
-            $table->string('sala');            // Sala 1, Sala Fitness, etc.
-            $table->time('hora_inicio');       // 18:30:00
-            $table->string('dia_semana');      // Lunes, Martes...
-            $table->integer('capacidad_max');  // Número de personas
-            $table->text('descripcion')->nullable(); // Breve detalle de la clase
-            $table->string('imagen')->nullable();    // Ruta de una imagen si quieres ponerla
+            $table->string('nombre');
+            $table->string('instructor');
+            $table->string('sala');
+            $table->time('hora_inicio');
+            $table->string('dia_semana');
+            $table->integer('capacidad_max'); // Plazas disponibles.
+            $table->text('descripcion')->nullable();
+            $table->string('imagen')->nullable();
             $table->timestamps();
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Elimina la tabla de clases.
      */
     public function down(): void
     {

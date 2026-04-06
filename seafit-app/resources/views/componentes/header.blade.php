@@ -49,13 +49,14 @@
                             <span class="material-symbols-outlined">admin_panel_settings</span>
                             Panel Admin
                         </a>
+                    @else
+                        <a href="{{ url('/perfil') }}"
+                            class="flex items-center gap-1 text-[#0A1931] font-semibold text-base hover:text-[#1A3878] transition-colors">
+                            <span class="material-symbols-outlined">account_circle</span>
+                            Mi Perfil
+                        </a>
                     @endif
 
-                    <a href="{{ url('/perfil') }}"
-                        class="flex items-center gap-1 text-[#0A1931] font-semibold text-base hover:text-[#1A3878] transition-colors">
-                        <span class="material-symbols-outlined">account_circle</span>
-                        Mi Perfil
-                    </a>
 
                     <form action="{{ route('logout') }}" method="POST" class="m-0">
                         @csrf

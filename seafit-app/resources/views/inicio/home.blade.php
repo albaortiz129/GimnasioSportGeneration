@@ -4,19 +4,35 @@
 @section('titulo', 'SeaFit - Tu gimnasio online')
 
 @section('contenido')
+    @php
+        if (auth()->check()) {
+            if (auth()->user()->is_admin) {
+                $ctaUrl = route('admin.dashboard');
+                $ctaText = 'Ir al panel admin';
+            } else {
+                $ctaUrl = route('perfil');
+                $ctaText = 'Ir a mi perfil';
+            }
+        } else {
+            $ctaUrl = route('registro');
+            $ctaText = 'Empieza ahora';
+        }
+    @endphp
 
     <div class="w-full">
         {{-- Banner Principal (Hero) --}}
+
         <section class="h-[450px] bg-cover bg-center flex items-center justify-center text-center px-5 md:px-[15%]"
             style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ asset('imagenes/banner.jpg') }}');">
             <div class="max-w-[900px]">
                 <h1 class="text-white text-3xl md:text-[42px] font-extrabold leading-[1.2] drop-shadow-md m-0">
                     Olvídate de colas y llamadas. Accede a todo nuestro catálogo al instante.
                 </h1>
-                <a href="{{ url('/registro') }}"
+                <a href="{{ $ctaUrl }}"
                     class="inline-block mt-8 bg-[#1A3878] text-white py-3 px-8 rounded-xl font-bold text-[16px] transition-transform duration-300 hover:scale-105 shadow-lg">
-                    Empezar ahora
+                    {{ $ctaText }}
                 </a>
+
             </div>
         </section>
 

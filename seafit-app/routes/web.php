@@ -49,52 +49,90 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
-    Route::get('/perfil', function () {
-        $user = Auth::user()->load('clases');
-        return view('usuario.perfil', compact('user'));
-    })->name('perfil');
+    Route::get('/cambiar-password-inicial', [PasswordController::class, 'mostrarFormularioCambioInicial'])
+        ->name('password.force.form');
+    Route::post('/cambiar-password-inicial', [PasswordController::class, 'cambiarPasswordInicial'])
+        ->name('password.force.update');
 
-    Route::get('/mis-reservas', function () {
-        $user = Auth::user()->load('clases');
-        return view('usuario.mis-reservas', compact('user'));
-    })->name('mis.reservas');
+    Route::middleware(['socio', 'force.password'])->group(function () {
+        Route::get('/perfil', function () {
+            $user = Auth::user()->load('clases');
+            return view('usuario.perfil', compact('user'));
+        })->name('perfil');
 
-    Route::post('/reservar/{id}', [ReservaController::class, 'reservar'])->name('clase.reservar');
-    Route::delete('/reservar/{id}', [ReservaController::class, 'cancelar'])->name('clase.cancelar');
 
-    Route::get('/gestion-pago', [PagoController::class, 'index'])->name('pago.gestion');
-    Route::post('/plan/cancelar', [PagoController::class, 'cancelarPlan'])->name('plan.cancelar');
-    Route::post('/plan/reanudar', [PagoController::class, 'reanudarPlan'])->name('plan.reanudar');
-    Route::get('/factura/descargar/{id}', [PagoController::class, 'descargarFactura'])->name('factura.descargar');
+        Route::get('/mis-reservas', function () {
+            $user = Auth::user()->load('clases');
+            return view('usuario.mis-reservas', compact('user'));
+        })->name('mis.reservas');
 
-    Route::get('/pago/nuevo', [PagoController::class, 'nuevoMetodo'])->name('pago.nuevo');
-    Route::post('/pago/principal', [PagoController::class, 'establecerPrincipal'])->name('pago.principal');
-    Route::delete('/pago/eliminar', [PagoController::class, 'eliminarMetodo'])->name('pago.eliminar');
-    Route::post('/pago/guardar', [PagoController::class, 'guardarMetodo'])->name('pago.guardar');
+        Route::post('/reservar/{id}', [ReservaController::class, 'reservar'])->name('clase.reservar');
+        Route::delete('/reservar/{id}', [ReservaController::class, 'cancelar'])->name('clase.cancelar');
 
-    Route::get('/configuracion', function () {
-        $user = Auth::user();
-        return view('usuario.configuracion', compact('user'));
-    })->name('configuracion');
+        Route::get('/gestion-pago', [PagoController::class, 'index'])->name('pago.gestion');
+        Route::post('/plan/cancelar', [PagoController::class, 'cancelarPlan'])->name('plan.cancelar');
+        Route::post('/plan/reanudar', [PagoController::class, 'reanudarPlan'])->name('plan.reanudar');
+        Route::get('/factura/descargar/{id}', [PagoController::class, 'descargarFactura'])->name('factura.descargar');
 
-    Route::post('/configuracion/actualizar', function (Request $request) {
-        $user = Auth::user();
+        Route::get('/pago/nuevo', [PagoController::class, 'nuevoMetodo'])->name('pago.nuevo');
+        Route::post('/pago/principal', [PagoController::class, 'establecerPrincipal'])->name('pago.principal');
+        Route::delete('/pago/eliminar', [PagoController::class, 'eliminarMetodo'])->name('pago.eliminar');
+        Route::post('/pago/guardar', [PagoController::class, 'guardarMetodo'])->name('pago.guardar');
+        Route::post('/pago/guardar-manual', [PagoController::class, 'guardarMetodoManual'])->name('pago.guardar_manual');
+        Route::post('/pago/principal-manual', [PagoController::class, 'principalManual'])->name('pago.principal_manual');
+        Route::delete('/pago/eliminar-manual', [PagoController::class, 'eliminarMetodoManual'])->name('pago.eliminar_manual');
 
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'dni' => 'required|string',
-            'telefono' => 'required|string',
-            'domicilio' => 'required|string|max:255',
-        ]);
+        Route::get('/configuracion', function () {
+            $user = Auth::user();
+            return view('usuario.configuracion', compact('user'));
+        })->name('configuracion');
 
-        $user->update($request->only('nombre', 'email', 'dni', 'telefono', 'domicilio'));
+        Route::post('/configuracion/actualizar', function (Request $request) {
+            $user = Auth::user();
 
-        return back()->with('success', 'Tus datos se han actualizado correctamente.');
-    })->name('configuracion.actualizar');
+            $data = $request->validate([
+                'nombre' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $user->id,
+                'dni' => [
+                    'required',
+                    'string',
+                    'size:9',
+                    'regex:/^[0-9]{8}[A-Za-z]$/',
+                    function ($attribute, $value, $fail) {
+                        $dni = strtoupper((string) $value);
+                        $numero = (int) substr($dni, 0, 8);
+                        $letra = substr($dni, 8, 1);
+                        $letrasValidas = 'TRWAGMYFPDXBNJZSQVHLCKE';
+                        $letraCorrecta = $letrasValidas[$numero % 23];
+
+                        if ($letra !== $letraCorrecta) {
+                            $fail('El DNI no es valido (letra incorrecta).');
+                        }
+                    },
+                ],
+                'telefono' => ['required', 'regex:/^[6789]\d{8}$/'],
+                'domicilio' => 'required|string|max:255',
+            ], [
+                'dni.regex' => 'El DNI debe tener 8 numeros y 1 letra (ej: 12345678Z).',
+                'telefono.regex' => 'El telefono debe tener 9 digitos y empezar por 6, 7, 8 o 9.',
+            ]);
+
+            $data['dni'] = strtoupper($data['dni']);
+
+            $user->update($data);
+
+            return back()->with('success', 'Tus datos se han actualizado correctamente.');
+        })->name('configuracion.actualizar');
+    });
 
     Route::post('/perfil/password', [PasswordController::class, 'cambiarPasswordPerfil'])->name('perfil.password');
+
+    Route::post('/pago/cambiar-plan-metodo', [PagoController::class, 'cambiarPlanMetodo'])
+        ->name('pago.cambiar_plan_metodo');
+
+
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -113,7 +151,7 @@ Route::post('/reset-password', [PasswordController::class, 'actualizarPassword']
 */
 Route::post('/trabaja-con-nosotros/enviar', function () {
     // Pendiente: integrar mailer real y almacenamiento de candidaturas.
-    return back()->with('success', '¡Candidatura enviada con éxito!');
+    return back()->with('success', 'Candidatura enviada con exito.');
 })->name('empleo.enviar');
 
 /*
@@ -123,23 +161,26 @@ Route::post('/trabaja-con-nosotros/enviar', function () {
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-    Route::get('/usuario/editar/{id}', [AdminController::class, 'edit'])->name('admin.user.edit');
-    Route::put('/usuario/actualizar/{id}', [AdminController::class, 'update'])->name('admin.user.update');
-    Route::delete('/usuario/eliminar/{id}', [AdminController::class, 'destroy'])->name('admin.user.delete');
-});
 
-use Illuminate\Support\Facades\Artisan;
+    Route::get('/usuarios/nuevo', [AdminController::class, 'create'])->name('admin.user.create');
+    Route::post('/usuarios', [AdminController::class, 'store'])->name('admin.user.store');
+    Route::get('/usuario/editar/{user}', [AdminController::class, 'edit'])->name('admin.user.edit');
+    Route::put('/usuario/actualizar/{user}', [AdminController::class, 'update'])->name('admin.user.update');
+    Route::delete('/usuario/eliminar/{user}', [AdminController::class, 'destroy'])->name('admin.user.delete');
 
-Route::get('/deploy/{token}', function (string $token) {
-    abort_unless($token === env('DEPLOY_TOKEN'), 403);
+    Route::put('/usuario/{user}/plan', [AdminController::class, 'changePlan'])->name('admin.user.plan');
+    Route::post('/usuario/{user}/cobro-manual', [AdminController::class, 'manualCharge'])->name('admin.user.manual_charge');
+    Route::post('/usuario/{user}/renovar', [AdminController::class, 'renewSubscription'])->name('admin.user.renew');
+    Route::post('/usuario/{user}/impago', [AdminController::class, 'markUnpaid'])->name('admin.user.mark_unpaid');
 
-    // Si quieres borrar todo y rehacer BD:
-    // $cmd = 'migrate:fresh --seed --force';
+    Route::get('/clases', [AdminController::class, 'clasesIndex'])->name('admin.clases.index');
+    Route::post('/clases', [AdminController::class, 'claseStore'])->name('admin.clases.store');
+    Route::put('/clases/{clase}', [AdminController::class, 'claseUpdate'])->name('admin.clases.update');
+    Route::delete('/clases/{clase}', [AdminController::class, 'claseDestroy'])->name('admin.clases.destroy');
 
-    // Si NO quieres borrar datos:
-    $cmd = 'migrate --force';
+    Route::post('/clases/{clase}/usuarios', [AdminController::class, 'anadirUsuarioClase'])->name('admin.clases.usuarios.store');
+    Route::delete('/clases/{clase}/usuarios/{user}', [AdminController::class, 'quitarUsuarioClase'])->name('admin.clases.usuarios.destroy');
+    Route::post('/usuario/{user}/aprobar-manual', [AdminController::class, 'aprobarPagoManual'])
+        ->name('admin.user.aprobar_manual');
 
-    Artisan::call($cmd);
-
-    return '<pre>' . e("Comando: $cmd\n\n" . Artisan::output()) . '</pre>';
 });

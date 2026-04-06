@@ -18,7 +18,7 @@ class ReservaController extends Controller
         $clase = Clase::findOrFail($id);
         $user = Auth::user();
 
-        // Cargamos la relacion para comprobar duplicados de forma segura.
+        // Carga reservas actuales para evitar reservas duplicadas.
         $user->load('clases');
 
         if ($user->clases->contains($clase->id)) {
@@ -29,7 +29,7 @@ class ReservaController extends Controller
             return back()->with('error', 'Lo sentimos, esta clase ya está llena.');
         }
 
-        // Guardamos reserva en tabla intermedia y descontamos una plaza.
+        // Guarda la reserva y descuenta una plaza disponible.
         $user->clases()->attach($clase->id);
         $clase->decrement('capacidad_max');
 
@@ -44,7 +44,7 @@ class ReservaController extends Controller
         $clase = Clase::findOrFail($id);
         $user = Auth::user();
 
-        // Solo incrementamos capacidad si la reserva existia.
+        // Solo devuelve plaza si la reserva existia.
         $teniaReserva = $user->clases()->where('clase_id', $clase->id)->exists();
         $user->clases()->detach($clase->id);
 

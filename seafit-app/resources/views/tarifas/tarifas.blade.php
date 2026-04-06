@@ -111,31 +111,33 @@
 
                     {{-- LÓGICA DE SEGURIDAD PARA SOCIOS --}}
                     @auth
-                        @if(auth()->user()->subscribed('default'))
-                            {{-- Caso 1: Ya es socio con suscripción activa --}}
+                        @if(auth()->user()->planActivo())
                             <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl text-center mb-6">
-                                <span class="material-symbols-outlined text-[#1A3878] mb-1">verified</span>
-                                <p class="text-[#1A3878] font-black text-sm uppercase tracking-wider">Membresía Activa</p>
-                                <p class="text-[11px] text-blue-400 font-medium mt-1">Ya estás disfrutando de Acceso Total</p>
+                                <p class="text-[#1A3878] font-black text-sm uppercase tracking-wider">
+                                    Tu plan actual: {{ ucfirst(auth()->user()->tarifa) }}
+                                </p>
+                                <p class="text-[11px] text-blue-400 font-medium mt-1">
+                                    Ya tienes acceso total activo.
+                                </p>
                             </div>
-                            <button disabled
-                                class="w-full bg-gray-100 text-gray-400 py-4 rounded-xl font-bold cursor-not-allowed mb-6">
-                                Plan en curso
-                            </button>
+
+                            <a href="{{ route('valoracion') }}"
+                                class="block bg-[#0A1931] text-white text-center py-4 rounded-xl font-bold transition-transform hover:scale-105 mb-6">
+                                Contratar Entrenador Personal
+                            </a>
                         @else
-                            {{-- Caso 2: Está logueado pero NO tiene plan activo --}}
-                            <a href="{{ url('/registro') }}"
-                                class="block bg-[#0A1931] text-white text-center py-4 rounded-xl font-bold transition-transform hover:scale-105 mb-6 shadow-lg shadow-blue-900/20">
+                            <a href="{{ route('pago.gestion') }}"
+                                class="block bg-[#0A1931] text-white text-center py-4 rounded-xl font-bold transition-transform hover:scale-105 mb-6">
                                 Activar mi Plan
                             </a>
                         @endif
                     @else
-                        {{-- Caso 3: No está logueado (público general) --}}
                         <a href="{{ url('/registro') }}"
-                            class="block bg-[#0A1931] text-white text-center py-4 rounded-xl font-bold transition-transform hover:scale-105 mb-6 shadow-lg shadow-blue-900/20">
+                            class="block bg-[#0A1931] text-white text-center py-4 rounded-xl font-bold transition-transform hover:scale-105 mb-6">
                             ¡Únete Ahora!
                         </a>
                     @endauth
+
 
                     <div class="mt-8">
                         <h4 class="text-xs tracking-wider text-[#0A1931] font-bold mb-4 uppercase">ACCESO ILIMITADO INCLUYE:

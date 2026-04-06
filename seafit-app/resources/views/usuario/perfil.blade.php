@@ -54,10 +54,13 @@
 
             {{-- TARJETA DE MEMBRESÍA --}}
             @php
+                $planActivo = $user->planActivo();
+                $fechaHasta = optional($user->next_payment_at)->format('d/m/Y') ?? 'Pendiente';
                 $suscripcion = $user->subscription('default');
-                $cancelada = ($user->tarifa == 'cancelada');
-                $enPeriodo = ($suscripcion && $suscripcion->onGracePeriod());
+                $enPeriodo = $suscripcion ? $suscripcion->onGracePeriod() : false;
+                $cancelada = $user->tarifa === 'cancelada' || ($suscripcion ? $suscripcion->canceled() : false);
             @endphp
+
 
             <section
                 class="bg-[#0A1931] text-white p-6 md:p-8 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10 shadow-lg relative overflow-hidden border border-white/10">
@@ -75,13 +78,16 @@
                         @endif
                     </h2>
                     <p class="text-sm text-gray-400">
-                        @if($enPeriodo)
-                            Acceso hasta: <strong>{{ $suscripcion->ends_at->format('d/m/Y') }}</strong> (Cancelada)
-                        @elseif($cancelada)
-                            Estado: Suscripción inactiva
+                        @if($planActivo)
+                            Estado: Activa (hasta {{ $fechaHasta }})
+                        @elseif($user->payment_status === 'pendiente')
+                            Estado: Pendiente de validación de pago
+                        @elseif($user->payment_status === 'impagado')
+                            Estado: Impagada
                         @else
-                            Estado: Activa (Renovación automática)
+                            Estado: Inactiva
                         @endif
+
                     </p>
                 </div>
 

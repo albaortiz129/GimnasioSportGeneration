@@ -8,11 +8,10 @@ namespace App\Http\Controllers;
 class ValoracionController extends Controller
 {
     /**
-     * Recibe la solicitud de valoracion y devuelve confirmacion visual.
+     * Muestra mensaje de confirmacion al enviar solicitud.
      */
     public function enviar()
     {
-        return back()->with('exito', '¡Solicitud enviada correctamente! Un entrenador te contactará pronto.');
+        return back()->with('exito', 'Solicitud enviada correctamente. Un entrenador te contactara pronto.');
     }
 }
-

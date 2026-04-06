@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Modelo Eloquent de clases deportivas y su relacion con usuarios inscritos.
+ * Modelo de clases del gimnasio.
+ * Solo guarda datos de clase y su relacion con usuarios.
  */
 namespace App\Models;
 

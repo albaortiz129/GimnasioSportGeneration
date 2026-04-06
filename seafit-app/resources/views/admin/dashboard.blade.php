@@ -1,80 +1,142 @@
-{{-- Vista del panel de administracion para gestion de usuarios. --}}
+{{-- Vista principal del panel admin: gestion de clientes, cobros y planes. --}}
 @extends('moldes.inicio')
 
-@section('titulo', 'Panel de Administración - SeaFit')
+@section('titulo', 'Panel de Administracion - SeaFit')
 
 @section('contenido')
-    <div class="container mx-auto px-4 py-8">
-        {{-- Encabezado con mensajes de éxito/error --}}
+    <div class="max-w-7xl mx-auto px-4 py-8">
         @if(session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded mb-4">
                 {{ session('success') }}
             </div>
         @endif
+        @if(session('error'))
+            <div class="bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded mb-4">
+                {{ session('error') }}
+            </div>
+        @endif
 
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-black text-gray-800 uppercase tracking-tighter">Panel de Gestión</h1>
-            <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold uppercase">Modo
-                Administrador</span>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-3xl font-black text-gray-800">Panel de Gestion</h1>
+                <p class="text-sm text-gray-500">Administra usuarios, planes, cobros y clases.</p>
+            </div>
+            <div class="flex gap-2">
+                <a href="{{ route('admin.user.create') }}"
+                    class="bg-[#0A1931] text-white px-4 py-2 rounded-xl font-bold text-sm">
+                    Nuevo cliente
+                </a>
+                <a href="{{ route('admin.clases.index') }}"
+                    class="bg-[#1A3878] text-white px-4 py-2 rounded-xl font-bold text-sm">
+                    Gestionar clases
+                </a>
+            </div>
         </div>
 
-        <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
-            <table class="min-w-full leading-normal">
-                <thead>
-                    <tr class="bg-gray-50 border-b border-gray-200">
-                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Usuario
-                        </th>
-                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email
-                        </th>
-                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Rol
-                        </th>
-                        <th class="px-5 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @foreach($usuarios as $user)
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-5 py-4">
-                                <p class="text-gray-900 font-bold">{{ $user->nombre }} {{ $user->apellidos }}</p>
-                                <p class="text-gray-500 text-xs uppercase">{{ $user->dni }}</p>
-                            </td>
-                            <td class="px-5 py-4">
-                                <p class="text-gray-600">{{ $user->email }}</p>
-                            </td>
-                            <td class="px-5 py-4">
-                                @if($user->is_admin)
-                                    <span class="px-2 py-1 text-xs font-black bg-red-600 text-white rounded">ADMIN</span>
-                                @else
-                                    <span class="px-2 py-1 text-xs font-bold bg-blue-100 text-blue-600 rounded">CLIENTE</span>
-                                @endif
-                            </td>
-                            <td class="px-5 py-4 text-right">
-                                <div class="flex justify-end gap-3">
-                                    {{-- Botón Editar --}}
-                                    <a href="{{ route('admin.user.edit', $user->id) }}"
-                                        class="text-indigo-600 hover:text-indigo-900 text-sm font-bold">
-                                        Editar
-                                    </a>
+        <form method="GET" action="{{ route('admin.dashboard') }}" class="bg-white border rounded-2xl p-4 mb-6">
+            <label class="text-sm font-bold text-gray-700">Buscar cliente</label>
+            <div class="flex gap-2 mt-2">
+                <input type="text" name="q" value="{{ $buscar ?? '' }}"
+                    placeholder="Nombre, apellidos, email o DNI" class="w-full border rounded-xl p-2">
+                <button class="bg-[#0A1931] text-white px-4 rounded-xl font-bold">Buscar</button>
+            </div>
+        </form>
 
-                                    {{-- Botón Eliminar --}}
-                                    @if(!$user->is_admin)
-                                        <form action="{{ route('admin.user.delete', $user->id) }}" method="POST"
-                                            onsubmit="return confirm('¿Estás seguro de que quieres eliminar a {{ $user->nombre }}?');"
-                                            class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900 text-sm font-bold">
-                                                Eliminar
-                                            </button>
-                                        </form>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <section class="bg-white border rounded-2xl p-4 mb-6">
+            <h2 class="text-lg font-bold mb-3 text-red-700">Clientes con impago o pago vencido</h2>
+            @forelse($impagados as $u)
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between border rounded-xl p-3 mb-2">
+                    <div>
+                        <p class="font-bold">{{ $u->nombre }} {{ $u->apellidos }} ({{ $u->dni }})</p>
+                        <p class="text-sm text-gray-600">{{ $u->email }} | Estado: {{ $u->payment_status }}</p>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        Proximo cobro: {{ optional($u->next_payment_at)->format('d/m/Y') ?? 'Sin fecha' }}
+                    </div>
+                </div>
+            @empty
+                <p class="text-sm text-gray-500">No hay clientes en impago.</p>
+            @endforelse
+        </section>
+
+        <div class="space-y-4">
+            @foreach($usuarios as $user)
+                <article class="bg-white border rounded-2xl p-4">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
+                        <div>
+                            <p class="font-black text-lg">{{ $user->nombre }} {{ $user->apellidos }}</p>
+                            <p class="text-sm text-gray-600">{{ $user->email }} | DNI: {{ $user->dni }}</p>
+                        </div>
+                        <div class="text-sm">
+                            <span class="font-bold">Plan:</span> {{ ucfirst($user->tarifa) }} |
+                            <span class="font-bold">Pago:</span> {{ $user->payment_status }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-4 gap-3">
+                        <form action="{{ route('admin.user.plan', $user) }}" method="POST" class="border rounded-xl p-3">
+                            @csrf
+                            @method('PUT')
+                            <p class="font-bold text-sm mb-2">Cambiar plan</p>
+                            <select name="tarifa" class="w-full border rounded p-2 mb-2">
+                                @foreach(['mensual', 'trimestral', 'anual', 'cancelada'] as $tarifa)
+                                    <option value="{{ $tarifa }}" @selected($user->tarifa === $tarifa)>{{ ucfirst($tarifa) }}</option>
+                                @endforeach
+                            </select>
+                            <button class="w-full bg-[#1A3878] text-white py-2 rounded font-bold text-sm">Guardar plan</button>
+                        </form>
+
+                        <form action="{{ route('admin.user.manual_charge', $user) }}" method="POST"
+                            class="border rounded-xl p-3">
+                            @csrf
+                            <p class="font-bold text-sm mb-2">Cobro manual</p>
+                            <select name="tarifa" class="w-full border rounded p-2 mb-2" required>
+                                <option value="mensual">Mensual</option>
+                                <option value="trimestral">Trimestral</option>
+                                <option value="anual">Anual</option>
+                            </select>
+                            <select name="metodo_manual" class="w-full border rounded p-2 mb-2" required>
+                                <option value="efectivo">Efectivo</option>
+                                <option value="bizum">Bizum</option>
+                                <option value="transferencia">Transferencia</option>
+                                <option value="tarjeta">Tarjeta</option>
+                                <option value="paypal">PayPal</option>
+                            </select>
+                            <input type="text" name="nota" class="w-full border rounded p-2 mb-2"
+                                placeholder="Nota (opcional)">
+                            <button class="w-full bg-[#0A1931] text-white py-2 rounded font-bold text-sm">Registrar cobro</button>
+                        </form>
+
+                        <div class="border rounded-xl p-3 flex flex-col gap-2">
+                            <p class="font-bold text-sm mb-1">Acciones de pago</p>
+                            <form action="{{ route('admin.user.renew', $user) }}" method="POST">
+                                @csrf
+                                <button class="w-full bg-green-600 text-white py-2 rounded font-bold text-sm">Renovar
+                                    suscripcion</button>
+                            </form>
+                            <form action="{{ route('admin.user.mark_unpaid', $user) }}" method="POST">
+                                @csrf
+                                <button class="w-full bg-yellow-600 text-white py-2 rounded font-bold text-sm">Marcar
+                                    impagado</button>
+                            </form>
+                        </div>
+
+                        <div class="border rounded-xl p-3 flex flex-col gap-2">
+                            <p class="font-bold text-sm mb-1">Gestion de usuario</p>
+                            <a href="{{ route('admin.user.edit', $user) }}"
+                                class="text-center bg-blue-600 text-white py-2 rounded font-bold text-sm">Editar ficha</a>
+
+                            <form action="{{ route('admin.user.delete', $user) }}" method="POST"
+                                onsubmit="return confirm('¿Seguro que quieres eliminar este usuario?')">
+                                @csrf
+                                @method('DELETE')
+                                <button class="w-full bg-red-600 text-white py-2 rounded font-bold text-sm">Eliminar
+                                    usuario</button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+            @endforeach
         </div>
     </div>
 @endsection

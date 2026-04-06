@@ -1,55 +1,75 @@
-{{-- Vista para anadir y guardar una nueva tarjeta con Stripe. --}}
+{{-- Vista para guardar una nueva tarjeta con Stripe. --}}
 @extends('moldes.inicio')
 
 @section('contenido')
     <div class="max-w-md mx-auto my-10 p-8 bg-white rounded-3xl shadow-lg border">
-        <h2 class="text-2xl font-bold mb-6 text-[#0A1931]">Añadir Nueva Tarjeta</h2>
+        <h2 class="text-2xl font-bold mb-6 text-[#0A1931]">Anadir nueva tarjeta</h2>
 
-        {{-- Stripe monta aqui el input seguro de tarjeta --}}
-        <div id="card-element" class="p-4 border rounded-xl bg-gray-50 mb-4"></div>
+        @if(!$stripeKey)
+            <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
+                Falta STRIPE_KEY en .env
+            </div>
+        @endif
+
+        <div id="card-element" class="p-4 border rounded-xl bg-gray-50 mb-3"></div>
+        <div id="card-errors" class="text-red-600 text-sm mb-3"></div>
 
         <button id="card-button" data-secret="{{ $intent->client_secret }}"
-            class="w-full bg-[#0A1931] text-white py-3 rounded-xl font-bold hover:bg-[#1A3878] transition-colors">
-            Guardar Tarjeta Segura
+            class="w-full bg-[#0A1931] text-white py-3 rounded-xl font-bold hover:bg-[#1A3878] transition-colors"
+            @disabled(!$stripeKey)>
+            Guardar tarjeta
         </button>
     </div>
 
-    <script src="https://js.stripe.com/v3/"></script>
-    <script>
-        const stripe = Stripe('{{ env('STRIPE_KEY') }}');
-        const elements = stripe.elements();
-        const cardElement = elements.create('card');
-        cardElement.mount('#card-element');
+    @if($stripeKey)
+        <script src="https://js.stripe.com/v3/"></script>
+        <script>
+            // Inicializa Stripe y monta el campo de tarjeta.
+            const stripe = Stripe(@json($stripeKey));
+            const elements = stripe.elements();
+            const cardElement = elements.create('card');
+            cardElement.mount('#card-element');
 
-        const cardButton = document.getElementById('card-button');
-        const clientSecret = cardButton.dataset.secret;
+            const cardButton = document.getElementById('card-button');
+            const errorsBox = document.getElementById('card-errors');
 
-        cardButton.addEventListener('click', async () => {
-            cardButton.disabled = true;
+            cardButton.addEventListener('click', async () => {
+                // Evita doble envio y limpia errores previos.
+                cardButton.disabled = true;
+                errorsBox.textContent = '';
 
-            // Confirmamos SetupIntent para guardar tarjeta sin cobrar ahora.
-            const {
-                setupIntent,
-                error
-            } = await stripe.confirmCardSetup(clientSecret, {
-                payment_method: {
-                    card: cardElement
+                const clientSecret = cardButton.dataset.secret;
+
+                const { setupIntent, error } = await stripe.confirmCardSetup(clientSecret, {
+                    payment_method: { card: cardElement }
+                });
+
+                if (error) {
+                    errorsBox.textContent = error.message;
+                    cardButton.disabled = false;
+                    return;
                 }
+
+                // Envia el payment_method al backend para guardarlo.
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = "{{ route('pago.guardar') }}";
+
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = '_token';
+                csrf.value = "{{ csrf_token() }}";
+
+                const pm = document.createElement('input');
+                pm.type = 'hidden';
+                pm.name = 'payment_method';
+                pm.value = setupIntent.payment_method;
+
+                form.appendChild(csrf);
+                form.appendChild(pm);
+                document.body.appendChild(form);
+                form.submit();
             });
-
-            if (error) {
-                alert('Error: ' + error.message);
-                cardButton.disabled = false;
-                return;
-            }
-
-            // Enviamos payment_method a backend para persistir en Stripe/Cashier.
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = "{{ route('pago.guardar') }}";
-            form.innerHTML = `@csrf <input type="hidden" name="payment_method" value="${setupIntent.payment_method}">`;
-            document.body.appendChild(form);
-            form.submit();
-        });
-    </script>
+        </script>
+    @endif
 @endsection

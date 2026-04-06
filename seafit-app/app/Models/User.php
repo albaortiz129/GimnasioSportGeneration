@@ -5,6 +5,7 @@
  */
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -30,6 +31,11 @@ class User extends Authenticatable
         'metodo_pago',
         'password',
         'is_admin',
+        'must_change_password',
+        'payment_status',
+        'next_payment_at',
+        'last_manual_payment_at',
+        'manual_payment_note',
     ];
 
     /**
@@ -49,6 +55,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'must_change_password' => 'boolean',
+            'payment_status' => 'string',
+            'next_payment_at' => 'date',
+            'last_manual_payment_at' => 'datetime',
+            'manual_payment_methods' => 'array',
         ];
     }
 
@@ -59,4 +70,52 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Clase::class, 'clase_user');
     }
+
+    /**
+     * Indica si el usuario tiene el plan activo para usar servicios.
+     */
+    public function planActivo(): bool
+    {
+        if ($this->is_admin) {
+            return false;
+        }
+
+        if ($this->tarifa === 'cancelada') {
+            return false;
+        }
+
+        if ($this->payment_status !== 'al_dia') {
+            return false;
+        }
+
+        if ($this->next_payment_at) {
+            // Se parsea siempre a fecha para evitar errores si viene como string.
+            $fechaProximoPago = Carbon::parse($this->next_payment_at)->startOfDay();
+            $hoy = now()->startOfDay();
+
+            if ($fechaProximoPago->lt($hoy)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Texto corto del estado del plan para mostrar en vistas.
+     */
+    public function estadoPlanTexto(): string
+    {
+        if ($this->is_admin) {
+            return 'administrador';
+        }
+
+        return match ($this->payment_status) {
+            'al_dia' => 'activa',
+            'pendiente' => 'pendiente',
+            'impagado' => 'impagada',
+            default => 'inactiva',
+        };
+    }
+
 }

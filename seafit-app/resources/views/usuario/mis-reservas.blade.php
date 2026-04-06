@@ -96,23 +96,6 @@
                     @endforelse
                 </div>
             </section>
-
-            {{-- SECCIÓN DE HISTORIAL --}}
-            <section
-                class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100 opacity-60 hover:opacity-100 transition-opacity duration-300">
-                <div class="mb-6">
-                    <h3 class="text-xl font-bold text-[#0A1931]">Reservas Anteriores</h3>
-                </div>
-
-                <div class="bg-[#f1f5f9] border border-gray-200 p-5 rounded-xl flex justify-between items-center">
-                    <div>
-                        <h4 class="m-0 text-gray-700 font-bold">Spinning Avanzado</h4>
-                        <p class="m-0 mt-1 text-sm text-gray-500">24 Nov | 10:30 h</p>
-                    </div>
-                    <span class="text-gray-500 text-xs font-bold uppercase tracking-wider">Finalizada</span>
-                </div>
-            </section>
-
         </main>
     </div>
 @endsection

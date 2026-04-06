@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Controlador de seguridad: recuperacion y cambio de contrasena.
+ * Controlador de seguridad de contrasenas.
+ * Gestiona recuperacion por email y cambios desde perfil.
  */
 namespace App\Http\Controllers;
 
@@ -17,7 +18,7 @@ use Illuminate\Support\Str;
 class PasswordController extends Controller
 {
     /**
-     * Muestra el formulario para pedir recuperacion por email.
+     * Muestra el formulario para solicitar recuperacion por email.
      */
     public function mostrarFormularioEmail()
     {
@@ -25,7 +26,7 @@ class PasswordController extends Controller
     }
 
     /**
-     * Crea un token y envia el enlace de recuperacion.
+     * Genera token y envia enlace de recuperacion.
      */
     public function enviarEnlace(Request $request)
     {
@@ -34,12 +35,12 @@ class PasswordController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return back()->withErrors(['email' => 'No encontramos ningún socio con este correo electrónico.']);
+            return back()->withErrors(['email' => 'No encontramos ningun socio con este correo electronico.']);
         }
 
         $token = Str::random(64);
 
-        // Si ya existia un token para ese email, se reemplaza.
+        // Si ya habia token, se reemplaza por uno nuevo.
         DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $request->email],
             [
@@ -50,14 +51,14 @@ class PasswordController extends Controller
 
         Mail::send('emails.recuperar-password', ['token' => $token], function ($message) use ($request) {
             $message->to($request->email);
-            $message->subject('Recuperar contraseña - SeaFit');
+            $message->subject('Recuperar contrasena - SeaFit');
         });
 
-        return back()->with('status', '¡Listo! Revisa tu bandeja de entrada, te hemos enviado el enlace de recuperación.');
+        return back()->with('status', 'Listo. Revisa tu bandeja de entrada, te hemos enviado el enlace de recuperacion.');
     }
 
     /**
-     * Muestra el formulario para poner una nueva contrasena.
+     * Muestra el formulario para establecer nueva contrasena.
      */
     public function mostrarFormularioReset($token)
     {
@@ -65,7 +66,7 @@ class PasswordController extends Controller
     }
 
     /**
-     * Guarda la nueva contrasena si email y token son correctos.
+     * Guarda la nueva contrasena si email y token son validos.
      */
     public function actualizarPassword(Request $request)
     {
@@ -81,7 +82,7 @@ class PasswordController extends Controller
             ->first();
 
         if (!$resetRecord) {
-            return back()->withErrors(['email' => 'El enlace de recuperación no es válido o ha caducado.']);
+            return back()->withErrors(['email' => 'El enlace de recuperacion no es valido o ha caducado.']);
         }
 
         $user = User::where('email', $request->email)->first();
@@ -93,14 +94,14 @@ class PasswordController extends Controller
         $user->password = Hash::make($request->password);
         $user->save();
 
-        // Se borra el token para que no se pueda reutilizar.
+        // El token se elimina para impedir reutilizacion.
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-        return redirect()->route('login')->with('success', '¡Tu contraseña ha sido cambiada con éxito! Ya puedes entrar.');
+        return redirect()->route('login')->with('success', 'Tu contrasena ha sido cambiada con exito. Ya puedes entrar.');
     }
 
     /**
-     * Cambio de contrasena desde el perfil.
+     * Cambia contrasena desde el perfil del usuario logueado.
      */
     public function cambiarPasswordPerfil(Request $request)
     {
@@ -108,19 +109,48 @@ class PasswordController extends Controller
             'password_actual' => 'required',
             'password' => 'required|min:8|confirmed',
         ], [
-            'password.confirmed' => 'La confirmación de la nueva contraseña no coincide.',
-            'password.min' => 'La nueva contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'La confirmacion de la nueva contrasena no coincide.',
+            'password.min' => 'La nueva contrasena debe tener al menos 8 caracteres.',
         ]);
 
         $user = Auth::user();
 
         if (!Hash::check($request->password_actual, $user->password)) {
-            return back()->withErrors(['password_actual' => 'La contraseña actual no es correcta.']);
+            return back()->withErrors(['password_actual' => 'La contrasena actual no es correcta.']);
         }
 
         $user->password = Hash::make($request->password);
         $user->save();
 
-        return back()->with('success', '¡Contraseña actualizada correctamente!');
+        return back()->with('success', 'Contrasena actualizada correctamente.');
+    }
+
+    /**
+     * Formulario obligatorio de primer inicio para cambiar contrasena temporal.
+     */
+    public function mostrarFormularioCambioInicial()
+    {
+        return view('usuario.forzar-cambiar-password');
+    }
+
+    /**
+     * Guarda nueva contrasena en el primer inicio y desactiva el bloqueo.
+     */
+    public function cambiarPasswordInicial(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|min:8|confirmed',
+        ], [
+            'password.confirmed' => 'La confirmacion no coincide.',
+            'password.min' => 'La contrasena debe tener al menos 8 caracteres.',
+        ]);
+
+        $user = Auth::user();
+
+        $user->password = Hash::make($request->password);
+        $user->must_change_password = false;
+        $user->save();
+
+        return redirect()->route('perfil')->with('success', 'Contrasena actualizada.');
     }
 }

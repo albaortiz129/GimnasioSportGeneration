@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Migracion de tabla pivote clase_user para reservas de socios.
+ * Migracion de la tabla pivote clase_user para reservas.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -9,32 +9,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**
-     * TABLA PIVOTE: RELACIÓN MUCHOS A MUCHOS (Usuarios <-> Clases)
-     * * Esta tabla es el "corazón" de las reservas de SeaFit.
-     * Sirve para saber qué socio se ha apuntado a qué clase.
-     * * Lógica:
-     * - Un usuario puede reservar muchas clases.
-     * - Una clase puede tener muchos usuarios apuntados.
+     * Crea la tabla que relaciona usuarios y clases.
      */
     public function up(): void
     {
         Schema::create('clase_user', function (Blueprint $table) {
             $table->id();
 
-            // Referencia al socio (users.id)
-            // onDelete('cascade') borra las reservas si el usuario se da de baja
+            // Si se borra el usuario, se borran sus reservas.
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
-            // Referencia a la clase (clases.id)
-            // onDelete('cascade') borra las reservas si la clase se cancela/elimina
+            // Si se borra la clase, se borran sus reservas.
             $table->foreignId('clase_id')->constrained()->onDelete('cascade');
 
-            $table->timestamps(); // Para saber CUÁNDO se hizo la reserva
+            // Fecha de creacion y actualizacion de la reserva.
+            $table->timestamps();
         });
     }
 
     /**
-     * Revierte la migración (borra la tabla de reservas).
+     * Elimina la tabla pivote.
      */
     public function down(): void
     {
