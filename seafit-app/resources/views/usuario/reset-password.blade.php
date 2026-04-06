@@ -1,4 +1,4 @@
-{{-- Vista para establecer una nueva contrasena mediante token. --}}
+{{-- Vista para establecer una nueva contraseña mediante token. --}}
 @extends('moldes.inicio')
 
 @section('titulo', 'Crear Nueva Contraseña - SeaFit')

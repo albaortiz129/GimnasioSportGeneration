@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Middleware de seguridad para forzar cambio de contrasena inicial.
+ * Middleware de seguridad para forzar cambio de contraseña inicial.
  */
 namespace App\Http\Middleware;
 
@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 class ForcePasswordChangeMiddleware
 {
     /**
-     * Permite seguir solo si el usuario ya cambio su contrasena temporal.
+     * Permite seguir solo si el usuario ya cambio su contraseña temporal.
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -27,6 +27,6 @@ class ForcePasswordChangeMiddleware
         }
 
         return redirect()->route('password.force.form')
-            ->with('warning', 'Debes cambiar tu contrasena temporal antes de continuar.');
+            ->with('warning', 'Debes cambiar tu contraseña temporal antes de continuar.');
     }
 }

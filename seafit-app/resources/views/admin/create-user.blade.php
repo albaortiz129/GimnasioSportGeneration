@@ -52,7 +52,8 @@
 
             <div>
                 <input id="fecha_nacimiento" type="date" name="fecha_nacimiento" value="{{ old('fecha_nacimiento') }}"
-                    class="border rounded p-3 w-full @error('fecha_nacimiento') border-red-500 bg-red-50 @enderror" required>
+                    class="border rounded p-3 w-full @error('fecha_nacimiento') border-red-500 bg-red-50 @enderror"
+                    required>
                 <p id="fecha_nacimiento_error" class="text-red-500 text-xs mt-1 font-medium hidden"></p>
                 @error('fecha_nacimiento')
                     <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
@@ -120,7 +121,7 @@
 
             <div class="md:col-span-2">
                 <p class="text-sm bg-blue-50 border border-blue-200 text-blue-900 rounded-xl p-3">
-                    Contrasena temporal automatica para nuevos clientes: <strong>NUEVO12</strong>
+                    contraseña temporal automatica para nuevos clientes: <strong>NUEVO12</strong>
                 </p>
             </div>
 
@@ -129,7 +130,7 @@
     </div>
 
     <script>
-        (function() {
+        (function () {
             // Referencias de formulario y campos.
             const form = document.getElementById('admin-create-user-form');
             const nombreInput = document.getElementById('nombre');
@@ -264,7 +265,7 @@
             tarifaInput.addEventListener('change', validarTarifaCampo);
             metodoPagoInput.addEventListener('change', validarMetodoPagoCampo);
 
-            form.addEventListener('submit', function(event) {
+            form.addEventListener('submit', function (event) {
                 const okNombre = validarNombreCampo();
                 const okApellidos = validarApellidosCampo();
                 const okDni = validarDniCampo();

@@ -74,7 +74,7 @@
                             @foreach($diasSemana as $dia)
                                 <a href="{{ route('servicios', ['dia' => $dia]) }}#clases"
                                     class="flex-shrink-0 text-xs font-black px-6 py-2.5 rounded-full transition-all uppercase tracking-widest
-                                                                                                                            {{ $diaActivo == $dia ? 'bg-[#1A3878] text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-400 hover:bg-gray-200' }}">
+                                                                                                                                    {{ $diaActivo == $dia ? 'bg-[#1A3878] text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-400 hover:bg-gray-200' }}">
                                     {{ $dia }}
                                 </a>
                             @endforeach
@@ -108,7 +108,7 @@
 
                                     {{-- Tarjeta dinamica de clase --}}
                                     <div class="absolute left-4 right-4 rounded-3xl p-5 border-l-[8px] shadow-sm transition-all group overflow-hidden
-                                                                                                                                {{ $yaReservado ? 'bg-[#e6f3ff] border-[#1A3878] ring-1 ring-inset ring-blue-200' : ($estaCompleto ? 'bg-gray-100 border-gray-400' : 'bg-white border-[#a3e635] hover:shadow-xl hover:-translate-y-0.5 border shadow-sm') }}"
+                                                                                                                                        {{ $yaReservado ? 'bg-[#e6f3ff] border-[#1A3878] ring-1 ring-inset ring-blue-200' : ($estaCompleto ? 'bg-gray-100 border-gray-400' : 'bg-white border-[#a3e635] hover:shadow-xl hover:-translate-y-0.5 border shadow-sm') }}"
                                         style="top: {{ $top }}px; height: 95px;">
 
                                         <div class="flex justify-between items-center h-full">

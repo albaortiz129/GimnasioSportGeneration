@@ -10,12 +10,9 @@ use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\ValoracionController;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Schema;
 
 /*
 |--------------------------------------------------------------------------
@@ -139,7 +136,7 @@ Route::middleware(['auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Recuperacion de contrasena
+| Recuperacion de contraseña
 |--------------------------------------------------------------------------
 */
 Route::get('/recuperar-password', [PasswordController::class, 'mostrarFormularioEmail'])->name('password.request');
@@ -156,79 +153,6 @@ Route::post('/trabaja-con-nosotros/enviar', function () {
     // Pendiente: integrar mailer real y almacenamiento de candidaturas.
     return back()->with('success', 'Candidatura enviada con exito.');
 })->name('empleo.enviar');
-
-/*
-|--------------------------------------------------------------------------
-| Ruta temporal de mantenimiento (Render sin terminal)
-|--------------------------------------------------------------------------
-*/
-Route::get('/ops/migrar', function (Request $request) {
-    $tokenConfigurado = (string) env('WEB_MIGRATE_TOKEN', '');
-    $tokenRecibido = (string) $request->query('token', '');
-
-    if ($tokenConfigurado === '' || !hash_equals($tokenConfigurado, $tokenRecibido)) {
-        abort(403, 'No autorizado.');
-    }
-
-    $avisoMigracion = null;
-    $salidaMigrate = '';
-
-    try {
-        Artisan::call('migrate', ['--force' => true]);
-        $salidaMigrate = trim(Artisan::output());
-    } catch (\Throwable $e) {
-        report($e);
-        $avisoMigracion = $e->getMessage();
-    }
-
-    // Fallback para Render: crea columnas de cobro si por cualquier motivo no existen.
-    Schema::table('users', function (Blueprint $table) {
-        if (!Schema::hasColumn('users', 'must_change_password')) {
-            $table->boolean('must_change_password')->default(false);
-        }
-        if (!Schema::hasColumn('users', 'payment_status')) {
-            $table->string('payment_status')->default('pendiente');
-        }
-        if (!Schema::hasColumn('users', 'next_payment_at')) {
-            $table->date('next_payment_at')->nullable();
-        }
-        if (!Schema::hasColumn('users', 'last_manual_payment_at')) {
-            $table->timestamp('last_manual_payment_at')->nullable();
-        }
-        if (!Schema::hasColumn('users', 'manual_payment_note')) {
-            $table->string('manual_payment_note')->nullable();
-        }
-        if (!Schema::hasColumn('users', 'manual_payment_methods')) {
-            $table->json('manual_payment_methods')->nullable();
-        }
-    });
-
-    Artisan::call('optimize:clear');
-    $salidaClear = trim(Artisan::output());
-
-    $columnas = [
-        'must_change_password' => Schema::hasColumn('users', 'must_change_password'),
-        'payment_status' => Schema::hasColumn('users', 'payment_status'),
-        'next_payment_at' => Schema::hasColumn('users', 'next_payment_at'),
-        'last_manual_payment_at' => Schema::hasColumn('users', 'last_manual_payment_at'),
-        'manual_payment_note' => Schema::hasColumn('users', 'manual_payment_note'),
-        'manual_payment_methods' => Schema::hasColumn('users', 'manual_payment_methods'),
-    ];
-
-    $billingReady = $columnas['payment_status'] && $columnas['next_payment_at'];
-
-    return response()->json([
-        'ok' => $billingReady,
-        'mensaje' => $billingReady
-            ? 'Cobros activados correctamente.'
-            : 'No se pudo activar completamente el modulo de cobros.',
-        'migrate' => $salidaMigrate,
-        'clear' => $salidaClear,
-        'warning' => $avisoMigracion,
-        'columnas' => $columnas,
-        'nota' => 'Elimina esta ruta despues de usarla.',
-    ], $billingReady ? 200 : 500, [], JSON_UNESCAPED_UNICODE);
-})->name('ops.migrar');
 
 /*
 |--------------------------------------------------------------------------
@@ -258,7 +182,5 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/clases/{clase}/usuarios/{user}', [AdminController::class, 'quitarUsuarioClase'])->name('admin.clases.usuarios.destroy');
     Route::post('/usuario/{user}/aprobar-manual', [AdminController::class, 'aprobarPagoManual'])
         ->name('admin.user.aprobar_manual');
-    Route::post('/ops/activar-cobros', [AdminController::class, 'activarCobros'])
-        ->name('admin.ops.activar_cobros');
 
 });

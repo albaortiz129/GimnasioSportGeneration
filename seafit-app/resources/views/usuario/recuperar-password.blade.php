@@ -1,4 +1,4 @@
-{{-- Vista para solicitar email de recuperacion de contrasena. --}}
+{{-- Vista para solicitar email de recuperacion de contraseña. --}}
 @extends('moldes.inicio')
 
 @section('titulo', 'Recuperar Contraseña - SeaFit')

@@ -31,14 +31,14 @@ class AuthController extends Controller
 
             if ($user->must_change_password) {
                 return redirect()->route('password.force.form')
-                    ->with('warning', 'Debes cambiar tu contrasena temporal.');
+                    ->with('warning', 'Debes cambiar tu contraseña temporal.');
             }
 
             return redirect()->intended('/perfil');
         }
 
         return back()->withErrors([
-            'email' => 'El correo electronico o la contrasena no coinciden.',
+            'email' => 'El correo electronico o la contraseña no coinciden.',
         ])->onlyInput('email');
     }
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Controlador de seguridad de contrasenas.
+ * Controlador de seguridad de contraseñas.
  * Gestiona recuperacion por email y cambios desde perfil.
  */
 namespace App\Http\Controllers;
@@ -51,14 +51,14 @@ class PasswordController extends Controller
 
         Mail::send('emails.recuperar-password', ['token' => $token], function ($message) use ($request) {
             $message->to($request->email);
-            $message->subject('Recuperar contrasena - SeaFit');
+            $message->subject('Recuperar contraseña - SeaFit');
         });
 
         return back()->with('status', 'Listo. Revisa tu bandeja de entrada, te hemos enviado el enlace de recuperacion.');
     }
 
     /**
-     * Muestra el formulario para establecer nueva contrasena.
+     * Muestra el formulario para establecer nueva contraseña.
      */
     public function mostrarFormularioReset($token)
     {
@@ -66,7 +66,7 @@ class PasswordController extends Controller
     }
 
     /**
-     * Guarda la nueva contrasena si email y token son validos.
+     * Guarda la nueva contraseña si email y token son validos.
      */
     public function actualizarPassword(Request $request)
     {
@@ -97,11 +97,11 @@ class PasswordController extends Controller
         // El token se elimina para impedir reutilizacion.
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-        return redirect()->route('login')->with('success', 'Tu contrasena ha sido cambiada con exito. Ya puedes entrar.');
+        return redirect()->route('login')->with('success', 'Tu contraseña ha sido cambiada con exito. Ya puedes entrar.');
     }
 
     /**
-     * Cambia contrasena desde el perfil del usuario logueado.
+     * Cambia contraseña desde el perfil del usuario logueado.
      */
     public function cambiarPasswordPerfil(Request $request)
     {
@@ -109,24 +109,24 @@ class PasswordController extends Controller
             'password_actual' => 'required',
             'password' => 'required|min:8|confirmed',
         ], [
-            'password.confirmed' => 'La confirmacion de la nueva contrasena no coincide.',
-            'password.min' => 'La nueva contrasena debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'La confirmacion de la nueva contraseña no coincide.',
+            'password.min' => 'La nueva contraseña debe tener al menos 8 caracteres.',
         ]);
 
         $user = Auth::user();
 
         if (!Hash::check($request->password_actual, $user->password)) {
-            return back()->withErrors(['password_actual' => 'La contrasena actual no es correcta.']);
+            return back()->withErrors(['password_actual' => 'La contraseña actual no es correcta.']);
         }
 
         $user->password = Hash::make($request->password);
         $user->save();
 
-        return back()->with('success', 'Contrasena actualizada correctamente.');
+        return back()->with('success', 'contraseña actualizada correctamente.');
     }
 
     /**
-     * Formulario obligatorio de primer inicio para cambiar contrasena temporal.
+     * Formulario obligatorio de primer inicio para cambiar contraseña temporal.
      */
     public function mostrarFormularioCambioInicial()
     {
@@ -134,7 +134,7 @@ class PasswordController extends Controller
     }
 
     /**
-     * Guarda nueva contrasena en el primer inicio y desactiva el bloqueo.
+     * Guarda nueva contraseña en el primer inicio y desactiva el bloqueo.
      */
     public function cambiarPasswordInicial(Request $request)
     {
@@ -142,7 +142,7 @@ class PasswordController extends Controller
             'password' => 'required|min:8|confirmed',
         ], [
             'password.confirmed' => 'La confirmacion no coincide.',
-            'password.min' => 'La contrasena debe tener al menos 8 caracteres.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
         ]);
 
         $user = Auth::user();
@@ -151,6 +151,6 @@ class PasswordController extends Controller
         $user->must_change_password = false;
         $user->save();
 
-        return redirect()->route('perfil')->with('success', 'Contrasena actualizada.');
+        return redirect()->route('perfil')->with('success', 'contraseña actualizada.');
     }
 }
