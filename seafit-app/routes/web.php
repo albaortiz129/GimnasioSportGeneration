@@ -11,6 +11,7 @@ use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\ValoracionController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -153,6 +154,44 @@ Route::post('/trabaja-con-nosotros/enviar', function () {
     // Pendiente: integrar mailer real y almacenamiento de candidaturas.
     return back()->with('success', 'Candidatura enviada con exito.');
 })->name('empleo.enviar');
+
+/*
+|--------------------------------------------------------------------------
+| Ruta temporal de mantenimiento (Render sin terminal)
+|--------------------------------------------------------------------------
+*/
+Route::get('/ops/migrar', function (Request $request) {
+    $tokenConfigurado = (string) env('WEB_MIGRATE_TOKEN', '');
+    $tokenRecibido = (string) $request->query('token', '');
+
+    if ($tokenConfigurado === '' || !hash_equals($tokenConfigurado, $tokenRecibido)) {
+        abort(403, 'No autorizado.');
+    }
+
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        $salidaMigrate = trim(Artisan::output());
+
+        Artisan::call('optimize:clear');
+        $salidaClear = trim(Artisan::output());
+
+        return response()->json([
+            'ok' => true,
+            'mensaje' => 'Migraciones ejecutadas correctamente.',
+            'migrate' => $salidaMigrate,
+            'clear' => $salidaClear,
+            'nota' => 'Elimina esta ruta despues de usarla.',
+        ], 200, [], JSON_UNESCAPED_UNICODE);
+    } catch (\Throwable $e) {
+        report($e);
+
+        return response()->json([
+            'ok' => false,
+            'mensaje' => 'Error ejecutando migraciones.',
+            'error' => $e->getMessage(),
+        ], 500, [], JSON_UNESCAPED_UNICODE);
+    }
+})->name('ops.migrar');
 
 /*
 |--------------------------------------------------------------------------
