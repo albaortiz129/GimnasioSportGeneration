@@ -13,6 +13,8 @@ use App\Http\Controllers\ValoracionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminDiscountController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -183,4 +185,48 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/usuario/{user}/aprobar-manual', [AdminController::class, 'aprobarPagoManual'])
         ->name('admin.user.aprobar_manual');
 
+    Route::get('/descuentos', [AdminDiscountController::class, 'index'])->name('admin.discounts.index');
+    Route::get('/descuentos/nuevo', [AdminDiscountController::class, 'create'])->name('admin.discounts.create');
+    Route::post('/descuentos', [AdminDiscountController::class, 'store'])->name('admin.discounts.store');
+    Route::get('/descuentos/{discountCode}/editar', [AdminDiscountController::class, 'edit'])->name('admin.discounts.edit');
+    Route::put('/descuentos/{discountCode}', [AdminDiscountController::class, 'update'])->name('admin.discounts.update');
+    Route::delete('/descuentos/{discountCode}', [AdminDiscountController::class, 'destroy'])->name('admin.discounts.destroy');
+
+
 });
+
+//ruta temporal
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/ops/migrar', function (Request $request) {
+    $tokenConfigurado = (string) env('WEB_MIGRATE_TOKEN', '');
+    $tokenRecibido = (string) $request->query('token', '');
+
+    if ($tokenConfigurado === '' || !hash_equals($tokenConfigurado, $tokenRecibido)) {
+        abort(403, 'No autorizado.');
+    }
+
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        $salidaMigrate = trim(Artisan::output());
+
+        Artisan::call('optimize:clear');
+        $salidaClear = trim(Artisan::output());
+
+        return response()->json([
+            'ok' => true,
+            'mensaje' => 'Migraciones ejecutadas correctamente.',
+            'migrate' => $salidaMigrate,
+            'clear' => $salidaClear,
+        ], 200, [], JSON_UNESCAPED_UNICODE);
+    } catch (\Throwable $e) {
+        report($e);
+
+        return response()->json([
+            'ok' => false,
+            'mensaje' => 'Error ejecutando migraciones.',
+            'error' => $e->getMessage(),
+        ], 500, [], JSON_UNESCAPED_UNICODE);
+    }
+});
+

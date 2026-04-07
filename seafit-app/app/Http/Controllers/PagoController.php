@@ -8,6 +8,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\DiscountCode;
+
 
 class PagoController extends Controller
 {
@@ -72,54 +74,61 @@ class PagoController extends Controller
     {
         $request->validate([
             'tarifa' => 'nullable|in:mensual,trimestral,anual',
-            'coupon' => 'nullable|string|max:100',
+            'cupon' => 'nullable|string|max:100',
         ]);
 
         $user = Auth::user();
         $nuevaTarifa = $request->input('tarifa', 'mensual');
-        $coupon = $request->input('coupon');
+        $codigoCupon = $request->input('cupon');
+
+        $cupon = $this->resolverCuponStripe($codigoCupon, $user, 'reanudar_plan');
+        if ($cupon['error']) {
+            return back()->with('error', $cupon['error']);
+        }
+
         $planId = $this->priceIdDesdeTarifa($nuevaTarifa);
 
         try {
             $subscription = $user->subscription('default');
 
             if ($subscription) {
-                // Si ya tiene plan y cambia de tarifa, cambiamos al nuevo plan.
                 if ($user->tarifa !== $nuevaTarifa) {
                     $subscription->swap($planId);
                 }
 
-                // Si esta cancelada pero aun activa hasta fin de ciclo, la reactivamos.
-                if ($subscription->onGracePeriod()) {
-                    if ($coupon) {
-                        $subscription->applyCoupon($coupon);
-                    }
+                if ($cupon['stripe_coupon_id']) {
+                    $subscription->applyCoupon($cupon['stripe_coupon_id']);
+                }
 
+                if ($subscription->onGracePeriod()) {
                     $subscription->resume();
                 }
             } else {
-                // Alta de nueva suscripcion.
                 if (!$user->hasDefaultPaymentMethod()) {
                     return back()->with('error', 'No tienes una tarjeta guardada.');
                 }
 
                 $newSubscription = $user->newSubscription('default', $planId);
 
-                if ($coupon) {
-                    $newSubscription->withCoupon($coupon);
+                if ($cupon['stripe_coupon_id']) {
+                    $newSubscription->withCoupon($cupon['stripe_coupon_id']);
                 }
 
                 $newSubscription->create($user->defaultPaymentMethod()->id);
             }
 
-            // Sincronizamos la tarifa visible en la cuenta local.
             $user->update(['tarifa' => $nuevaTarifa]);
 
-            return back()->with('success', 'Plan activado! ' . ($coupon ? 'Descuento aplicado correctamente.' : ''));
-        } catch (\Exception $e) {
+            if ($cupon['model']) {
+                $cupon['model']->markUsed($user, 'reanudar_plan');
+            }
+
+            return back()->with('success', 'Plan activado correctamente.');
+        } catch (\Throwable $e) {
             return back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
+
 
     /**
      * Define una tarjeta guardada como metodo principal.
@@ -485,15 +494,22 @@ class PagoController extends Controller
         $request->validate([
             'tarifa' => 'required|in:mensual,trimestral,anual',
             'metodo_pago' => 'required|in:visa,amex,bizum,paypal,transferencia,efectivo',
+            'cupon' => 'nullable|string|max:100',
         ]);
 
         $user = Auth::user();
         $tarifa = $request->tarifa;
         $metodo = $request->metodo_pago;
+        $codigoCupon = $request->input('cupon');
 
         if (in_array($metodo, ['visa', 'amex'], true)) {
             if (!$user->hasDefaultPaymentMethod()) {
                 return back()->with('error', 'Para pagar con tarjeta, primero anade una tarjeta.');
+            }
+
+            $cupon = $this->resolverCuponStripe($codigoCupon, $user, 'cambio_plan');
+            if ($cupon['error']) {
+                return back()->with('error', $cupon['error']);
             }
 
             $planId = $this->priceIdDesdeTarifa($tarifa);
@@ -503,9 +519,18 @@ class PagoController extends Controller
 
                 if ($subscription) {
                     $subscription->swap($planId);
+
+                    if ($cupon['stripe_coupon_id']) {
+                        $subscription->applyCoupon($cupon['stripe_coupon_id']);
+                    }
                 } else {
-                    $user->newSubscription('default', $planId)
-                        ->create($user->defaultPaymentMethod()->id);
+                    $newSubscription = $user->newSubscription('default', $planId);
+
+                    if ($cupon['stripe_coupon_id']) {
+                        $newSubscription->withCoupon($cupon['stripe_coupon_id']);
+                    }
+
+                    $newSubscription->create($user->defaultPaymentMethod()->id);
                 }
 
                 $user->update([
@@ -515,13 +540,20 @@ class PagoController extends Controller
                     'next_payment_at' => $this->proximoCobroDesdeTarifa($tarifa),
                 ]);
 
+                if ($cupon['model']) {
+                    $cupon['model']->markUsed($user, 'cambio_plan');
+                }
+
                 return back()->with('success', 'Plan y metodo actualizados correctamente.');
             } catch (\Throwable $e) {
                 return back()->with('error', 'No se pudo actualizar: ' . $e->getMessage());
             }
         }
 
-        // Metodos manuales
+        if (!empty($codigoCupon)) {
+            return back()->with('error', 'El cupon solo se aplica a pagos con tarjeta Stripe.');
+        }
+
         $user->update([
             'tarifa' => $tarifa,
             'metodo_pago' => $metodo,
@@ -531,6 +563,7 @@ class PagoController extends Controller
 
         return back()->with('success', 'Cambio solicitado. El admin debe validar el pago manual.');
     }
+
 
     /**
      * Calcula la fecha del proximo cobro segun la tarifa.
@@ -545,6 +578,50 @@ class PagoController extends Controller
             'mensual' => $fecha->addMonthNoOverflow()->toDateString(),
             default => null,
         };
+    }
+    private function resolverCuponStripe(?string $codigo, $user, string $context): array
+    {
+        $codigo = strtoupper(trim((string) $codigo));
+
+        if ($codigo === '') {
+            return [
+                'model' => null,
+                'stripe_coupon_id' => null,
+                'error' => null,
+            ];
+        }
+
+        $discount = DiscountCode::byCode($codigo)->first();
+
+        if (!$discount) {
+            return [
+                'model' => null,
+                'stripe_coupon_id' => null,
+                'error' => 'El cupon no existe.',
+            ];
+        }
+
+        if (!$discount->canBeUsedBy($user, $context)) {
+            return [
+                'model' => null,
+                'stripe_coupon_id' => null,
+                'error' => 'El cupon no esta activo, esta caducado o ya fue usado.',
+            ];
+        }
+
+        if (empty($discount->stripe_coupon_id)) {
+            return [
+                'model' => null,
+                'stripe_coupon_id' => null,
+                'error' => 'El cupon no esta vinculado a Stripe.',
+            ];
+        }
+
+        return [
+            'model' => $discount,
+            'stripe_coupon_id' => $discount->stripe_coupon_id,
+            'error' => null,
+        ];
     }
 
 }

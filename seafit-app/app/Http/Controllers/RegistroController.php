@@ -6,6 +6,7 @@
  */
 namespace App\Http\Controllers;
 
+use App\Models\DiscountCode;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,7 @@ class RegistroController extends Controller
     public function registrar(Request $request)
     {
         try {
-                // Valida los datos del formulario de registro.
+            // Valida los datos del formulario de registro.
             $validator = Validator::make($request->all(), [
                 'nombre' => 'required|string|max:255',
                 'apellidos' => 'required|string|max:255',
@@ -55,18 +56,20 @@ class RegistroController extends Controller
                 ], 422);
             }
 
-
             return DB::transaction(function () use ($request) {
-                // Cupones disponibles y su descuento.
-                $cuponesDisponibles = [
-                    'SEAFIT20' => 0.20,
-                    'BIENVENIDA' => 5.00
-                ];
-
-                // Informativo por ahora: no modifica importe en servidor.
+                $discountCode = null;
                 $mensajeDescuento = '';
-                if ($request->filled('cupon') && isset($cuponesDisponibles[$request->cupon])) {
-                    $mensajeDescuento = '¡Cupón aplicado con éxito!';
+
+                if ($request->filled('cupon')) {
+                    $discountCode = DiscountCode::byCode($request->cupon)->first();
+
+                    if (!$discountCode || !$discountCode->isActiveNow()) {
+                        return response()->json([
+                            'error' => 'Cupon no valido o caducado.',
+                        ], 422);
+                    }
+
+                    $mensajeDescuento = 'Cupon validado correctamente.';
                 }
 
                 // Crear al usuario.
@@ -81,29 +84,39 @@ class RegistroController extends Controller
                 $user->tarifa = $request->tarifa;
                 $user->metodo_pago = $request->metodo_pago;
                 $user->password = Hash::make($request->password);
+
                 $esTarjeta = in_array($request->metodo_pago, ['visa', 'amex'], true);
                 $user->payment_status = $esTarjeta ? 'al_dia' : 'pendiente';
                 $user->next_payment_at = $esTarjeta ? $this->proximoCobroDesdeTarifa($request->tarifa) : null;
-
                 $user->save();
 
-                $mensajeFinal = '¡Socio registrado con éxito!';
+                $mensajeFinal = 'Socio registrado con exito.';
 
                 // Flujo de pago segun metodo seleccionado.
-                if (in_array($request->metodo_pago, ['visa', 'amex'], true) && $request->filled('stripeCodigo')) {
+                if ($esTarjeta && $request->filled('stripeCodigo')) {
                     $priceId = $this->priceIdDesdeTarifa($request->tarifa);
 
                     if ($priceId) {
-                        // stripeCodigo viene como PaymentMethod ID.
                         try {
                             $user->createAsStripeCustomer();
-                            $user->newSubscription('default', $priceId)->create($request->stripeCodigo);
+
+                            $newSubscription = $user->newSubscription('default', $priceId);
+
+                            if ($discountCode && $discountCode->stripe_coupon_id) {
+                                $newSubscription->withCoupon($discountCode->stripe_coupon_id);
+                            }
+
+                            $newSubscription->create($request->stripeCodigo);
 
                             $user->payment_status = 'al_dia';
                             $user->next_payment_at = $this->proximoCobroDesdeTarifa($request->tarifa);
                             $user->save();
 
-                            $mensajeFinal = '¡Socio registrado y suscripcion activada con éxito!';
+                            if ($discountCode) {
+                                $discountCode->markUsed($user, 'registro');
+                            }
+
+                            $mensajeFinal = 'Socio registrado y suscripcion activada con exito.';
                         } catch (\Throwable $e) {
                             $user->payment_status = 'pendiente';
                             $user->next_payment_at = null;
@@ -111,12 +124,11 @@ class RegistroController extends Controller
 
                             $mensajeFinal = 'Registro creado, pero el pago con tarjeta no se pudo confirmar. Revisa tu metodo de pago.';
                         }
-
                     }
                 } elseif ($request->metodo_pago === 'bizum') {
-                    $mensajeFinal = '¡Registro recibido! Envía el Bizum al 600 000 000 con tu DNI como concepto para activar tu cuenta.';
+                    $mensajeFinal = 'Registro recibido. Envia el Bizum al 600 000 000 con tu DNI como concepto para activar tu cuenta.';
                 } elseif ($request->metodo_pago === 'paypal') {
-                    $mensajeFinal = '¡Registro recibido! Te hemos enviado un enlace de PayPal a ' . $user->email . ' para completar el pago.';
+                    $mensajeFinal = 'Registro recibido. Te hemos enviado un enlace de PayPal a ' . $user->email . ' para completar el pago.';
                 }
 
                 return response()->json([
@@ -126,7 +138,7 @@ class RegistroController extends Controller
                     'email' => $user->email,
                 ], 201);
             });
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Error en Registro SeaFit: ' . $e->getMessage());
 
             return response()->json([
@@ -163,6 +175,4 @@ class RegistroController extends Controller
             default => null,
         };
     }
-
 }
-
