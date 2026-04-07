@@ -134,7 +134,7 @@ Route::middleware(['auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Recuperacion de contrasena
+| Recuperacion de contraseña
 |--------------------------------------------------------------------------
 */
 Route::get('/recuperar-password', [PasswordController::class, 'mostrarFormularioEmail'])->name('password.request');

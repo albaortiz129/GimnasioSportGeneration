@@ -133,7 +133,7 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('admin.user.edit', $user)
-            ->with('success', 'Usuario creado. Contrasena temporal: ' . $passwordTemporal);
+            ->with('success', 'Usuario creado. Contraseña temporal: ' . $passwordTemporal);
     }
 
     /**

@@ -1,3 +1,4 @@
+{{-- Plantilla base de notificaciones por correo de Laravel (personalizada para SeaFit). --}}
 <x-mail::message>
     {{-- Titulo del correo.
     Si el sistema trae un saludo personalizado, se usa ese.

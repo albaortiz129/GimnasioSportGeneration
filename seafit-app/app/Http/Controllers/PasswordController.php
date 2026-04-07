@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -49,10 +50,22 @@ class PasswordController extends Controller
             ]
         );
 
-        Mail::send('emails.recuperar-password', ['token' => $token], function ($message) use ($request) {
-            $message->to($request->email);
-            $message->subject('Recuperar contraseña - SeaFit');
-        });
+        try {
+            Mail::send('emails.recuperar-password', ['token' => $token], function ($message) use ($request) {
+                $message->to($request->email);
+                $message->subject('Recuperar contraseña - SeaFit');
+            });
+        } catch (\Throwable $e) {
+            // Evita error 500 si SMTP falla en produccion y deja rastro en logs.
+            Log::error('Error al enviar correo de recuperacion.', [
+                'email' => $request->email,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->withErrors([
+                'email' => 'No se pudo enviar el correo ahora mismo. Intentalo de nuevo en unos minutos.',
+            ]);
+        }
 
         return back()->with('status', 'Listo. Revisa tu bandeja de entrada, te hemos enviado el enlace de recuperacion.');
     }

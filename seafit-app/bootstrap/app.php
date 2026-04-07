@@ -1,8 +1,13 @@
 <?php
 
+/**
+ * Punto de arranque de Laravel.
+ * Configura rutas, middleware y manejo global de excepciones.
+ */
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Session\TokenMismatchException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -22,5 +27,16 @@ return Application::configure(basePath: dirname(__DIR__))
 
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Evita la pantalla 419 por CSRF caducado y vuelve al formulario.
+        $exceptions->render(function (TokenMismatchException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Tu sesion ha caducado. Recarga la pagina e intentalo de nuevo.',
+                ], 419);
+            }
+
+            return back()
+                ->withInput($request->except('_token'))
+                ->with('error', 'Tu sesion ha caducado. Hemos recargado seguridad; vuelve a enviar el formulario.');
+        });
     })->create();
