@@ -30,6 +30,10 @@
                     class="bg-[#1A3878] text-white px-4 py-2 rounded-xl font-bold text-sm">
                     Gestionar clases
                 </a>
+                <a href="{{ route('admin.discounts.index') }}"
+                    class="bg-[#0A1931] text-white px-4 py-2 rounded-xl font-bold text-sm">
+                    Descuentos
+                </a>
             </div>
         </div>
 
