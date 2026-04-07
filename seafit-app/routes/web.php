@@ -194,39 +194,3 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
 
 });
-
-//ruta temporal
-use Illuminate\Support\Facades\Artisan;
-
-Route::get('/ops/migrar', function (Request $request) {
-    $tokenConfigurado = (string) env('WEB_MIGRATE_TOKEN', '');
-    $tokenRecibido = (string) $request->query('token', '');
-
-    if ($tokenConfigurado === '' || !hash_equals($tokenConfigurado, $tokenRecibido)) {
-        abort(403, 'No autorizado.');
-    }
-
-    try {
-        Artisan::call('migrate', ['--force' => true]);
-        $salidaMigrate = trim(Artisan::output());
-
-        Artisan::call('optimize:clear');
-        $salidaClear = trim(Artisan::output());
-
-        return response()->json([
-            'ok' => true,
-            'mensaje' => 'Migraciones ejecutadas correctamente.',
-            'migrate' => $salidaMigrate,
-            'clear' => $salidaClear,
-        ], 200, [], JSON_UNESCAPED_UNICODE);
-    } catch (\Throwable $e) {
-        report($e);
-
-        return response()->json([
-            'ok' => false,
-            'mensaje' => 'Error ejecutando migraciones.',
-            'error' => $e->getMessage(),
-        ], 500, [], JSON_UNESCAPED_UNICODE);
-    }
-});
-

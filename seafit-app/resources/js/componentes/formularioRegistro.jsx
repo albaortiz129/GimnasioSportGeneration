@@ -237,6 +237,22 @@ const FormularioRegistro = () => {
                             </div>
                         ))}
                     </div>
+
+                    <div className="mt-8">
+                        <label className="block text-sm font-bold text-[#0A1931] mb-2">
+                            Codigo de descuento (opcional)
+                        </label>
+                        <input
+                            type="text"
+                            value={datos.cupon}
+                            onChange={(e) => handleChange('cupon', e.target.value.toUpperCase())}
+                            placeholder="Ej: SEAFIT20"
+                            className="w-full p-3.5 border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3878] bg-[#fdfdfd]"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                            Si tienes un codigo, escribelo aqui. Se validara al finalizar el registro.
+                        </p>
+                    </div>
                 </section>
             )}
 
