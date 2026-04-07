@@ -5,8 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Historial de usos de codigos de descuento.
+ */
 class DiscountRedemption extends Model
 {
+    /**
+     * Campos permitidos al crear registros de uso.
+     */
     protected $fillable = [
         'discount_code_id',
         'user_id',
@@ -15,6 +21,9 @@ class DiscountRedemption extends Model
         'applied_at',
     ];
 
+    /**
+     * Conversion automatica de tipos.
+     */
     protected function casts(): array
     {
         return [
@@ -23,11 +32,17 @@ class DiscountRedemption extends Model
         ];
     }
 
+    /**
+     * Codigo de descuento asociado.
+     */
     public function discountCode(): BelongsTo
     {
         return $this->belongsTo(DiscountCode::class);
     }
 
+    /**
+     * Usuario que uso el codigo.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

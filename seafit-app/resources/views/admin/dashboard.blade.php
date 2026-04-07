@@ -4,7 +4,10 @@
 @section('titulo', 'Panel de Administracion - SeaFit')
 
 @section('contenido')
+    @php($cobrosDisponibles = $billingColumnsReady ?? false)
+
     <div class="max-w-7xl mx-auto px-4 py-8">
+        {{-- Mensajes rapidos de resultado (exito o error) --}}
         @if(session('success'))
             <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded mb-4">
                 {{ session('success') }}
@@ -37,6 +40,7 @@
             </div>
         </div>
 
+        {{-- Buscador global de clientes --}}
         <form method="GET" action="{{ route('admin.dashboard') }}" class="bg-white border rounded-2xl p-4 mb-6">
             <label class="text-sm font-bold text-gray-700">Buscar cliente</label>
             <div class="flex gap-2 mt-2">
@@ -46,9 +50,10 @@
             </div>
         </form>
 
+        {{-- Resumen de impagos --}}
         <section class="bg-white border rounded-2xl p-4 mb-6">
             <h2 class="text-lg font-bold mb-3 text-red-700">Clientes con impago o pago vencido</h2>
-            @if(!($billingColumnsReady ?? false))
+            @if(!$cobrosDisponibles)
                 <p class="text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
                     El modulo de cobros aun no esta disponible en esta base de datos.
                     Ejecuta las migraciones pendientes para activar esta seccion.
@@ -70,6 +75,7 @@
             @endif
         </section>
 
+        {{-- Fichas de clientes --}}
         <div class="space-y-4">
             @foreach($usuarios as $user)
                 <article class="bg-white border rounded-2xl p-4">
@@ -80,7 +86,7 @@
                         </div>
                         <div class="text-sm">
                             <span class="font-bold">Plan:</span> {{ ucfirst($user->tarifa) }}
-                            @if($billingColumnsReady ?? false)
+                            @if($cobrosDisponibles)
                                 |
                                 <span class="font-bold">Pago:</span> {{ $user->payment_status }}
                             @endif
@@ -88,7 +94,7 @@
                     </div>
 
                     <div class="grid grid-cols-1 xl:grid-cols-4 gap-3">
-                        @if($billingColumnsReady ?? false)
+                        @if($cobrosDisponibles)
                             <form action="{{ route('admin.user.plan', $user) }}" method="POST" class="border rounded-xl p-3">
                                 @csrf
                                 @method('PUT')

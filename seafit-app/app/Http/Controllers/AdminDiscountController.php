@@ -8,17 +8,26 @@ use Illuminate\Validation\Rule;
 
 class AdminDiscountController extends Controller
 {
+    /**
+     * Lista los codigos de descuento creados.
+     */
     public function index()
     {
         $codes = DiscountCode::orderByDesc('id')->paginate(20);
         return view('admin.descuentos.index', compact('codes'));
     }
 
+    /**
+     * Formulario para crear un codigo.
+     */
     public function create()
     {
         return view('admin.descuentos.create');
     }
 
+    /**
+     * Guarda un nuevo codigo de descuento.
+     */
     public function store(Request $request)
     {
         $data = $this->validateData($request);
@@ -30,11 +39,17 @@ class AdminDiscountController extends Controller
         return redirect()->route('admin.discounts.index')->with('success', 'Codigo creado.');
     }
 
+    /**
+     * Formulario para editar un codigo existente.
+     */
     public function edit(DiscountCode $discountCode)
     {
         return view('admin.descuentos.edit', compact('discountCode'));
     }
 
+    /**
+     * Actualiza un codigo de descuento.
+     */
     public function update(Request $request, DiscountCode $discountCode)
     {
         $data = $this->validateData($request, $discountCode->id);
@@ -43,6 +58,9 @@ class AdminDiscountController extends Controller
         return redirect()->route('admin.discounts.index')->with('success', 'Codigo actualizado.');
     }
 
+    /**
+     * Elimina un codigo sin usos.
+     */
     public function destroy(DiscountCode $discountCode)
     {
         if ($discountCode->redemptions()->exists()) {
@@ -54,6 +72,9 @@ class AdminDiscountController extends Controller
         return back()->with('success', 'Codigo eliminado.');
     }
 
+    /**
+     * Reglas comunes de validacion para crear y editar.
+     */
     private function validateData(Request $request, ?int $ignoreId = null): array
     {
         $data = $request->validate([

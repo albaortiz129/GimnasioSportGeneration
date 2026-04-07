@@ -10,11 +10,10 @@ use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\ValoracionController;
+use App\Http\Controllers\AdminDiscountController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminDiscountController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -131,14 +130,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/pago/cambiar-plan-metodo', [PagoController::class, 'cambiarPlanMetodo'])
         ->name('pago.cambiar_plan_metodo');
-
-
 });
-
 
 /*
 |--------------------------------------------------------------------------
-| Recuperacion de contraseña
+| Recuperacion de contrasena
 |--------------------------------------------------------------------------
 */
 Route::get('/recuperar-password', [PasswordController::class, 'mostrarFormularioEmail'])->name('password.request');
@@ -191,6 +187,5 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/descuentos/{discountCode}/editar', [AdminDiscountController::class, 'edit'])->name('admin.discounts.edit');
     Route::put('/descuentos/{discountCode}', [AdminDiscountController::class, 'update'])->name('admin.discounts.update');
     Route::delete('/descuentos/{discountCode}', [AdminDiscountController::class, 'destroy'])->name('admin.discounts.destroy');
-
-
 });
+

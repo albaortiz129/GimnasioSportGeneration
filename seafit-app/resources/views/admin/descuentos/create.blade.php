@@ -1,3 +1,4 @@
+{{-- Vista de admin para crear un codigo de descuento. --}}
 @extends('moldes.inicio')
 
 @section('titulo', 'Nuevo descuento - Admin')

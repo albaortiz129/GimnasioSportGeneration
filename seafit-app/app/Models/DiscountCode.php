@@ -6,8 +6,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Modelo de codigos de descuento administrables desde el panel.
+ */
 class DiscountCode extends Model
 {
+    /**
+     * Campos permitidos al crear o editar.
+     */
     protected $fillable = [
         'code',
         'type',
@@ -23,6 +29,9 @@ class DiscountCode extends Model
         'created_by',
     ];
 
+    /**
+     * Conversion automatica de tipos.
+     */
     protected function casts(): array
     {
         return [
@@ -34,6 +43,9 @@ class DiscountCode extends Model
         ];
     }
 
+    /**
+     * Fuerza el codigo en mayusculas antes de guardar.
+     */
     protected static function booted(): void
     {
         static::saving(function (self $model) {
@@ -41,16 +53,25 @@ class DiscountCode extends Model
         });
     }
 
+    /**
+     * Relacion con los usos del codigo.
+     */
     public function redemptions(): HasMany
     {
         return $this->hasMany(DiscountRedemption::class);
     }
 
+    /**
+     * Scope para buscar por codigo.
+     */
     public function scopeByCode(Builder $query, string $code): Builder
     {
         return $query->where('code', strtoupper(trim($code)));
     }
 
+    /**
+     * Comprueba si el codigo esta activo ahora mismo.
+     */
     public function isActiveNow(): bool
     {
         $now = now();
@@ -74,6 +95,9 @@ class DiscountCode extends Model
         return true;
     }
 
+    /**
+     * Comprueba si un usuario puede usarlo en un contexto.
+     */
     public function canBeUsedBy(User $user, string $context = 'registro'): bool
     {
         if (!$this->isActiveNow()) {
@@ -90,6 +114,9 @@ class DiscountCode extends Model
             ->exists();
     }
 
+    /**
+     * Marca el codigo como usado y guarda el historial.
+     */
     public function markUsed(User $user, string $context = 'registro', ?float $amount = null): void
     {
         $this->increment('used_count');

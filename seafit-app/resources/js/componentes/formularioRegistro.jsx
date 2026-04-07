@@ -1,5 +1,39 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
+// Campos del primer paso (datos personales).
+const CAMPOS_PASO_1 = [
+    'nombre',
+    'apellidos',
+    'dni',
+    'fecha_nacimiento',
+    'email',
+    'password',
+    'telefono',
+    'domicilio',
+];
+
+// Tarifas disponibles para registro.
+const TARIFAS = [
+    { id: 'mensual', nombre: 'Mensual', precio: '29.99 EUR', desc: 'Sin permanencia' },
+    { id: 'trimestral', nombre: 'Trimestral', precio: '75.00 EUR', desc: 'Ahorra un 15%' },
+    { id: 'anual', nombre: 'Anual', precio: '250.00 EUR', desc: 'La mejor opcion' },
+];
+
+// Metodos de pago admitidos en registro.
+const METODOS_PAGO = [
+    { id: 'bizum', nombre: 'Bizum', icono: 'payments' },
+    { id: 'paypal', nombre: 'PayPal', icono: 'payments' },
+    { id: 'visa', nombre: 'Tarjeta de credito', icono: 'credit_card' },
+    { id: 'amex', nombre: 'American Express', icono: 'credit_card' },
+];
+
+// Devuelve el precio visible segun la tarifa elegida.
+const obtenerPrecioTarifa = (tarifa) => {
+    if (tarifa === 'anual') return '250.00 EUR';
+    if (tarifa === 'trimestral') return '75.00 EUR';
+    return '29.99 EUR';
+};
 
 // Formulario en 3 pasos: datos personales, tarifa y pago.
 const FormularioRegistro = () => {
@@ -87,8 +121,7 @@ const FormularioRegistro = () => {
     };
 
     const validarPaso1 = () => {
-        const campos = ['nombre', 'apellidos', 'dni', 'fecha_nacimiento', 'email', 'password', 'telefono', 'domicilio'];
-        return campos.every((campo) => validarCampo(campo, datos[campo]));
+        return CAMPOS_PASO_1.every((campo) => validarCampo(campo, datos[campo]));
     };
 
     // Envia el registro y, si aplica, crea payment method en Stripe.
@@ -175,10 +208,7 @@ const FormularioRegistro = () => {
 
     const volverPaso = () => setPaso((prev) => prev - 1);
 
-    const precioActual =
-        datos.tarifa === 'anual' ? '250.00 EUR' :
-        datos.tarifa === 'trimestral' ? '75.00 EUR' :
-        '29.99 EUR';
+    const precioActual = obtenerPrecioTarifa(datos.tarifa);
 
     return (
         <div className="bg-white w-full mx-auto overflow-hidden rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-gray-100">
@@ -197,7 +227,7 @@ const FormularioRegistro = () => {
                     <p className="text-[15px] text-gray-500 mb-8">Datos personales</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-                        {['nombre', 'apellidos', 'dni', 'fecha_nacimiento', 'email', 'password', 'telefono', 'domicilio'].map((campo) => (
+                        {CAMPOS_PASO_1.map((campo) => (
                             <div key={campo} className="min-w-0">
                                 <label className="block text-[14px] font-semibold text-gray-800 mb-2 capitalize">{campo.replace('_', ' ')}</label>
                                 <input
@@ -221,11 +251,7 @@ const FormularioRegistro = () => {
                     <p className="text-[15px] text-gray-500 mb-8">Paso 2: seleccion de tarifa</p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                        {[
-                            { id: 'mensual', nombre: 'Mensual', precio: '29.99 EUR', desc: 'Sin permanencia' },
-                            { id: 'trimestral', nombre: 'Trimestral', precio: '75.00 EUR', desc: 'Ahorra un 15%' },
-                            { id: 'anual', nombre: 'Anual', precio: '250.00 EUR', desc: 'La mejor opcion' },
-                        ].map((t) => (
+                        {TARIFAS.map((t) => (
                             <div
                                 key={t.id}
                                 className={`p-8 rounded-2xl border-2 transition-all cursor-pointer text-center ${datos.tarifa === t.id ? 'border-[#1A3878] bg-[#f0f7ff]' : 'border-gray-200 hover:border-[#1A3878]'}`}
@@ -263,12 +289,7 @@ const FormularioRegistro = () => {
                     <p className="text-[15px] text-gray-500 mb-8">Total: <strong className="text-[#1A3878]">{precioActual}</strong></p>
 
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 mb-8">
-                        {[
-                            { id: 'bizum', nombre: 'Bizum', icono: 'payments' },
-                            { id: 'paypal', nombre: 'PayPal', icono: 'payments' },
-                            { id: 'visa', nombre: 'Tarjeta de credito', icono: 'credit_card' },
-                            { id: 'amex', nombre: 'American Express', icono: 'credit_card' },
-                        ].map((metodo) => (
+                        {METODOS_PAGO.map((metodo) => (
                             <label key={metodo.id} className={`flex items-center gap-4 p-5 border-2 rounded-xl cursor-pointer transition-all ${datos.metodo_pago === metodo.id ? 'border-[#1A3878] bg-[#f0f7ff]' : 'border-gray-200'}`}>
                                 <input
                                     type="radio"

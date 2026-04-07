@@ -119,9 +119,10 @@
                 @enderror
             </div>
 
+            {{-- La contrasena inicial se asigna de forma automatica desde backend --}}
             <div class="md:col-span-2">
                 <p class="text-sm bg-blue-50 border border-blue-200 text-blue-900 rounded-xl p-3">
-                    contraseña temporal automatica para nuevos clientes: <strong>NUEVO12</strong>
+                    Contrasena temporal automatica para nuevos clientes: <strong>NUEVO12</strong>
                 </p>
             </div>
 

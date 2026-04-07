@@ -18,7 +18,7 @@ use Illuminate\Validation\Rule;
 class AdminController extends Controller
 {
     /**
-     * Dashboard principal con listado de usuarios e impagados.
+     * Muestra el dashboard con usuarios e impagados.
      */
     public function index(Request $request)
     {
@@ -57,7 +57,7 @@ class AdminController extends Controller
                     ->orderBy('next_payment_at')
                     ->get();
             } catch (QueryException $exception) {
-                // Si Render aun no tiene migrada la DB, no rompemos el dashboard.
+                // Si la base de datos no esta al dia, no rompemos el panel.
                 report($exception);
                 $billingColumnsReady = false;
                 $impagados = collect();
@@ -76,7 +76,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Crea un nuevo usuario socio desde admin.
+     * Crea un nuevo socio desde admin.
      */
     public function store(Request $request)
     {
@@ -133,11 +133,11 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('admin.user.edit', $user)
-            ->with('success', 'Usuario creado. Contraseña temporal: ' . $passwordTemporal);
+            ->with('success', 'Usuario creado. Contrasena temporal: ' . $passwordTemporal);
     }
 
     /**
-     * Formulario de edicion de un usuario.
+     * Formulario de edicion de usuario.
      */
     public function edit(User $user)
     {
@@ -226,7 +226,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Renueva manualmente la fecha de suscripcion.
+     * Renueva manualmente la suscripcion.
      */
     public function renewSubscription(User $user)
     {
@@ -291,7 +291,7 @@ class AdminController extends Controller
 
         $diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
 
-        $ordenDias = "FIELD(dia_semana, 'Lunes','Martes','Miercoles','Miércoles','Jueves','Viernes','Sabado','Sábado','Domingo')";
+        $ordenDias = "FIELD(dia_semana, 'Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo')";
 
         $clases = Clase::with([
             'usuarios' => function ($query) use ($q) {
@@ -327,7 +327,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Crea una nueva clase desde el panel admin.
+     * Crea una nueva clase desde admin.
      */
     public function claseStore(Request $request)
     {
@@ -336,7 +336,7 @@ class AdminController extends Controller
             'instructor' => 'required|string|max:255',
             'sala' => 'required|string|max:255',
             'hora_inicio' => 'required|date_format:H:i',
-            'dia_semana' => 'required|in:Lunes,Martes,Miercoles,Miércoles,Jueves,Viernes,Sabado,Sábado,Domingo',
+            'dia_semana' => 'required|in:Lunes,Martes,Miercoles,Jueves,Viernes,Sabado,Domingo',
             'capacidad_max' => 'required|integer|min:0',
             'descripcion' => 'nullable|string',
             'imagen' => 'nullable|string|max:255',
@@ -359,7 +359,7 @@ class AdminController extends Controller
             'instructor' => 'required|string|max:255',
             'sala' => 'required|string|max:255',
             'hora_inicio' => 'required|date_format:H:i',
-            'dia_semana' => 'required|in:Lunes,Martes,Miercoles,Miércoles,Jueves,Viernes,Sabado,Sábado,Domingo',
+            'dia_semana' => 'required|in:Lunes,Martes,Miercoles,Jueves,Viernes,Sabado,Domingo',
             'capacidad_max' => 'required|integer|min:0',
             'descripcion' => 'nullable|string',
             'imagen' => 'nullable|string|max:255',
@@ -383,7 +383,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Añade un usuario a una clase y descuenta una plaza.
+     * Anade un usuario a una clase y descuenta una plaza.
      */
     public function anadirUsuarioClase(Request $request, Clase $clase)
     {
@@ -443,26 +443,26 @@ class AdminController extends Controller
     }
 
     /**
-     * Normaliza nombres de dias con y sin acentos.
+     * Normaliza nombres de dia para guardar siempre en formato ASCII.
      */
     private function normalizarDiaSemana(string $dia): string
     {
-        return match ($dia) {
-            'Miércoles' => 'Miercoles',
-            'Sábado' => 'Sabado',
-            default => $dia,
+        return match (trim($dia)) {
+            'Miercoles', 'Miércoles' => 'Miercoles',
+            'Sabado', 'Sábado' => 'Sabado',
+            default => trim($dia),
         };
     }
 
     /**
-     * Devuelve variantes con y sin acento para filtrar clases.
+     * Devuelve variantes utiles para filtrar datos antiguos y nuevos.
      */
     private function variantesDiaSemana(string $dia): array
     {
-        return match ($dia) {
-            'Miercoles', 'Miércoles' => ['Miercoles', 'Miércoles'],
-            'Sabado', 'Sábado' => ['Sabado', 'Sábado'],
-            default => [$dia],
+        return match ($this->normalizarDiaSemana($dia)) {
+            'Miercoles' => ['Miercoles', 'Miércoles'],
+            'Sabado' => ['Sabado', 'Sábado'],
+            default => [$this->normalizarDiaSemana($dia)],
         };
     }
 
@@ -483,5 +483,4 @@ class AdminController extends Controller
 
         return back()->with('success', 'Pago manual validado. Cuenta activada.');
     }
-
 }
