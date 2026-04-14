@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Migracion de tokens personales para autenticacion API (Sanctum).
@@ -13,6 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         Schema::create('personal_access_tokens', function (Blueprint $table) {
             $table->id();
             $table->morphs('tokenable');
@@ -30,7 +31,9 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         Schema::dropIfExists('personal_access_tokens');
     }
 };
+
 

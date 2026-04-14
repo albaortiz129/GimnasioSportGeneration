@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Migracion que anade columnas de cliente Stripe en users.
@@ -13,6 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         Schema::table('users', function (Blueprint $table) {
             $table->string('stripe_id')->nullable()->index();
             $table->string('pm_type')->nullable();
@@ -26,6 +27,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         Schema::table('users', function (Blueprint $table) {
             $table->dropIndex([
                 'stripe_id',
@@ -40,4 +42,5 @@ return new class extends Migration {
         });
     }
 };
+
 

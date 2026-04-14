@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
     {
         // 1) Poblar clases semanales de SeaFit.
         $this->call([
-            ClaseSeeder::class,
+            GymClassSeeder::class,
         ]);
 
         // 2) Crear/actualizar admin por variables de entorno.

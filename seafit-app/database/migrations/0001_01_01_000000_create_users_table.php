@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Migracion inicial de usuarios, tokens de recuperacion y sesiones.
@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
@@ -46,8 +47,10 @@ return new class extends Migration {
 
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
 };
+

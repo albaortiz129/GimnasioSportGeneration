@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Controlador de autenticacion: gestiona inicio y cierre de sesion de usuarios.
+ * Controlador de autenticación: gestiona inicio y cierre de sesión de usuarios.
  */
 namespace App\Http\Controllers;
 
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     /**
-     * Valida credenciales e inicia sesion.
+     * Valida credenciales e inicia sesión.
      */
     public function login(Request $request)
     {
@@ -21,14 +21,17 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
+            // Seguridad de sesion tras login correcto.
             $request->session()->regenerate();
 
             $user = Auth::user();
 
+            // Admin entra al panel de gestion.
             if ($user->is_admin) {
                 return redirect()->route('admin.dashboard');
             }
 
+            // Si tiene clave temporal, se fuerza cambio.
             if ($user->must_change_password) {
                 return redirect()->route('password.force.form')
                     ->with('warning', 'Debes cambiar tu contraseña temporal.');
@@ -44,18 +47,18 @@ class AuthController extends Controller
 
 
     /**
-     * Cierra sesion y limpia estado de seguridad.
+     * Cierra sesión y limpia estado de seguridad.
      */
     public function logout(Request $request)
     {
-        // Cerrar sesion del usuario autenticado.
+        // Cerrar sesión del usuario autenticado.
         Auth::logout();
 
-        // Borra la sesion anterior y crea un codigo nuevo de seguridad.
+        // Borra la sesión anterior y crea un código nuevo de seguridad.
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Redireccion al login.
+        // Redirección al login.
         return redirect('/login');
     }
 }

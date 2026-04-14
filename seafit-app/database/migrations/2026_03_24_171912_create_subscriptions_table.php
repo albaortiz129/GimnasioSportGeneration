@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Migracion de suscripciones de Cashier vinculadas a usuarios.
@@ -13,6 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
@@ -34,7 +35,9 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         Schema::dropIfExists('subscriptions');
     }
 };
+
 

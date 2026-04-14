@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Migracion de items de suscripcion de Cashier/Stripe.
@@ -13,6 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         Schema::create('subscription_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('subscription_id');
@@ -31,7 +32,9 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         Schema::dropIfExists('subscription_items');
     }
 };
+
 

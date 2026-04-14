@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Migracion de colas: trabajos, lotes y trabajos fallidos.
@@ -13,6 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         Schema::create('jobs', function (Blueprint $table) {
             $table->id();
             $table->string('queue')->index();
@@ -52,9 +53,11 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         Schema::dropIfExists('jobs');
         Schema::dropIfExists('job_batches');
         Schema::dropIfExists('failed_jobs');
     }
 };
+
 

@@ -66,16 +66,17 @@ class User extends Authenticatable
     /**
      * Un usuario puede reservar varias clases y una clase puede tener varios usuarios.
      */
-    public function clases(): BelongsToMany
+    public function classes(): BelongsToMany
     {
-        return $this->belongsToMany(Clase::class, 'clase_user');
+        return $this->belongsToMany(GymClass::class, 'clase_user');
     }
 
     /**
      * Indica si el usuario tiene el plan activo para usar servicios.
      */
-    public function planActivo(): bool
+    public function isPlanActive(): bool
     {
+        // Los administradores no tienen plan de socio.
         if ($this->is_admin) {
             return false;
         }
@@ -104,7 +105,7 @@ class User extends Authenticatable
     /**
      * Texto corto del estado del plan para mostrar en vistas.
      */
-    public function estadoPlanTexto(): string
+    public function planStatusText(): string
     {
         if ($this->is_admin) {
             return 'administrador';

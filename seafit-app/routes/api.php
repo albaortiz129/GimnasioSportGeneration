@@ -3,7 +3,7 @@
 /**
  * Definicion de endpoints API de SeaFit (registro de socios).
  */
-use App\Http\Controllers\RegistroController;
+use App\Http\Controllers\RegistrationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -11,5 +11,6 @@ use Illuminate\Support\Facades\Route;
 | API: Registro de socios
 |--------------------------------------------------------------------------
 */
-Route::post('/registro', [RegistroController::class, 'registrar']);
+// Endpoint usado por el formulario React para crear nuevos socios.
+Route::post('/registro', [RegistrationController::class, 'register']);
 

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Anade columna JSON para metodos de pago manuales.
@@ -13,6 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         Schema::table('users', function (Blueprint $table) {
             $table->json('manual_payment_methods')->nullable()->after('metodo_pago');
         });
@@ -23,8 +24,10 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('manual_payment_methods');
         });
     }
 };
+

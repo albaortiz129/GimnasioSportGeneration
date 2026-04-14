@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Migracion que agrega meter_event_name a subscription_items.
@@ -13,6 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         if (!Schema::hasTable('subscription_items')) {
             return;
         }
@@ -29,6 +30,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         if (!Schema::hasTable('subscription_items')) {
             return;
         }
@@ -40,4 +42,5 @@ return new class extends Migration {
         }
     }
 };
+
 

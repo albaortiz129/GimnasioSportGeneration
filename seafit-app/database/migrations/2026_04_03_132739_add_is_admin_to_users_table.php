@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Migracion que anade el rol booleano is_admin a users.
@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         Schema::table('users', function (Blueprint $table) {
             $table->boolean('is_admin')->default(false)->after('password');
         });
@@ -17,8 +18,10 @@ return new class extends Migration {
 
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('is_admin');
         });
     }
 };
+

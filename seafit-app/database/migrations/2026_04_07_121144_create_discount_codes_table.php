@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Crea la tabla de codigos de descuento gestionados por admin.
@@ -13,6 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         Schema::create('discount_codes', function (Blueprint $table) {
             $table->id();
             $table->string('code', 30)->unique(); // Ej: SEAFIT20
@@ -36,6 +37,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         Schema::dropIfExists('discount_codes');
     }
 };
+

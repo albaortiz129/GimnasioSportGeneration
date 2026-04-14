@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Controlador de administración de descuentos.
+ * Permite crear, editar y eliminar códigos de descuento.
+ */
+
 namespace App\Http\Controllers;
 
 use App\Models\DiscountCode;
@@ -9,24 +14,24 @@ use Illuminate\Validation\Rule;
 class AdminDiscountController extends Controller
 {
     /**
-     * Lista los codigos de descuento creados.
+     * Lista los códigos de descuento creados.
      */
     public function index()
     {
         $codes = DiscountCode::orderByDesc('id')->paginate(20);
-        return view('admin.descuentos.index', compact('codes'));
+        return view('admin.discounts.index', compact('codes'));
     }
 
     /**
-     * Formulario para crear un codigo.
+     * Formulario para crear un código.
      */
     public function create()
     {
-        return view('admin.descuentos.create');
+        return view('admin.discounts.create');
     }
 
     /**
-     * Guarda un nuevo codigo de descuento.
+     * Guarda un nuevo código de descuento.
      */
     public function store(Request $request)
     {
@@ -40,15 +45,15 @@ class AdminDiscountController extends Controller
     }
 
     /**
-     * Formulario para editar un codigo existente.
+     * Formulario para editar un código existente.
      */
     public function edit(DiscountCode $discountCode)
     {
-        return view('admin.descuentos.edit', compact('discountCode'));
+        return view('admin.discounts.edit', compact('discountCode'));
     }
 
     /**
-     * Actualiza un codigo de descuento.
+     * Actualiza un código de descuento.
      */
     public function update(Request $request, DiscountCode $discountCode)
     {
@@ -59,7 +64,7 @@ class AdminDiscountController extends Controller
     }
 
     /**
-     * Elimina un codigo sin usos.
+     * Elimina un código sin usos.
      */
     public function destroy(DiscountCode $discountCode)
     {
@@ -73,10 +78,11 @@ class AdminDiscountController extends Controller
     }
 
     /**
-     * Reglas comunes de validacion para crear y editar.
+     * Reglas comunes de validación para crear y editar.
      */
     private function validateData(Request $request, ?int $ignoreId = null): array
     {
+        // Reglas comunes para alta y edicion.
         $data = $request->validate([
             'code' => [
                 'required',
@@ -100,6 +106,7 @@ class AdminDiscountController extends Controller
         $data['is_active'] = $request->boolean('is_active');
         $data['one_use_per_user'] = $request->boolean('one_use_per_user');
 
+        // Porcentaje maximo permitido en descuentos de tipo percent.
         if ($data['type'] === 'percent' && (float) $data['value'] > 100) {
             abort(422, 'Si el tipo es porcentaje, el valor maximo es 100.');
         }

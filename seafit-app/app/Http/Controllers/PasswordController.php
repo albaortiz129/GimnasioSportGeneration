@@ -21,16 +21,17 @@ class PasswordController extends Controller
     /**
      * Muestra el formulario para solicitar recuperacion por email.
      */
-    public function mostrarFormularioEmail()
+    public function showRequestForm()
     {
-        return view('usuario.recuperar-password');
+        return view('user.forgot-password');
     }
 
     /**
      * Genera token y envia enlace de recuperacion.
      */
-    public function enviarEnlace(Request $request)
+    public function sendResetLink(Request $request)
     {
+        // Solo se necesita el email para generar enlace.
         $request->validate(['email' => 'required|email']);
 
         $user = User::where('email', $request->email)->first();
@@ -51,7 +52,8 @@ class PasswordController extends Controller
         );
 
         try {
-            Mail::send('emails.recuperar-password', ['token' => $token], function ($message) use ($request) {
+            // Envio simple con plantilla Blade.
+            Mail::send('emails.password-reset', ['token' => $token], function ($message) use ($request) {
                 $message->to($request->email);
                 $message->subject('Recuperar contraseña - SeaFit');
             });
@@ -73,22 +75,24 @@ class PasswordController extends Controller
     /**
      * Muestra el formulario para establecer nueva contraseña.
      */
-    public function mostrarFormularioReset($token)
+    public function showResetForm($token)
     {
-        return view('usuario.reset-password', ['token' => $token]);
+        return view('user.reset-password', ['token' => $token]);
     }
 
     /**
      * Guarda la nueva contraseña si email y token son validos.
      */
-    public function actualizarPassword(Request $request)
+    public function updatePassword(Request $request)
     {
+        // Token + email + password confirmada.
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:8|confirmed',
             'token' => 'required',
         ]);
 
+        // Comprueba que el token pertenece a ese email.
         $resetRecord = DB::table('password_reset_tokens')
             ->where('email', $request->email)
             ->where('token', $request->token)
@@ -116,8 +120,9 @@ class PasswordController extends Controller
     /**
      * Cambia contraseña desde el perfil del usuario logueado.
      */
-    public function cambiarPasswordPerfil(Request $request)
+    public function changeProfilePassword(Request $request)
     {
+        // Cambio de password desde cuenta logueada.
         $request->validate([
             'password_actual' => 'required',
             'password' => 'required|min:8|confirmed',
@@ -141,16 +146,17 @@ class PasswordController extends Controller
     /**
      * Formulario obligatorio de primer inicio para cambiar contraseña temporal.
      */
-    public function mostrarFormularioCambioInicial()
+    public function showInitialChangeForm()
     {
-        return view('usuario.forzar-cambiar-password');
+        return view('user.force-change-password');
     }
 
     /**
      * Guarda nueva contraseña en el primer inicio y desactiva el bloqueo.
      */
-    public function cambiarPasswordInicial(Request $request)
+    public function changeInitialPassword(Request $request)
     {
+        // Primer acceso con clave temporal.
         $request->validate([
             'password' => 'required|min:8|confirmed',
         ], [

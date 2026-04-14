@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Migracion de la tabla pivote clase_user para reservas.
@@ -13,6 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         Schema::create('clase_user', function (Blueprint $table) {
             $table->id();
 
@@ -32,6 +33,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         Schema::dropIfExists('clase_user');
     }
 };
+

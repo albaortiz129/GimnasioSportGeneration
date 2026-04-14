@@ -7,7 +7,7 @@
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
-// Comando de ejemplo incluido por Laravel.
+// Comando de ejemplo de Laravel (no afecta al funcionamiento de la web).
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');

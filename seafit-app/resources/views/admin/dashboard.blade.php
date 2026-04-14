@@ -1,9 +1,10 @@
 {{-- Vista principal del panel admin: gestion de clientes, cobros y planes. --}}
-@extends('moldes.inicio')
+@extends('layouts.app')
 
 @section('titulo', 'Panel de Administracion - SeaFit')
 
 @section('contenido')
+    {{-- Si faltan columnas de cobros en la BD, algunas acciones se ocultan. --}}
     @php($cobrosDisponibles = $billingColumnsReady ?? false)
 
     <div class="max-w-7xl mx-auto px-4 py-8">
@@ -24,12 +25,13 @@
                 <h1 class="text-3xl font-black text-gray-800">Panel de Gestion</h1>
                 <p class="text-sm text-gray-500">Administra usuarios, planes, cobros y clases.</p>
             </div>
+            {{-- Accesos rapidos a pantallas principales del panel admin. --}}
             <div class="flex gap-2">
                 <a href="{{ route('admin.user.create') }}"
                     class="bg-[#0A1931] text-white px-4 py-2 rounded-xl font-bold text-sm">
                     Nuevo cliente
                 </a>
-                <a href="{{ route('admin.clases.index') }}"
+                <a href="{{ route('admin.classes.index') }}"
                     class="bg-[#1A3878] text-white px-4 py-2 rounded-xl font-bold text-sm">
                     Gestionar clases
                 </a>
@@ -85,6 +87,7 @@
                             <p class="text-sm text-gray-600">{{ $user->email }} | DNI: {{ $user->dni }}</p>
                         </div>
                         <div class="text-sm">
+                            {{-- Resumen rapido de estado de plan/pago del cliente. --}}
                             <span class="font-bold">Plan:</span> {{ ucfirst($user->tarifa) }}
                             @if($cobrosDisponibles)
                                 |
@@ -95,6 +98,7 @@
 
                     <div class="grid grid-cols-1 xl:grid-cols-4 gap-3">
                         @if($cobrosDisponibles)
+                            {{-- Formulario rapido para cambiar solo la tarifa. --}}
                             <form action="{{ route('admin.user.plan', $user) }}" method="POST" class="border rounded-xl p-3">
                                 @csrf
                                 @method('PUT')
@@ -107,6 +111,7 @@
                                 <button class="w-full bg-[#1A3878] text-white py-2 rounded font-bold text-sm">Guardar plan</button>
                             </form>
 
+                            {{-- Registro de cobro manual con metodo y nota interna. --}}
                             <form action="{{ route('admin.user.manual_charge', $user) }}" method="POST"
                                 class="border rounded-xl p-3">
                                 @csrf
@@ -128,6 +133,7 @@
                                 <button class="w-full bg-[#0A1931] text-white py-2 rounded font-bold text-sm">Registrar cobro</button>
                             </form>
 
+                            {{-- Acciones de estado de cobro sin editar toda la ficha. --}}
                             <div class="border rounded-xl p-3 flex flex-col gap-2">
                                 <p class="font-bold text-sm mb-1">Acciones de pago</p>
                                 <form action="{{ route('admin.user.renew', $user) }}" method="POST">

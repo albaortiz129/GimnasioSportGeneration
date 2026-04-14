@@ -16,6 +16,7 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Solo deja pasar si hay sesion y rol admin.
         if (auth()->check() && auth()->user()->is_admin) {
             return $next($request);
         }

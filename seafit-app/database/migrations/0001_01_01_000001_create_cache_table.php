@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Migracion de tablas de cache y bloqueos de cache.
@@ -13,6 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         Schema::create('cache', function (Blueprint $table) {
             $table->string('key')->primary();
             $table->mediumText('value');
@@ -31,8 +32,10 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         Schema::dropIfExists('cache');
         Schema::dropIfExists('cache_locks');
     }
 };
+
 

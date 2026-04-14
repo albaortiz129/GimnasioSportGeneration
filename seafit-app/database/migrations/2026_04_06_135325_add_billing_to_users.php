@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Anade campos de facturacion y estado de pago en users.
@@ -13,6 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         Schema::table('users', function (Blueprint $table) {
             $table->boolean('must_change_password')->default(false)->after('is_admin');
             $table->string('payment_status')->default('pendiente')->after('metodo_pago'); // al_dia | pendiente | impagado
@@ -27,6 +28,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn([
                 'must_change_password',
@@ -38,3 +40,4 @@ return new class extends Migration {
         });
     }
 };
+

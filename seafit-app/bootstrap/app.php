@@ -21,7 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
-            'socio' => \App\Http\Middleware\SocioMiddleware::class,
+            'member' => \App\Http\Middleware\MemberMiddleware::class,
             'force.password' => \App\Http\Middleware\ForcePasswordChangeMiddleware::class,
         ]);
 

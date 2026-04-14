@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Migracion de tabla clases para la agenda deportiva.
@@ -13,6 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Aplica cambios de esta migracion.
         Schema::create('clases', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
@@ -32,6 +33,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Revierte los cambios aplicados en up().
         Schema::dropIfExists('clases');
     }
 };
+

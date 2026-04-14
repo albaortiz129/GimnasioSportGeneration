@@ -76,18 +76,22 @@ class DiscountCode extends Model
     {
         $now = now();
 
+        // Debe estar activo en panel.
         if (!$this->is_active) {
             return false;
         }
 
+        // Si aun no empezo, no aplica.
         if ($this->starts_at && $now->lt($this->starts_at)) {
             return false;
         }
 
+        // Si ya vencio, no aplica.
         if ($this->ends_at && $now->gt($this->ends_at)) {
             return false;
         }
 
+        // Si alcanzo limite de usos, no aplica.
         if (!is_null($this->max_uses) && $this->used_count >= $this->max_uses) {
             return false;
         }

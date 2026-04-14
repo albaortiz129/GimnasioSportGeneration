@@ -1,5 +1,5 @@
-{{-- Vista de alta de clientes desde el panel de administracion. --}}
-@extends('moldes.inicio')
+﻿{{-- Vista de alta de clientes desde el panel de administracion. --}}
+@extends('layouts.app')
 
 @section('titulo', 'Nuevo Cliente - Admin')
 
@@ -7,6 +7,7 @@
     <div class="max-w-3xl mx-auto py-10 px-4">
         <h1 class="text-2xl font-black mb-6">Crear cliente</h1>
 
+        {{-- Errores generales devueltos por backend al enviar el formulario. --}}
         @if($errors->any())
             <div class="bg-red-100 text-red-700 border border-red-200 rounded-xl p-4 mb-4">
                 <p class="font-bold mb-2">Revisa los datos del formulario:</p>
@@ -22,6 +23,7 @@
             class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-6 rounded-2xl border">
             @csrf
 
+            {{-- Datos personales basicos del cliente. --}}
             <div>
                 <input id="nombre" name="nombre" placeholder="Nombre" value="{{ old('nombre') }}"
                     class="border rounded p-3 w-full @error('nombre') border-red-500 bg-red-50 @enderror" required>
@@ -88,6 +90,7 @@
                 @enderror
             </div>
 
+            {{-- Datos de plan y metodo de pago inicial. --}}
             <div>
                 <select id="tarifa" name="tarifa"
                     class="border rounded p-3 w-full @error('tarifa') border-red-500 bg-red-50 @enderror" required>
@@ -119,10 +122,10 @@
                 @enderror
             </div>
 
-            {{-- La contraseña inicial se asigna de forma automatica desde backend --}}
+            {{-- La contrasena inicial se asigna automaticamente desde backend. --}}
             <div class="md:col-span-2">
                 <p class="text-sm bg-blue-50 border border-blue-200 text-blue-900 rounded-xl p-3">
-                    Contraseña temporal automatica para nuevos clientes: <strong>NUEVO12</strong>
+                    Contrasena temporal automatica para nuevos clientes: <strong>NUEVO12</strong>
                 </p>
             </div>
 
@@ -187,6 +190,7 @@
             }
 
             function validarDNIMatematico(dni) {
+                // Comprueba numero y letra oficial del DNI.
                 const regexDni = /^[0-9]{8}[A-Z]$/i;
                 if (!regexDni.test(dni)) return false;
 
@@ -249,6 +253,7 @@
                 return setError(metodoPagoInput, metodoPagoError, '');
             }
 
+            // Validacion en vivo para mostrar errores antes del submit.
             nombreInput.addEventListener('input', validarNombreCampo);
             nombreInput.addEventListener('blur', validarNombreCampo);
             apellidosInput.addEventListener('input', validarApellidosCampo);
@@ -267,6 +272,7 @@
             metodoPagoInput.addEventListener('change', validarMetodoPagoCampo);
 
             form.addEventListener('submit', function (event) {
+                // Validacion final antes de enviar al backend.
                 const okNombre = validarNombreCampo();
                 const okApellidos = validarApellidosCampo();
                 const okDni = validarDniCampo();
@@ -285,3 +291,4 @@
         })();
     </script>
 @endsection
+
