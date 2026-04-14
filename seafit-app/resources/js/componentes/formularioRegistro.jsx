@@ -9,9 +9,23 @@ const CAMPOS_PASO_1 = [
     'fecha_nacimiento',
     'email',
     'password',
+    'password_confirmation',
     'telefono',
     'domicilio',
 ];
+
+// Etiquetas legibles para cada campo del paso 1.
+const ETIQUETAS_CAMPOS = {
+    nombre: 'Nombre',
+    apellidos: 'Apellidos',
+    dni: 'DNI',
+    fecha_nacimiento: 'Fecha de nacimiento',
+    email: 'Email',
+    password: 'Contraseña',
+    password_confirmation: 'Confirmar contraseña',
+    telefono: 'Telefono',
+    domicilio: 'Domicilio',
+};
 
 // Tarifas disponibles para registro.
 const TARIFAS = [
@@ -49,6 +63,7 @@ const FormularioRegistro = () => {
         telefono: '',
         email: '',
         password: '',
+        password_confirmation: '',
         domicilio: '',
         tarifa: '',
         metodo_pago: 'bizum',
@@ -99,6 +114,13 @@ const FormularioRegistro = () => {
                     error = 'Min. 8 caracteres, 1 mayuscula, 1 numero y 1 simbolo';
                 }
                 break;
+            case 'password_confirmation':
+                if (!valor) {
+                    error = 'Debes confirmar la contraseña';
+                } else if (valor !== datos.password) {
+                    error = 'Las contraseñas no coinciden';
+                }
+                break;
             case 'telefono':
                 if (!/^[6789]\d{8}$/.test(valor)) error = 'Telefono no valido';
                 break;
@@ -115,6 +137,12 @@ const FormularioRegistro = () => {
 
     const handleChange = (campo, valor) => {
         setDatos((prev) => ({ ...prev, [campo]: valor }));
+
+        // Si cambia la password, se limpia/revalida la confirmacion.
+        if (campo === 'password') {
+            setErrores((prev) => ({ ...prev, password_confirmation: '' }));
+        }
+
         if (errores[campo]) {
             setErrores((prev) => ({ ...prev, [campo]: '' }));
         }
@@ -229,9 +257,15 @@ const FormularioRegistro = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
                         {CAMPOS_PASO_1.map((campo) => (
                             <div key={campo} className="min-w-0">
-                                <label className="block text-[14px] font-semibold text-gray-800 mb-2 capitalize">{campo.replace('_', ' ')}</label>
+                                <label className="block text-[14px] font-semibold text-gray-800 mb-2">
+                                    {ETIQUETAS_CAMPOS[campo] || campo.replace('_', ' ')}
+                                </label>
                                 <input
-                                    type={campo === 'password' ? 'password' : campo === 'fecha_nacimiento' ? 'date' : 'text'}
+                                    type={(campo === 'password' || campo === 'password_confirmation')
+                                        ? 'password'
+                                        : campo === 'fecha_nacimiento'
+                                            ? 'date'
+                                            : 'text'}
                                     className={`w-full p-3.5 border rounded-xl outline-none focus:ring-1 focus:ring-[#1A3878] ${errores[campo] ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-[#fdfdfd]'}`}
                                     value={datos[campo]}
                                     onChange={(e) => handleChange(campo, e.target.value)}

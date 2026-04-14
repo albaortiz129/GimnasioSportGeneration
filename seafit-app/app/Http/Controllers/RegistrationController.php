@@ -34,6 +34,7 @@ class RegistrationController extends Controller
                     'required',
                     'string',
                     'min:8',
+                    'confirmed',
                     'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/',
                 ],
                 'domicilio' => 'required|string|max:255',

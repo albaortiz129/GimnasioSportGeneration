@@ -44,7 +44,7 @@
                                 class="w-full px-4 py-4 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#1A3878]/10 focus:border-[#1A3878] transition-all text-sm">
                         </div>
 
-                        {{-- Campo de nueva contrasena. --}}
+                        {{-- Campo de nueva contraseña. --}}
                         <div>
                             <label class="block text-xs font-black text-[#0A1931] uppercase tracking-widest ml-1 mb-2">Nueva
                                 Contraseña</label>
@@ -52,7 +52,7 @@
                                 class="w-full px-4 py-4 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#1A3878]/10 focus:border-[#1A3878] transition-all text-sm">
                         </div>
 
-                        {{-- Confirmacion de la nueva contrasena. --}}
+                        {{-- Confirmacion de la nueva contraseña. --}}
                         <div>
                             <label
                                 class="block text-xs font-black text-[#0A1931] uppercase tracking-widest ml-1 mb-2">Confirmar

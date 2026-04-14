@@ -54,8 +54,8 @@
 
             <div>
                 <label class="block font-bold">Email</label>
-                <input type="email" name="email" value="{{ old('email', $user->email) }}"
-                    class="w-full border rounded p-2" required>
+                <input type="email" name="email" value="{{ old('email', $user->email) }}" class="w-full border rounded p-2"
+                    required>
             </div>
 
             <div class="md:col-span-2">
@@ -63,6 +63,17 @@
                 <input type="text" name="domicilio" value="{{ old('domicilio', $user->domicilio) }}"
                     class="w-full border rounded p-2" required>
             </div>
+
+            <div>
+                <label class="block font-bold">Nueva contraseña (opcional)</label>
+                <input type="password" name="password" class="w-full border rounded p-2">
+            </div>
+
+            <div>
+                <label class="block font-bold">Confirmar contraseña</label>
+                <input type="password" name="password_confirmation" class="w-full border rounded p-2">
+            </div>
+
 
             {{-- Datos de plan y estado de cobro. --}}
             <div>

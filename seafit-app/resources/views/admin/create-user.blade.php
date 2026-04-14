@@ -1,4 +1,4 @@
-﻿{{-- Vista de alta de clientes desde el panel de administracion. --}}
+{{-- Vista de alta de clientes desde el panel de administracion. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Nuevo Cliente - Admin')
@@ -90,6 +90,27 @@
                 @enderror
             </div>
 
+            {{-- Credenciales iniciales del cliente. --}}
+            <div>
+                <input id="password" type="password" name="password" placeholder="Contraseña"
+                    class="border rounded p-3 w-full @error('password') border-red-500 bg-red-50 @enderror" required>
+                <p id="password_error" class="text-red-500 text-xs mt-1 font-medium hidden"></p>
+                @error('password')
+                    <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <input id="password_confirmation" type="password" name="password_confirmation"
+                    placeholder="Confirmar contraseña"
+                    class="border rounded p-3 w-full @error('password_confirmation') border-red-500 bg-red-50 @enderror"
+                    required>
+                <p id="password_confirmation_error" class="text-red-500 text-xs mt-1 font-medium hidden"></p>
+                @error('password_confirmation')
+                    <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                @enderror
+            </div>
+
             {{-- Datos de plan y metodo de pago inicial. --}}
             <div>
                 <select id="tarifa" name="tarifa"
@@ -122,13 +143,6 @@
                 @enderror
             </div>
 
-            {{-- La contrasena inicial se asigna automaticamente desde backend. --}}
-            <div class="md:col-span-2">
-                <p class="text-sm bg-blue-50 border border-blue-200 text-blue-900 rounded-xl p-3">
-                    Contrasena temporal automatica para nuevos clientes: <strong>NUEVO12</strong>
-                </p>
-            </div>
-
             <button class="bg-[#0A1931] text-white py-3 rounded-xl font-bold md:col-span-2">Crear cliente</button>
         </form>
     </div>
@@ -144,6 +158,8 @@
             const telefonoInput = document.getElementById('telefono');
             const emailInput = document.getElementById('email');
             const domicilioInput = document.getElementById('domicilio');
+            const passwordInput = document.getElementById('password');
+            const passwordConfirmationInput = document.getElementById('password_confirmation');
             const tarifaInput = document.getElementById('tarifa');
             const metodoPagoInput = document.getElementById('metodo_pago');
 
@@ -154,11 +170,14 @@
             const telefonoError = document.getElementById('telefono_error');
             const emailError = document.getElementById('email_error');
             const domicilioError = document.getElementById('domicilio_error');
+            const passwordError = document.getElementById('password_error');
+            const passwordConfirmationError = document.getElementById('password_confirmation_error');
             const tarifaError = document.getElementById('tarifa_error');
             const metodoPagoError = document.getElementById('metodo_pago_error');
 
             if (!form || !nombreInput || !apellidosInput || !dniInput || !fechaNacimientoInput || !telefonoInput ||
-                !emailInput || !domicilioInput || !tarifaInput || !metodoPagoInput) {
+                !emailInput || !domicilioInput || !passwordInput || !passwordConfirmationInput || !tarifaInput ||
+                !metodoPagoInput) {
                 return;
             }
 
@@ -241,6 +260,35 @@
                 return setError(domicilioInput, domicilioError, '');
             }
 
+            function validarPasswordFuerte(password) {
+                const regexPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+                return regexPassword.test(password);
+            }
+
+            function validarPasswordCampo() {
+                const valor = passwordInput.value || '';
+                if (!valor) return setError(passwordInput, passwordError, 'La contraseña es obligatoria');
+                if (!validarPasswordFuerte(valor)) {
+                    return setError(passwordInput, passwordError, 'Min. 8, 1 mayuscula, 1 minuscula, 1 numero y 1 simbolo');
+                }
+                return setError(passwordInput, passwordError, '');
+            }
+
+            function validarPasswordConfirmationCampo() {
+                const password = passwordInput.value || '';
+                const confirm = passwordConfirmationInput.value || '';
+
+                if (!confirm) {
+                    return setError(passwordConfirmationInput, passwordConfirmationError, 'Debes repetir la contraseña');
+                }
+
+                if (password !== confirm) {
+                    return setError(passwordConfirmationInput, passwordConfirmationError, 'Las contraseñas no coinciden');
+                }
+
+                return setError(passwordConfirmationInput, passwordConfirmationError, '');
+            }
+
             function validarTarifaCampo() {
                 const valor = (tarifaInput.value || '').trim();
                 if (!valor) return setError(tarifaInput, tarifaError, 'Debes seleccionar una tarifa');
@@ -268,6 +316,13 @@
             emailInput.addEventListener('blur', validarEmailCampo);
             domicilioInput.addEventListener('input', validarDomicilioCampo);
             domicilioInput.addEventListener('blur', validarDomicilioCampo);
+            passwordInput.addEventListener('input', function () {
+                validarPasswordCampo();
+                if (passwordConfirmationInput.value) validarPasswordConfirmationCampo();
+            });
+            passwordInput.addEventListener('blur', validarPasswordCampo);
+            passwordConfirmationInput.addEventListener('input', validarPasswordConfirmationCampo);
+            passwordConfirmationInput.addEventListener('blur', validarPasswordConfirmationCampo);
             tarifaInput.addEventListener('change', validarTarifaCampo);
             metodoPagoInput.addEventListener('change', validarMetodoPagoCampo);
 
@@ -280,15 +335,16 @@
                 const okTelefono = validarTelefonoCampo();
                 const okEmail = validarEmailCampo();
                 const okDomicilio = validarDomicilioCampo();
+                const okPassword = validarPasswordCampo();
+                const okPasswordConfirmation = validarPasswordConfirmationCampo();
                 const okTarifa = validarTarifaCampo();
                 const okMetodoPago = validarMetodoPagoCampo();
 
                 if (!okNombre || !okApellidos || !okDni || !okFechaNacimiento || !okTelefono || !okEmail ||
-                    !okDomicilio || !okTarifa || !okMetodoPago) {
+                    !okDomicilio || !okPassword || !okPasswordConfirmation || !okTarifa || !okMetodoPago) {
                     event.preventDefault();
                 }
             });
         })();
     </script>
 @endsection
-

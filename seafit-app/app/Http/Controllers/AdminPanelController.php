@@ -50,14 +50,17 @@ class AdminPanelController extends Controller
                     ->where('is_admin', false)
                     ->where(function ($query) {
                         $query->where('payment_status', 'impagado')
+                            ->orWhere('payment_status', 'pendiente')
                             ->orWhere(function ($sub) {
                                 $sub->where('payment_status', '!=', 'al_dia')
                                     ->whereNotNull('next_payment_at')
                                     ->whereDate('next_payment_at', '<', today());
                             });
                     })
+                    ->orderByRaw("FIELD(payment_status, 'impagado', 'pendiente', 'al_dia')")
                     ->orderBy('next_payment_at')
                     ->get();
+
             } catch (QueryException $exception) {
                 // Si la base de datos no esta al día, no rompemos el panel.
                 report($exception);
@@ -113,15 +116,22 @@ class AdminPanelController extends Controller
             'domicilio' => 'required|string|max:255',
             'tarifa' => 'required|in:mensual,trimestral,anual',
             'metodo_pago' => 'required|string|max:50',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/',
+            ],
         ], [
             'telefono.regex' => 'El telefono debe tener 9 digitos y empezar por 6, 7, 8 o 9.',
             'dni.regex' => 'El DNI debe tener 8 numeros y 1 letra (ej: 12345678Z).',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contraseña no coinciden.',
+            'password.regex' => 'La contraseña debe incluir mayuscula, minuscula, numero y simbolo.',
         ]);
 
         $data['dni'] = strtoupper($data['dni']);
-
-        // Contrasena temporal para primer inicio de sesion.
-        $passwordTemporal = 'NUEVO12';
 
         $user = User::create([
             'nombre' => $data['nombre'],
@@ -133,14 +143,14 @@ class AdminPanelController extends Controller
             'domicilio' => $data['domicilio'],
             'tarifa' => $data['tarifa'],
             'metodo_pago' => $data['metodo_pago'],
-            'password' => Hash::make($passwordTemporal),
+            'password' => Hash::make($data['password']),
             'must_change_password' => true,
             'payment_status' => 'pendiente',
             'is_admin' => false,
         ]);
 
         return redirect()->route('admin.user.edit', $user)
-            ->with('success', 'Usuario creado. Contraseña temporal: ' . $passwordTemporal);
+            ->with('success', 'Usuario creado correctamente.');
     }
 
     /**
@@ -173,7 +183,25 @@ class AdminPanelController extends Controller
             'metodo_pago' => 'required|string|max:50',
             'payment_status' => 'required|in:al_dia,pendiente,impagado',
             'next_payment_at' => 'nullable|date',
+            'password' => [
+                'nullable',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/',
+            ],
+        ], [
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+            'password.regex' => 'Debe incluir mayuscula, minuscula, numero y caracter especial.',
         ]);
+
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+            $data['must_change_password'] = true; // opcional: forzar cambio al entrar
+        } else {
+            unset($data['password']);
+        }
 
         $user->update($data);
 
@@ -500,3 +528,4 @@ class AdminPanelController extends Controller
         return back()->with('success', 'Pago manual validado. Cuenta activada.');
     }
 }
+

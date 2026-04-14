@@ -50,7 +50,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
-    // Cambio obligatorio de contrasena temporal al primer inicio.
+    // Cambio obligatorio de contraseña temporal al primer inicio.
     Route::get('/cambiar-password-inicial', [PasswordController::class, 'showInitialChangeForm'])
         ->name('password.force.form');
     Route::post('/cambiar-password-inicial', [PasswordController::class, 'changeInitialPassword'])
