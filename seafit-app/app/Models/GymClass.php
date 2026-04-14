@@ -35,7 +35,8 @@ class GymClass extends Model
      */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'clase_user');
+        // Se indican claves reales del pivote: clase_id (clases) y user_id (users).
+        return $this->belongsToMany(User::class, 'clase_user', 'clase_id', 'user_id');
     }
 }
 

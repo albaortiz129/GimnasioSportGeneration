@@ -68,7 +68,8 @@ class User extends Authenticatable
      */
     public function classes(): BelongsToMany
     {
-        return $this->belongsToMany(GymClass::class, 'clase_user');
+        // Se indican claves del pivote manualmente para evitar que Laravel use gym_class_id.
+        return $this->belongsToMany(GymClass::class, 'clase_user', 'user_id', 'clase_id');
     }
 
     /**
