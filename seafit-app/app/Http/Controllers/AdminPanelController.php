@@ -271,14 +271,23 @@ class AdminPanelController extends Controller
             return back()->with('error', 'No aplica a administradores.');
         }
 
-        $base = $user->next_payment_at ? Carbon::parse($user->next_payment_at) : now();
-        if ($base->isPast()) {
-            $base = now();
+        // Si ya existe una fecha futura, no se acumulan meses al pulsar varias veces.
+        if ($user->next_payment_at) {
+            $fechaActual = Carbon::parse($user->next_payment_at);
+
+            if ($fechaActual->isToday() || $fechaActual->isFuture()) {
+                $user->update([
+                    'payment_status' => 'al_dia',
+                    'next_payment_at' => $fechaActual->toDateString(),
+                ]);
+
+                return back()->with('success', 'Pago regularizado. La fecha de renovacion se mantiene.');
+            }
         }
 
         $user->update([
             'payment_status' => 'al_dia',
-            'next_payment_at' => $this->nextChargeDate($user->tarifa, $base),
+            'next_payment_at' => $this->nextChargeDate($user->tarifa, now()),
         ]);
 
         return back()->with('success', 'Suscripcion renovada.');
