@@ -125,7 +125,8 @@ class PaymentController extends Controller
             $user->update(['tarifa' => $nuevaTarifa]);
 
             if ($cupon['model']) {
-                $cupon['model']->markUsed($user, 'reanudar_plan');
+                $descuentoAplicado = $cupon['model']->calculateDiscountAmount($this->planBaseAmount($nuevaTarifa));
+                $cupon['model']->markUsed($user, 'reanudar_plan', $descuentoAplicado);
             }
 
             return back()->with('success', 'Plan activado correctamente.');
@@ -500,6 +501,18 @@ class PaymentController extends Controller
     }
 
     /**
+     * Importe base del plan antes de aplicar descuentos.
+     */
+    private function planBaseAmount(string $tarifa): float
+    {
+        return match ($tarifa) {
+            'trimestral' => 75.00,
+            'anual' => 250.00,
+            default => 29.99,
+        };
+    }
+
+    /**
      * Cambia tarifa y método de pago desde el panel de socio.
      */
     public function changePlanMethod(Request $request)
@@ -555,7 +568,8 @@ class PaymentController extends Controller
                 ]);
 
                 if ($cupon['model']) {
-                    $cupon['model']->markUsed($user, 'cambio_plan');
+                    $descuentoAplicado = $cupon['model']->calculateDiscountAmount($this->planBaseAmount($tarifa));
+                    $cupon['model']->markUsed($user, 'cambio_plan', $descuentoAplicado);
                 }
 
                 return back()->with('success', 'Plan y metodo actualizados correctamente.');

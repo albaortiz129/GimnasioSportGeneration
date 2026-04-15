@@ -10,6 +10,7 @@ use App\Models\GymClass;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
@@ -25,7 +26,12 @@ class AdminPanelController extends Controller
         // Texto del buscador del panel.
         $buscar = trim((string) $request->query('q', ''));
 
-        $usuarios = User::query()
+        // Si faltan tablas de descuentos, se crean automaticamente.
+        $this->ensureDiscountTables();
+        $discountsTablesReady = Schema::hasTable('discount_redemptions')
+            && Schema::hasTable('discount_codes');
+
+        $usuariosQuery = User::query()
             ->where('is_admin', false)
             ->when($buscar !== '', function ($query) use ($buscar) {
                 $query->where(function ($sub) use ($buscar) {
@@ -36,8 +42,33 @@ class AdminPanelController extends Controller
                 });
             })
             ->orderBy('nombre')
-            ->orderBy('apellidos')
-            ->get();
+            ->orderBy('apellidos');
+
+        if ($discountsTablesReady) {
+            $usuariosQuery->with(['latestDiscountRedemption.discountCode']);
+        }
+
+        try {
+            $usuarios = $usuariosQuery->get();
+        } catch (QueryException $exception) {
+            // Si faltan tablas de descuentos, no rompemos el dashboard.
+            report($exception);
+            $discountsTablesReady = false;
+
+            $usuarios = User::query()
+                ->where('is_admin', false)
+                ->when($buscar !== '', function ($query) use ($buscar) {
+                    $query->where(function ($sub) use ($buscar) {
+                        $sub->where('nombre', 'like', "%{$buscar}%")
+                            ->orWhere('apellidos', 'like', "%{$buscar}%")
+                            ->orWhere('email', 'like', "%{$buscar}%")
+                            ->orWhere('dni', 'like', "%{$buscar}%");
+                    });
+                })
+                ->orderBy('nombre')
+                ->orderBy('apellidos')
+                ->get();
+        }
 
         $impagados = collect();
         $billingColumnsReady = Schema::hasColumn('users', 'payment_status')
@@ -46,7 +77,7 @@ class AdminPanelController extends Controller
         if ($billingColumnsReady) {
             try {
                 // Consulta de clientes con impago o con fecha de cobro vencida.
-                $impagados = User::query()
+                $impagadosQuery = User::query()
                     ->where('is_admin', false)
                     ->where(function ($query) {
                         $query->where('payment_status', 'impagado')
@@ -58,8 +89,13 @@ class AdminPanelController extends Controller
                             });
                     })
                     ->orderByRaw("FIELD(payment_status, 'impagado', 'pendiente', 'al_dia')")
-                    ->orderBy('next_payment_at')
-                    ->get();
+                    ->orderBy('next_payment_at');
+
+                if ($discountsTablesReady) {
+                    $impagadosQuery->with(['latestDiscountRedemption.discountCode']);
+                }
+
+                $impagados = $impagadosQuery->get();
 
             } catch (QueryException $exception) {
                 // Si la base de datos no esta al día, no rompemos el panel.
@@ -69,7 +105,52 @@ class AdminPanelController extends Controller
             }
         }
 
-        return view('admin.dashboard', compact('usuarios', 'impagados', 'buscar', 'billingColumnsReady'));
+        return view('admin.dashboard', compact(
+            'usuarios',
+            'impagados',
+            'buscar',
+            'billingColumnsReady',
+            'discountsTablesReady'
+        ));
+    }
+
+    /**
+     * Crea tablas de descuentos si no existen.
+     */
+    private function ensureDiscountTables(): void
+    {
+        if (!Schema::hasTable('discount_codes')) {
+            Schema::create('discount_codes', function (Blueprint $table) {
+                $table->id();
+                $table->string('code', 30)->unique();
+                $table->enum('type', ['percent', 'fixed']);
+                $table->decimal('value', 10, 2);
+                $table->boolean('is_active')->default(true);
+                $table->timestamp('starts_at')->nullable();
+                $table->timestamp('ends_at')->nullable();
+                $table->unsignedInteger('max_uses')->nullable();
+                $table->unsignedInteger('used_count')->default(0);
+                $table->boolean('one_use_per_user')->default(true);
+                $table->string('stripe_coupon_id')->nullable();
+                $table->text('notes')->nullable();
+                $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+                $table->timestamps();
+            });
+        }
+
+        if (!Schema::hasTable('discount_redemptions')) {
+            Schema::create('discount_redemptions', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('discount_code_id')->constrained('discount_codes')->cascadeOnDelete();
+                $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+                $table->string('context', 40)->default('registro');
+                $table->decimal('discount_applied', 10, 2)->nullable();
+                $table->timestamp('applied_at')->useCurrent();
+                $table->timestamps();
+
+                $table->index(['discount_code_id', 'user_id']);
+            });
+        }
     }
 
     /**
@@ -528,13 +609,31 @@ class AdminPanelController extends Controller
             return back()->with('error', 'No aplica a administradores.');
         }
 
+        $metodoLabel = $this->paymentMethodLabel($user->metodo_pago);
+
         $user->update([
             'payment_status' => 'al_dia',
             'next_payment_at' => $this->nextChargeDate($user->tarifa),
             'last_manual_payment_at' => now(),
         ]);
 
-        return back()->with('success', 'Pago manual validado. Cuenta activada.');
+        return back()->with('success', "Pago recibido por {$metodoLabel}. Cuenta activada.");
+    }
+
+    /**
+     * Devuelve nombre legible del metodo de pago.
+     */
+    private function paymentMethodLabel(?string $method): string
+    {
+        return match (strtolower((string) $method)) {
+            'bizum' => 'Bizum',
+            'paypal' => 'PayPal',
+            'transferencia' => 'Transferencia',
+            'tarjeta', 'stripe' => 'Tarjeta',
+            'efectivo' => 'Efectivo',
+            'american_express', 'amex' => 'American Express',
+            default => 'Metodo manual',
+        };
     }
 }
 

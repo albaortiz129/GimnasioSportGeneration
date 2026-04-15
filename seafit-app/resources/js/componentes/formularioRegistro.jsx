@@ -148,8 +148,63 @@ const FormularioRegistro = () => {
         }
     };
 
-    const validarPaso1 = () => {
-        return CAMPOS_PASO_1.every((campo) => validarCampo(campo, datos[campo]));
+    const validarDisponibilidadCampo = async (campo, valor) => {
+        if (campo !== 'dni' && campo !== 'email') {
+            return true;
+        }
+
+        const limpio = (valor || '').trim();
+        if (!limpio) {
+            return true;
+        }
+
+        const payload = campo === 'dni'
+            ? { dni: limpio.toUpperCase() }
+            : { email: limpio.toLowerCase() };
+
+        try {
+            const respuesta = await fetch('/api/registro/disponibilidad', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const resultado = await respuesta.json();
+
+            const disponible = campo === 'dni'
+                ? resultado.dni_disponible
+                : resultado.email_disponible;
+
+            if (disponible === false) {
+                const mensaje = campo === 'dni'
+                    ? 'Ya existe un usuario registrado con ese DNI.'
+                    : 'Ya existe un usuario registrado con ese email.';
+
+                setErrores((prev) => ({ ...prev, [campo]: mensaje }));
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            // Si falla la comprobacion, no bloqueamos al usuario aqui.
+            return true;
+        }
+    };
+
+    const validarPaso1 = async () => {
+        const validacionLocal = CAMPOS_PASO_1.every((campo) => validarCampo(campo, datos[campo]));
+
+        if (!validacionLocal) {
+            return false;
+        }
+
+        const dniLibre = await validarDisponibilidadCampo('dni', datos.dni);
+        const emailLibre = await validarDisponibilidadCampo('email', datos.email);
+
+        return dniLibre && emailLibre;
     };
 
     // Envia el registro y, si aplica, crea payment method en Stripe.
@@ -205,6 +260,22 @@ const FormularioRegistro = () => {
                 return;
             }
 
+            if (resultado?.errors?.dni || resultado?.errors?.email) {
+                const nuevosErrores = {};
+
+                if (resultado.errors.dni) {
+                    nuevosErrores.dni = 'Ya existe un usuario registrado con ese DNI.';
+                }
+
+                if (resultado.errors.email) {
+                    nuevosErrores.email = 'Ya existe un usuario registrado con ese email.';
+                }
+
+                setErrores((prev) => ({ ...prev, ...nuevosErrores }));
+                setPaso(1);
+                return;
+            }
+
             let msg = 'Error en el registro:\n';
             if (resultado.errors) {
                 msg += Object.values(resultado.errors).flat().join('\n- ');
@@ -219,9 +290,9 @@ const FormularioRegistro = () => {
         }
     };
 
-    const siguientePaso = () => {
+    const siguientePaso = async () => {
         if (paso === 1) {
-            if (validarPaso1()) setPaso(2);
+            if (await validarPaso1()) setPaso(2);
             return;
         }
 
@@ -269,7 +340,13 @@ const FormularioRegistro = () => {
                                     className={`w-full p-3.5 border rounded-xl outline-none focus:ring-1 focus:ring-[#1A3878] ${errores[campo] ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-[#fdfdfd]'}`}
                                     value={datos[campo]}
                                     onChange={(e) => handleChange(campo, e.target.value)}
-                                    onBlur={(e) => validarCampo(campo, e.target.value)}
+                                    onBlur={async (e) => {
+                                        const ok = validarCampo(campo, e.target.value);
+
+                                        if (ok && (campo === 'dni' || campo === 'email')) {
+                                            await validarDisponibilidadCampo(campo, e.target.value);
+                                        }
+                                    }}
                                 />
                                 {errores[campo] && <p className="text-red-500 text-xs mt-1.5 break-words font-medium">{errores[campo]}</p>}
                             </div>

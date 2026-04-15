@@ -5,7 +5,11 @@
 
 @section('contenido')
 {{-- Si faltan columnas de cobros en la BD, algunas acciones se ocultan. --}}
-@php($cobrosDisponibles = $billingColumnsReady ?? false)
+@php
+    $cobrosDisponibles = $billingColumnsReady ?? false;
+    $descuentosDisponibles = $discountsTablesReady ?? false;
+    $preciosPlan = ['mensual' => 29.99, 'trimestral' => 75.00, 'anual' => 250.00];
+@endphp
 
 <div class="max-w-7xl mx-auto px-4 py-8">
     {{-- Mensajes rapidos de resultado (exito o error) --}}
@@ -61,19 +65,48 @@
                 Ejecuta las migraciones pendientes para activar esta seccion.
             </p>
         @else
-            @forelse($impagados as $u)
+            @if(isset($impagados) && $impagados->isNotEmpty())
+                @foreach($impagados as $u)
+                @php
+                    $precioBase = $preciosPlan[$u->tarifa] ?? 0.0;
+                    $ultimoDescuento = $descuentosDisponibles ? $u->latestDiscountRedemption : null;
+                    $codigoDescuento = optional(optional($ultimoDescuento)->discountCode)->code;
+                    $descuentoAplicado = (float) ($ultimoDescuento->discount_applied ?? 0);
+                    $totalCobrar = max($precioBase - $descuentoAplicado, 0);
+                @endphp
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between border rounded-xl p-3 mb-2">
                     <div>
                         <p class="font-bold">{{ $u->nombre }} {{ $u->apellidos }} ({{ $u->dni }})</p>
                         <p class="text-sm text-gray-600">
                             {{ $u->email }} | Estado: <span class="font-bold">{{ $u->payment_status }}</span>
                         </p>
+                        @if($codigoDescuento)
+                            <p class="text-sm text-indigo-700 mt-1">
+                                Cupon: <span class="font-bold">{{ $codigoDescuento }}</span>
+                                | Descuento: -{{ number_format($descuentoAplicado, 2, ',', '.') }} EUR
+                                | Cobro estimado: {{ number_format($totalCobrar, 2, ',', '.') }} EUR
+                            </p>
+                        @endif
 
                         @if($u->payment_status === 'pendiente')
+                            @php
+                                $metodoPendiente = match (strtolower((string) $u->metodo_pago)) {
+                                    'bizum' => 'Bizum',
+                                    'paypal' => 'PayPal',
+                                    'transferencia' => 'Transferencia',
+                                    'tarjeta', 'stripe' => 'Tarjeta',
+                                    'efectivo' => 'Efectivo',
+                                    'american_express', 'amex' => 'American Express',
+                                    default => 'pago manual',
+                                };
+                            @endphp
+                            <p class="text-xs text-amber-700 mt-1">
+                                Pendiente de validar cobro por {{ $metodoPendiente }}.
+                            </p>
                             <form action="{{ route('admin.user.aprobar_manual', $u) }}" method="POST" class="mt-2">
                                 @csrf
                                 <button class="bg-green-600 text-white px-3 py-1 rounded text-xs font-bold">
-                                    Aprobar pago manual
+                                    Confirmar pago por {{ $metodoPendiente }}
                                 </button>
                             </form>
                         @endif
@@ -82,9 +115,10 @@
                         Proximo cobro: {{ optional($u->next_payment_at)->format('d/m/Y') ?? 'Sin fecha' }}
                     </div>
                 </div>
-            @empty
+                @endforeach
+            @else
                 <p class="text-sm text-gray-500">No hay clientes en impago.</p>
-            @endforelse
+            @endif
         @endif
 
     </section>
@@ -92,15 +126,32 @@
     {{-- Fichas de clientes --}}
     <div class="space-y-4">
         @foreach($usuarios as $user)
+            @php
+                $precioBase = $preciosPlan[$user->tarifa] ?? 0.0;
+                $ultimoDescuento = $descuentosDisponibles ? $user->latestDiscountRedemption : null;
+                $codigoDescuento = optional(optional($ultimoDescuento)->discountCode)->code;
+                $descuentoAplicado = (float) ($ultimoDescuento->discount_applied ?? 0);
+                $totalCobrar = max($precioBase - $descuentoAplicado, 0);
+            @endphp
             <article class="bg-white border rounded-2xl p-4">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
                     <div>
                         <p class="font-black text-lg">{{ $user->nombre }} {{ $user->apellidos }}</p>
                         <p class="text-sm text-gray-600">{{ $user->email }} | DNI: {{ $user->dni }}</p>
+                        @if($codigoDescuento)
+                            <p class="text-sm text-indigo-700 mt-1">
+                                Cupon usado: <span class="font-bold">{{ $codigoDescuento }}</span>
+                                | Descuento aplicado: -{{ number_format($descuentoAplicado, 2, ',', '.') }} EUR
+                            </p>
+                        @endif
                     </div>
                     <div class="text-sm">
                         {{-- Resumen rapido de estado de plan/pago del cliente. --}}
                         <span class="font-bold">Plan:</span> {{ ucfirst($user->tarifa) }}
+                        @if($user->tarifa !== 'cancelada')
+                            | <span class="font-bold">Cobro estimado:</span>
+                            {{ number_format($totalCobrar, 2, ',', '.') }} EUR
+                        @endif
                         @if($cobrosDisponibles)
                             |
                             <span class="font-bold">Pago:</span> {{ $user->payment_status }}

@@ -7,6 +7,8 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -70,6 +72,22 @@ class User extends Authenticatable
     {
         // Se indican claves del pivote manualmente para evitar que Laravel use gym_class_id.
         return $this->belongsToMany(GymClass::class, 'clase_user', 'user_id', 'clase_id');
+    }
+
+    /**
+     * Historial completo de descuentos usados por este usuario.
+     */
+    public function discountRedemptions(): HasMany
+    {
+        return $this->hasMany(DiscountRedemption::class);
+    }
+
+    /**
+     * Ultimo descuento aplicado por fecha de uso.
+     */
+    public function latestDiscountRedemption(): HasOne
+    {
+        return $this->hasOne(DiscountRedemption::class)->latestOfMany('applied_at');
     }
 
     /**

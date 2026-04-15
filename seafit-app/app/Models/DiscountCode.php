@@ -132,4 +132,18 @@ class DiscountCode extends Model
             'applied_at' => now(),
         ]);
     }
+
+    /**
+     * Calcula cuanto descuento se aplica sobre un importe base.
+     */
+    public function calculateDiscountAmount(float $baseAmount): float
+    {
+        $baseAmount = max($baseAmount, 0);
+
+        $discount = $this->type === 'percent'
+            ? ($baseAmount * ((float) $this->value / 100))
+            : (float) $this->value;
+
+        return round(min($discount, $baseAmount), 2);
+    }
 }

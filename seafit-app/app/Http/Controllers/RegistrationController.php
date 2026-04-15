@@ -17,6 +17,25 @@ use Illuminate\Support\Facades\Validator;
 class RegistrationController extends Controller
 {
     /**
+     * Comprueba si DNI y/o email ya existen para avisar en el paso 1 del registro.
+     */
+    public function checkAvailability(Request $request)
+    {
+        $data = $request->validate([
+            'dni' => 'nullable|string',
+            'email' => 'nullable|email',
+        ]);
+
+        $dni = strtoupper(trim((string) ($data['dni'] ?? '')));
+        $email = strtolower(trim((string) ($data['email'] ?? '')));
+
+        return response()->json([
+            'dni_disponible' => $dni === '' ? null : !User::where('dni', $dni)->exists(),
+            'email_disponible' => $email === '' ? null : !User::where('email', $email)->exists(),
+        ]);
+    }
+
+    /**
      * Registra un nuevo socio y, segun el metodo de pago, activa suscripcion.
      */
     public function register(Request $request)
@@ -42,6 +61,10 @@ class RegistrationController extends Controller
                 'metodo_pago' => 'required|string',
                 'cupon' => 'nullable|string',
                 'stripeCodigo' => 'nullable|string',
+            ], [
+                'dni.unique' => 'Ya existe un usuario registrado con ese DNI.',
+                'email.unique' => 'Ya existe un usuario registrado con ese email.',
+                'password.confirmed' => 'Las contrasenas no coinciden.',
             ]);
 
             if ($validator->fails()) {
@@ -75,6 +98,11 @@ class RegistrationController extends Controller
 
                     $mensajeDescuento = 'Cupon validado correctamente.';
                 }
+
+                $precioBase = $this->planBaseAmount($request->tarifa);
+                $descuentoAplicado = $discountCode
+                    ? $discountCode->calculateDiscountAmount($precioBase)
+                    : 0.0;
 
                 // Crear al usuario.
                 $user = new User();
@@ -118,10 +146,6 @@ class RegistrationController extends Controller
                             $user->next_payment_at = $this->nextChargeFromPlan($request->tarifa);
                             $user->save();
 
-                            if ($discountCode) {
-                                $discountCode->markUsed($user, 'registro');
-                            }
-
                             $mensajeFinal = 'Socio registrado y suscripcion activada con exito.';
                         } catch (\Throwable $e) {
                             // Si falla Stripe, el usuario se mantiene pero en pendiente.
@@ -136,6 +160,11 @@ class RegistrationController extends Controller
                     $mensajeFinal = 'Registro recibido. Envia el Bizum al 600 000 000 con tu DNI como concepto para activar tu cuenta.';
                 } elseif ($request->metodo_pago === 'paypal') {
                     $mensajeFinal = 'Registro recibido. Te hemos enviado un enlace de PayPal a ' . $user->email . ' para completar el pago.';
+                }
+
+                // Se registra el uso del cupon aunque el cobro sea pendiente/manual.
+                if ($discountCode) {
+                    $discountCode->markUsed($user, 'registro', $descuentoAplicado);
                 }
 
                 return response()->json([
@@ -166,6 +195,18 @@ class RegistrationController extends Controller
             'trimestral' => 'price_1TEXLwLV86wly52BLC3ihcbo',
             'anual' => 'price_1TEXLNLV86wly52BXUvZyG9R',
             default => null,
+        };
+    }
+
+    /**
+     * Importe base del plan antes de descuentos.
+     */
+    private function planBaseAmount(string $tarifa): float
+    {
+        return match ($tarifa) {
+            'trimestral' => 75.00,
+            'anual' => 250.00,
+            default => 29.99,
         };
     }
 
