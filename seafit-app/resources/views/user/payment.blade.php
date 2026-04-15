@@ -1,7 +1,7 @@
 {{-- Vista de gestion de pago: suscripcion, tarjetas y facturas. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Gestión de Pago - SeaFit')
+@section('titulo', 'GestiÃ³n de Pago - SeaFit')
 
 @section('contenido')
     <div class="flex flex-col md:flex-row min-h-screen bg-[#f8fafc] font-sans">
@@ -21,11 +21,11 @@
                 </a>
                 <a href="{{ route('pago.gestion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors bg-[#e6f3ff] text-[#1A3878]">
-                    <span class="material-symbols-outlined">payments</span> Gestión de Pago
+                    <span class="material-symbols-outlined">payments</span> GestiÃ³n de Pago
                 </a>
                 <a href="{{ route('configuracion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
-                    <span class="material-symbols-outlined">settings</span> Configuración
+                    <span class="material-symbols-outlined">settings</span> ConfiguraciÃ³n
                 </a>
             </nav>
         </aside>
@@ -33,7 +33,7 @@
         {{-- CONTENIDO PRINCIPAL --}}
         <main class="flex-1 p-6 md:p-10 lg:p-12 max-w-[1000px]">
             <header class="mb-8">
-                <h1 class="text-3xl md:text-4xl font-black text-[#0A1931] mb-4">Gestión de Pago</h1>
+                <h1 class="text-3xl md:text-4xl font-black text-[#0A1931] mb-4">GestiÃ³n de Pago</h1>
 
                 @if(session('success'))
                     <div
@@ -47,11 +47,11 @@
                     </div>
                 @endif
 
-                <p class="text-gray-500 text-[15px]">Administra tu suscripción, métodos de pago y revisa tu historial de
+                <p class="text-gray-500 text-[15px]">Administra tu suscripciÃ³n, mÃ©todos de pago y revisa tu historial de
                     facturas.</p>
             </header>
 
-            {{-- RESUMEN DE FACTURACIÓN --}}
+            {{-- RESUMEN DE FACTURACIÃ“N --}}
             @php
                 // Variables auxiliares para estado de cuenta.
                 $planActivo = $user->isPlanActive();
@@ -61,7 +61,7 @@
 
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-[#0A1931]">Resumen de Facturación</h3>
+                    <h3 class="text-xl font-bold text-[#0A1931]">Resumen de FacturaciÃ³n</h3>
                 </div>
 
                 @if($planActivo)
@@ -102,14 +102,14 @@
 
             </section>
 
-            {{-- MÉTODOS DE PAGO GUARDADOS --}}
+            {{-- MÃ‰TODOS DE PAGO GUARDADOS --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-[#0A1931]">Métodos de Pago Guardados</h3>
+                    <h3 class="text-xl font-bold text-[#0A1931]">MÃ©todos de Pago Guardados</h3>
                 </div>
                 @php
                     // Si el principal es manual, no se marca ninguna tarjeta como principal.
-                    $principalEsManual = in_array($user->metodo_pago, ['bizum', 'paypal'], true);
+                    $principalEsManual = in_array($user->metodo_pago, ['bizum', 'paypal', 'efectivo'], true);
                 @endphp
 
                 {{-- Tarjetas guardadas en Stripe. --}}
@@ -210,15 +210,16 @@
                     <p class="text-gray-500 text-sm">No tienes metodos guardados todavia.</p>
                 @endif
 
-                {{-- Alta/edicion de un metodo manual (Bizum o PayPal). --}}
-                <form action="{{ route('pago.guardar_manual') }}" method="POST" class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3"
-                    id="form-metodo-manual">
+                {{-- Alta/edicion de un metodo manual (Bizum, PayPal o Efectivo). --}}
+                <form action="{{ route('pago.guardar_manual') }}" method="POST"
+                    class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3" id="form-metodo-manual">
                     @csrf
                     <div>
                         <select name="metodo_manual" id="metodo_manual" class="border rounded p-3 w-full" required>
                             <option value="">Guardar metodo manual...</option>
                             <option value="bizum" {{ old('metodo_manual') === 'bizum' ? 'selected' : '' }}>Bizum</option>
                             <option value="paypal" {{ old('metodo_manual') === 'paypal' ? 'selected' : '' }}>PayPal</option>
+                            <option value="efectivo" {{ old('metodo_manual') === 'efectivo' ? 'selected' : '' }}>Efectivo</option>
                         </select>
                         @error('metodo_manual')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -227,7 +228,7 @@
 
                     <div>
                         <input type="text" name="dato_manual" id="dato_manual" value="{{ old('dato_manual') }}"
-                            class="border rounded p-3 w-full" placeholder="Dato del metodo" required>
+                            class="border rounded p-3 w-full" placeholder="Dato del metodo">
                         <p id="ayuda_dato_manual" class="text-xs text-gray-500 mt-1"></p>
                         @error('dato_manual')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -240,7 +241,7 @@
                 </form>
 
                 <script>
-                    document.addEventListener('DOMContentLoaded', function() {
+                    document.addEventListener('DOMContentLoaded', function () {
                         // Referencias del formulario manual.
                         const metodoInput = document.getElementById('metodo_manual');
                         const datoInput = document.getElementById('dato_manual');
@@ -259,6 +260,7 @@
                                 datoInput.placeholder = 'Telefono Bizum (ejemplo: 612345678)';
                                 datoInput.setAttribute('inputmode', 'numeric');
                                 datoInput.setAttribute('pattern', '^[6789]\\d{8}$');
+                                datoInput.required = true;
                                 ayuda.textContent = 'Telefono de 9 digitos, empezando por 6, 7, 8 o 9.';
                                 return;
                             }
@@ -268,12 +270,25 @@
                                 datoInput.placeholder = 'Email de PayPal (ejemplo: correo@dominio.com)';
                                 datoInput.removeAttribute('inputmode');
                                 datoInput.removeAttribute('pattern');
+                                datoInput.required = true;
                                 ayuda.textContent = 'Introduce un email valido para PayPal.';
+                                return;
+                            }
+
+                            if (metodo === 'efectivo') {
+                                datoInput.type = 'text';
+                                datoInput.placeholder = 'Sin dato adicional';
+                                datoInput.value = '';
+                                datoInput.required = false;
+                                datoInput.removeAttribute('inputmode');
+                                datoInput.removeAttribute('pattern');
+                                ayuda.textContent = 'El cobro en efectivo se confirma manualmente en recepcion.';
                                 return;
                             }
 
                             datoInput.type = 'text';
                             datoInput.placeholder = 'Dato del metodo';
+                            datoInput.required = true;
                             datoInput.removeAttribute('inputmode');
                             datoInput.removeAttribute('pattern');
                             ayuda.textContent = '';
@@ -287,7 +302,7 @@
 
                 <a href="{{ route('pago.nuevo') }}"
                     class="inline-flex items-center gap-2 text-[#1A3878] font-bold text-sm transition-colors hover:text-[#0A1931] mt-4">
-                    <span class="material-symbols-outlined">add_circle</span> Anadir tarjeta (Visa/Amex)
+                    <span class="material-symbols-outlined">add_circle</span> Anadir tarjeta
                 </a>
             </section>
 
@@ -317,12 +332,12 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-gray-500 text-center py-4">Aún no tienes facturas disponibles.</p>
+                        <p class="text-gray-500 text-center py-4">AÃºn no tienes facturas disponibles.</p>
                     @endforelse
                 </div>
                 {{-- Cambio conjunto de tarifa + metodo desde perfil socio. --}}
                 <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
-                    <h3 class="text-xl font-bold text-[#0A1931] mb-4">Cambiar plan y método de pago</h3>
+                    <h3 class="text-xl font-bold text-[#0A1931] mb-4">Cambiar plan y mÃ©todo de pago</h3>
 
                     <form action="{{ route('pago.cambiar_plan_metodo') }}" method="POST"
                         class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -335,7 +350,6 @@
 
                         <select name="metodo_pago" class="border rounded p-3" required>
                             <option value="visa">Visa</option>
-                            <option value="amex">Amex</option>
                             <option value="bizum">Bizum</option>
                             <option value="paypal">PayPal</option>
                             <option value="transferencia">Transferencia</option>
@@ -350,3 +364,4 @@
         </main>
     </div>
 @endsection
+

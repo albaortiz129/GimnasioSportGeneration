@@ -13,7 +13,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Aplica cambios de esta migracion.
+        // Si la tabla ya existe, no falla y marca migracion como ejecutada.
+        if (Schema::hasTable('discount_codes')) {
+            return;
+        }
+
         Schema::create('discount_codes', function (Blueprint $table) {
             $table->id();
             $table->string('code', 30)->unique(); // Ej: SEAFIT20
@@ -37,8 +41,9 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        // Revierte los cambios aplicados en up().
-        Schema::dropIfExists('discount_codes');
+        if (Schema::hasTable('discount_codes')) {
+            Schema::drop('discount_codes');
+        }
     }
 };
 

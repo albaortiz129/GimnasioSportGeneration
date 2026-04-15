@@ -33,7 +33,7 @@ class PaymentController extends Controller
         $metodosPago = $user->paymentMethods();
         $metodoPrincipal = $user->defaultPaymentMethod();
 
-        // Metodos manuales guardados en la BD (Bizum/PayPal).
+        // Metodos manuales guardados en la BD (Bizum/PayPal/Efectivo).
         $metodosManuales = collect($user->manual_payment_methods ?? [])
             ->map(fn($metodo) => $this->normalizeManualMethod($metodo))
             ->filter()
@@ -61,9 +61,6 @@ class PaymentController extends Controller
 
         // Se cancela en Stripe pero mantiene acceso hasta fin de ciclo.
         $user->subscription('default')->cancel();
-
-        // Dato guardado para que la web muestre el plan como cancelado.
-        $user->update(['tarifa' => 'cancelada']);
 
         return back()->with('success', 'Tu suscripcion ha sido cancelada. Tendras acceso hasta el final del periodo pagado.');
     }
@@ -122,7 +119,11 @@ class PaymentController extends Controller
                 $newSubscription->create($user->defaultPaymentMethod()->id);
             }
 
-            $user->update(['tarifa' => $nuevaTarifa]);
+            $user->update([
+                'tarifa' => $nuevaTarifa,
+                'payment_status' => 'al_dia',
+                'next_payment_at' => $this->nextChargeFromPlan($nuevaTarifa),
+            ]);
 
             if ($cupon['model']) {
                 $descuentoAplicado = $cupon['model']->calculateDiscountAmount($this->planBaseAmount($nuevaTarifa));
@@ -244,17 +245,16 @@ class PaymentController extends Controller
     }
 
     /**
-     * Guarda o actualiza un método manual (Bizum/PayPal) y su dato.
+     * Guarda o actualiza un método manual (Bizum/PayPal/Efectivo) y su dato.
      */
     public function saveManualMethod(Request $request)
     {
         $data = $request->validate([
-            'metodo_manual' => 'required|in:bizum,paypal',
-            'dato_manual' => 'required|string|max:120',
+            'metodo_manual' => 'required|in:bizum,paypal,efectivo',
+            'dato_manual' => 'nullable|string|max:120',
         ], [
             'metodo_manual.required' => 'Selecciona un metodo manual.',
             'metodo_manual.in' => 'Metodo manual no valido.',
-            'dato_manual.required' => 'Debes indicar los datos del metodo.',
             'dato_manual.max' => 'El dato es demasiado largo.',
         ]);
 
@@ -281,7 +281,7 @@ class PaymentController extends Controller
             ->filter()
             ->values();
 
-        $datoManual = trim($data['dato_manual']);
+        $datoManual = trim((string) ($data['dato_manual'] ?? ''));
 
         if ($data['metodo_manual'] === 'bizum') {
             $datoManual = preg_replace('/\D+/', '', $datoManual);
@@ -289,6 +289,10 @@ class PaymentController extends Controller
 
         if ($data['metodo_manual'] === 'paypal') {
             $datoManual = strtolower($datoManual);
+        }
+
+        if ($data['metodo_manual'] === 'efectivo') {
+            $datoManual = null;
         }
 
         // Detecta si era alta nueva o una actualizacion del metodo.
@@ -304,7 +308,7 @@ class PaymentController extends Controller
             ->all();
 
         // Si el principal actual no es manual, pasa a ser el recien guardado.
-        if (!in_array($user->metodo_pago, ['bizum', 'paypal'], true)) {
+        if (!in_array($user->metodo_pago, ['bizum', 'paypal', 'efectivo'], true)) {
             $user->metodo_pago = $data['metodo_manual'];
         }
 
@@ -319,7 +323,7 @@ class PaymentController extends Controller
     public function setPrimaryManualMethod(Request $request)
     {
         $data = $request->validate([
-            'metodo_manual' => 'required|in:bizum,paypal',
+            'metodo_manual' => 'required|in:bizum,paypal,efectivo',
         ]);
 
         $user = Auth::user();
@@ -345,7 +349,7 @@ class PaymentController extends Controller
     public function deleteManualMethod(Request $request)
     {
         $data = $request->validate([
-            'metodo_manual' => 'required|in:bizum,paypal',
+            'metodo_manual' => 'required|in:bizum,paypal,efectivo',
         ]);
 
         $user = Auth::user();
@@ -386,7 +390,7 @@ class PaymentController extends Controller
         if (is_string($metodo)) {
             $code = strtolower(trim($metodo));
 
-            if (!in_array($code, ['bizum', 'paypal'], true)) {
+            if (!in_array($code, ['bizum', 'paypal', 'efectivo'], true)) {
                 return null;
             }
 
@@ -401,7 +405,7 @@ class PaymentController extends Controller
         if (is_array($metodo)) {
             $code = strtolower(trim((string) ($metodo['code'] ?? '')));
 
-            if (!in_array($code, ['bizum', 'paypal'], true)) {
+            if (!in_array($code, ['bizum', 'paypal', 'efectivo'], true)) {
                 return null;
             }
 
@@ -475,6 +479,7 @@ class PaymentController extends Controller
         return match ($code) {
             'bizum' => 'Bizum',
             'paypal' => 'PayPal',
+            'efectivo' => 'Efectivo',
             default => ucfirst($code),
         };
     }
@@ -486,7 +491,7 @@ class PaymentController extends Controller
     {
         return match ($marca) {
             'visa' => 'visa',
-            'amex', 'american express' => 'amex',
+            'amex', 'american express' => 'tarjeta',
             default => 'tarjeta',
         };
     }
@@ -519,7 +524,7 @@ class PaymentController extends Controller
     {
         $request->validate([
             'tarifa' => 'required|in:mensual,trimestral,anual',
-            'metodo_pago' => 'required|in:visa,amex,bizum,paypal,transferencia,efectivo',
+            'metodo_pago' => 'required|in:visa,bizum,paypal,transferencia,efectivo',
             'cupon' => 'nullable|string|max:100',
         ]);
 
@@ -529,7 +534,7 @@ class PaymentController extends Controller
         $codigoCupon = $request->input('cupon');
 
         // Flujo de pago con tarjeta (Stripe).
-        if (in_array($metodo, ['visa', 'amex'], true)) {
+        if ($metodo === 'visa') {
             if (!$user->hasDefaultPaymentMethod()) {
                 return back()->with('error', 'Para pagar con tarjeta, primero anade una tarjeta.');
             }

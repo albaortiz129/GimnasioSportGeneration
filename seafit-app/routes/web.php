@@ -14,6 +14,7 @@ use App\Http\Controllers\AdminDiscountController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\Rule;
 
 /*
 |--------------------------------------------------------------------------
@@ -103,6 +104,7 @@ Route::middleware(['auth'])->group(function () {
                     'string',
                     'size:9',
                     'regex:/^[0-9]{8}[A-Za-z]$/',
+                    Rule::unique('users', 'dni')->ignore($user->id),
                     function ($attribute, $value, $fail) {
                         $dni = strtoupper((string) $value);
                         $numero = (int) substr($dni, 0, 8);

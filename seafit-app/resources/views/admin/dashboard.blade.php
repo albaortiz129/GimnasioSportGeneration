@@ -96,7 +96,7 @@
                                     'transferencia' => 'Transferencia',
                                     'tarjeta', 'stripe' => 'Tarjeta',
                                     'efectivo' => 'Efectivo',
-                                    'american_express', 'amex' => 'American Express',
+                                    'american_express', 'amex', 'visa' => 'Tarjeta',
                                     default => 'pago manual',
                                 };
                             @endphp

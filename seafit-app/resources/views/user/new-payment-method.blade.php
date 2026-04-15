@@ -3,7 +3,7 @@
 
 @section('contenido')
     <div class="max-w-md mx-auto my-10 p-8 bg-white rounded-3xl shadow-lg border">
-        <h2 class="text-2xl font-bold mb-6 text-[#0A1931]">Anadir nueva tarjeta</h2>
+        <h2 class="text-2xl font-bold mb-6 text-[#0A1931]">Añadir nueva tarjeta</h2>
 
         @if(!$stripeKey)
             <div class="bg-red-100 text-red-700 p-3 rounded mb-4">

@@ -37,15 +37,6 @@
             <textarea name="descripcion" placeholder="Descripcion" class="border rounded p-2 md:col-span-4"></textarea>
         </form>
 
-        {{-- Buscador para localizar alumnos por nombre o DNI. --}}
-        <form method="GET" action="{{ route('admin.classes.index') }}" class="bg-white border rounded-2xl p-4 mb-6">
-            <div class="flex flex-col md:flex-row gap-3">
-                <input type="text" name="q" value="{{ $q ?? '' }}" placeholder="Buscar alumno por nombre o DNI"
-                    class="w-full border rounded p-2">
-                <button class="bg-[#0A1931] text-white px-4 rounded font-bold">Buscar</button>
-            </div>
-        </form>
-
         {{-- Filtro rapido por dia de la semana. --}}
         <div class="flex gap-2 overflow-x-auto mb-6">
             <a href="{{ route('admin.classes.index') }}"
@@ -53,7 +44,7 @@
                 Todos
             </a>
             @foreach($diasSemana as $d)
-                <a href="{{ route('admin.classes.index', ['dia' => $d, 'q' => $q ?? null]) }}"
+                <a href="{{ route('admin.classes.index', ['dia' => $d]) }}"
                     class="px-4 py-2 rounded-full text-sm font-bold {{ ($dia ?? null) === $d ? 'bg-[#1A3878] text-white' : 'bg-gray-100 text-gray-600' }}">
                     {{ $d }}
                 </a>
@@ -63,6 +54,12 @@
         {{-- Listado de clases y gestion de inscritos. --}}
         <div class="space-y-6">
             @foreach($clases as $clase)
+                @php
+                    $usuariosDisponibles = $usuarios
+                        ->reject(fn($u) => $clase->users->contains($u->id))
+                        ->values();
+                @endphp
+
                 <div class="bg-white border rounded-2xl p-4">
                     {{-- Formulario de edicion rapida de la clase actual. --}}
                     <form action="{{ route('admin.classes.update', $clase) }}" method="POST"
@@ -78,12 +75,14 @@
                         {{-- Se normaliza visualmente el dia para soportar datos antiguos. --}}
                         <select name="dia_semana" class="border rounded p-2" required>
                             @php $diaClase = $clase->dia_semana; @endphp
-                            @foreach(['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'] as $dia)
-                                <option value="{{ $dia }}" @selected(
-                                    $diaClase === $dia ||
-                                    ($dia === 'Miercoles' && $diaClase === 'Miércoles') ||
-                                    ($dia === 'Sabado' && $diaClase === 'Sábado')
-                                )>{{ $dia }}</option>
+                            @foreach(['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'] as $diaItem)
+                                <option value="{{ $diaItem }}" @selected(
+                                    $diaClase === $diaItem ||
+                                    ($diaItem === 'Miercoles' && $diaClase === 'Miércoles') ||
+                                    ($diaItem === 'Miercoles' && $diaClase === 'MiÃ©rcoles') ||
+                                    ($diaItem === 'Sabado' && $diaClase === 'Sábado')
+                                    || ($diaItem === 'Sabado' && $diaClase === 'SÃ¡bado')
+                                )>{{ $diaItem }}</option>
                             @endforeach
                         </select>
 
@@ -115,19 +114,41 @@
                         </div>
 
                         <div>
-                            {{-- Alta manual de alumno en la clase. --}}
+                            {{-- Alta manual de alumno en la clase con buscador dentro del propio bloque. --}}
                             <h3 class="font-bold mb-2">Anadir usuario</h3>
-                            <form action="{{ route('admin.classes.usuarios.store', $clase) }}" method="POST" class="flex gap-2">
+                            <form action="{{ route('admin.classes.usuarios.store', $clase) }}" method="POST" class="space-y-2">
                                 @csrf
-                                <select name="user_id" class="border rounded p-2 w-full" required>
-                                    @foreach($usuarios as $u)
-                                        {{-- Solo muestra usuarios no inscritos para evitar duplicados. --}}
-                                        @if(!$clase->users->contains($u->id))
-                                            <option value="{{ $u->id }}">{{ $u->nombre }} {{ $u->apellidos }} ({{ $u->dni }})</option>
+
+                                <input
+                                    type="text"
+                                    class="class-user-filter border rounded p-2 w-full"
+                                    data-target="user-select-{{ $clase->id }}"
+                                    placeholder="Buscar alumno para esta clase...">
+
+                                <div class="flex gap-2">
+                                    <select
+                                        id="user-select-{{ $clase->id }}"
+                                        name="user_id"
+                                        class="border rounded p-2 w-full"
+                                        @disabled($usuariosDisponibles->isEmpty())
+                                        required>
+                                        @if($usuariosDisponibles->isEmpty())
+                                            <option value="">No hay alumnos disponibles</option>
+                                        @else
+                                            @foreach($usuariosDisponibles as $u)
+                                                <option
+                                                    value="{{ $u->id }}"
+                                                    data-search="{{ strtolower($u->nombre . ' ' . $u->apellidos . ' ' . $u->dni) }}">
+                                                    {{ $u->nombre }} {{ $u->apellidos }} ({{ $u->dni }})
+                                                </option>
+                                            @endforeach
                                         @endif
-                                    @endforeach
-                                </select>
-                                <button class="bg-[#0A1931] text-white px-4 rounded">Anadir</button>
+                                    </select>
+
+                                    <button class="bg-[#0A1931] text-white px-4 rounded" @disabled($usuariosDisponibles->isEmpty())>
+                                        Anadir
+                                    </button>
+                                </div>
                             </form>
 
                             {{-- Borrado completo de la clase. --}}
@@ -143,5 +164,61 @@
             @endforeach
         </div>
     </div>
-@endsection
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Cada filtro solo afecta al desplegable de su propia clase.
+            document.querySelectorAll('.class-user-filter').forEach(function (input) {
+                const selectId = input.getAttribute('data-target');
+                const select = document.getElementById(selectId);
+                if (!select) return;
+
+                const opcionesOriginales = Array.from(select.options)
+                    .filter(function (option) {
+                        return option.value !== '';
+                    })
+                    .map(function (option) {
+                        return {
+                            value: option.value,
+                            text: option.text,
+                            search: (option.dataset.search || option.text || '').toLowerCase(),
+                        };
+                    });
+
+                if (opcionesOriginales.length === 0) {
+                    input.disabled = true;
+                    return;
+                }
+
+                const renderOpciones = function () {
+                    const texto = (input.value || '').trim().toLowerCase();
+                    const filtradas = opcionesOriginales.filter(function (opcion) {
+                        return texto === '' || opcion.search.includes(texto);
+                    });
+
+                    select.innerHTML = '';
+
+                    if (filtradas.length === 0) {
+                        const vacia = document.createElement('option');
+                        vacia.value = '';
+                        vacia.textContent = 'Sin resultados';
+                        vacia.disabled = true;
+                        vacia.selected = true;
+                        select.appendChild(vacia);
+                        return;
+                    }
+
+                    filtradas.forEach(function (opcion) {
+                        const item = document.createElement('option');
+                        item.value = opcion.value;
+                        item.textContent = opcion.text;
+                        item.dataset.search = opcion.search;
+                        select.appendChild(item);
+                    });
+                };
+
+                input.addEventListener('input', renderOpciones);
+            });
+        });
+    </script>
+@endsection

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Controlador del panel de administración.
+ * Controlador del panel de administracion.
  * Gestiona usuarios, cobros manuales y clases.
  */
 namespace App\Http\Controllers;
@@ -10,8 +10,8 @@ use App\Models\GymClass;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
@@ -26,8 +26,6 @@ class AdminPanelController extends Controller
         // Texto del buscador del panel.
         $buscar = trim((string) $request->query('q', ''));
 
-        // Si faltan tablas de descuentos, se crean automaticamente.
-        $this->ensureDiscountTables();
         $discountsTablesReady = Schema::hasTable('discount_redemptions')
             && Schema::hasTable('discount_codes');
 
@@ -98,7 +96,7 @@ class AdminPanelController extends Controller
                 $impagados = $impagadosQuery->get();
 
             } catch (QueryException $exception) {
-                // Si la base de datos no esta al día, no rompemos el panel.
+                // Si la base de datos no esta al dia, no rompemos el panel.
                 report($exception);
                 $billingColumnsReady = false;
                 $impagados = collect();
@@ -112,45 +110,6 @@ class AdminPanelController extends Controller
             'billingColumnsReady',
             'discountsTablesReady'
         ));
-    }
-
-    /**
-     * Crea tablas de descuentos si no existen.
-     */
-    private function ensureDiscountTables(): void
-    {
-        if (!Schema::hasTable('discount_codes')) {
-            Schema::create('discount_codes', function (Blueprint $table) {
-                $table->id();
-                $table->string('code', 30)->unique();
-                $table->enum('type', ['percent', 'fixed']);
-                $table->decimal('value', 10, 2);
-                $table->boolean('is_active')->default(true);
-                $table->timestamp('starts_at')->nullable();
-                $table->timestamp('ends_at')->nullable();
-                $table->unsignedInteger('max_uses')->nullable();
-                $table->unsignedInteger('used_count')->default(0);
-                $table->boolean('one_use_per_user')->default(true);
-                $table->string('stripe_coupon_id')->nullable();
-                $table->text('notes')->nullable();
-                $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-                $table->timestamps();
-            });
-        }
-
-        if (!Schema::hasTable('discount_redemptions')) {
-            Schema::create('discount_redemptions', function (Blueprint $table) {
-                $table->id();
-                $table->foreignId('discount_code_id')->constrained('discount_codes')->cascadeOnDelete();
-                $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-                $table->string('context', 40)->default('registro');
-                $table->decimal('discount_applied', 10, 2)->nullable();
-                $table->timestamp('applied_at')->useCurrent();
-                $table->timestamps();
-
-                $table->index(['discount_code_id', 'user_id']);
-            });
-        }
     }
 
     /**
@@ -207,9 +166,9 @@ class AdminPanelController extends Controller
         ], [
             'telefono.regex' => 'El telefono debe tener 9 digitos y empezar por 6, 7, 8 o 9.',
             'dni.regex' => 'El DNI debe tener 8 numeros y 1 letra (ej: 12345678Z).',
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'password.confirmed' => 'Las contraseña no coinciden.',
-            'password.regex' => 'La contraseña debe incluir mayuscula, minuscula, numero y simbolo.',
+            'password.min' => 'La contrasena debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contrasenas no coinciden.',
+            'password.regex' => 'La contrasena debe incluir mayuscula, minuscula, numero y simbolo.',
         ]);
 
         $data['dni'] = strtoupper($data['dni']);
@@ -235,7 +194,7 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Formulario de edición de usuario.
+     * Formulario de edicion de usuario.
      */
     public function edit(User $user)
     {
@@ -272,8 +231,8 @@ class AdminPanelController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/',
             ],
         ], [
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'password.confirmed' => 'Las contraseñas no coinciden.',
+            'password.min' => 'La contrasena debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contrasenas no coinciden.',
             'password.regex' => 'Debe incluir mayuscula, minuscula, numero y caracter especial.',
         ]);
 
@@ -317,7 +276,7 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Registra un cobro manual y activa el pago al día.
+     * Registra un cobro manual y activa el pago al dia.
      */
     public function manualCharge(Request $request, User $user)
     {
@@ -344,7 +303,7 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Renueva manualmente la suscripción.
+     * Renueva manualmente la suscripcion.
      */
     public function renewSubscription(User $user)
     {
@@ -409,32 +368,22 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Pantalla de administración de clases con filtros.
+     * Pantalla de administracion de clases con filtros.
      */
     public function classesIndex(Request $request)
     {
         $dia = $request->query('dia');
-        // Texto del buscador para filtrar alumnos.
-        $q = trim((string) $request->query('q', '')); // Cadena de busqueda que escribe el administrador en el buscador
 
         $diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
 
         $ordenDias = "FIELD(dia_semana, 'Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo')";
 
         // Carga clases con usuarios asociados (solo socios, sin admins).
-        // Tambien aplica el filtro de texto cuando el admin lo usa.
-        // Se carga las clases con sus usuarios y donde se cargan cada uno
         $clases = GymClass::with([
-            'users' => function ($query) use ($q) {
+            'users' => function ($query) {
                 $query->where('is_admin', false)
-                    ->when($q !== '', function ($sub) use ($q) { // Si no esta vacío el texto, se busca por nombre, apellidos o DNI
-                        $sub->where(function ($f) use ($q) {
-                            $f->where('nombre', 'like', "%{$q}%")
-                                ->orWhere('apellidos', 'like', "%{$q}%")
-                                ->orWhere('dni', 'like', "%{$q}%");
-                        });
-                    })
-                    ->orderBy('nombre');
+                    ->orderBy('nombre')
+                    ->orderBy('apellidos');
             }
         ])
             ->when($dia, fn($query) => $query->whereIn('dia_semana', $this->weekdayVariants($dia)))
@@ -443,18 +392,11 @@ class AdminPanelController extends Controller
             ->get();
 
         $usuarios = User::where('is_admin', false)
-            ->when($q !== '', function ($query) use ($q) {
-                $query->where(function ($f) use ($q) {
-                    $f->where('nombre', 'like', "%{$q}%")
-                        ->orWhere('apellidos', 'like', "%{$q}%")
-                        ->orWhere('dni', 'like', "%{$q}%");
-                });
-            })
             ->orderBy('nombre')
             ->orderBy('apellidos')
             ->get();
 
-        return view('admin.classes', compact('clases', 'usuarios', 'dia', 'q', 'diasSemana'));
+        return view('admin.classes', compact('clases', 'usuarios', 'dia', 'diasSemana'));
     }
 
     /**
@@ -516,7 +458,7 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Añade un usuario a una clase y descuenta una plaza.
+     * Anade un usuario a una clase y descuenta una plaza.
      */
     public function addUserToClass(Request $request, GymClass $clase)
     {
@@ -526,17 +468,31 @@ class AdminPanelController extends Controller
 
         $user = User::where('is_admin', false)->findOrFail($request->user_id);
 
-        // Evita apuntar dos veces al mismo usuario en la misma clase.
-        if ($clase->users()->where('user_id', $user->id)->exists()) {
+        $resultado = DB::transaction(function () use ($clase, $user) {
+            // Bloqueo de la clase para evitar sobrecupo por concurrencia.
+            $claseBloqueada = GymClass::query()->lockForUpdate()->findOrFail($clase->id);
+
+            if ($claseBloqueada->users()->where('user_id', $user->id)->exists()) {
+                return 'duplicate';
+            }
+
+            if ($claseBloqueada->capacidad_max <= 0) {
+                return 'full';
+            }
+
+            $claseBloqueada->users()->attach($user->id);
+            $claseBloqueada->decrement('capacidad_max');
+
+            return 'ok';
+        });
+
+        if ($resultado === 'duplicate') {
             return back()->with('error', 'Ese usuario ya estaba apuntado.');
         }
 
-        if ($clase->capacidad_max <= 0) {
+        if ($resultado === 'full') {
             return back()->with('error', 'No quedan plazas libres en esa clase.');
         }
-
-        $clase->users()->attach($user->id);
-        $clase->decrement('capacidad_max');
 
         return back()->with('success', 'Usuario anadido a la clase.');
     }
@@ -550,14 +506,24 @@ class AdminPanelController extends Controller
             return back()->with('error', 'No se pueden gestionar administradores en clases.');
         }
 
-        $existia = $clase->users()->where('user_id', $user->id)->exists();
+        $resultado = DB::transaction(function () use ($clase, $user) {
+            // Mismo bloqueo para mantener capacidad consistente.
+            $claseBloqueada = GymClass::query()->lockForUpdate()->findOrFail($clase->id);
+            $existia = $claseBloqueada->users()->where('user_id', $user->id)->exists();
 
-        if (!$existia) {
+            if (!$existia) {
+                return 'missing';
+            }
+
+            $claseBloqueada->users()->detach($user->id);
+            $claseBloqueada->increment('capacidad_max');
+
+            return 'ok';
+        });
+
+        if ($resultado === 'missing') {
             return back()->with('error', 'Ese usuario no estaba apuntado a esta clase.');
         }
-
-        $clase->users()->detach($user->id);
-        $clase->increment('capacidad_max');
 
         return back()->with('success', 'Usuario eliminado de la clase.');
     }
@@ -577,25 +543,25 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Normaliza nombres de día para guardar siempre en formato ASCII.
+     * Normaliza nombres de dia para guardar siempre en formato ASCII.
      */
     private function normalizeWeekday(string $dia): string
     {
         return match (trim($dia)) {
-            'Miercoles', 'Miércoles' => 'Miercoles',
-            'Sabado', 'Sábado' => 'Sabado',
+            'Miercoles', 'MiÃ©rcoles', 'Miércoles' => 'Miercoles',
+            'Sabado', 'SÃ¡bado', 'Sábado' => 'Sabado',
             default => trim($dia),
         };
     }
 
     /**
-     * Devuelve variantes útiles para filtrar datos antiguos y nuevos.
+     * Devuelve variantes utiles para filtrar datos antiguos y nuevos.
      */
     private function weekdayVariants(string $dia): array
     {
         return match ($this->normalizeWeekday($dia)) {
-            'Miercoles' => ['Miercoles', 'Miércoles'],
-            'Sabado' => ['Sabado', 'Sábado'],
+            'Miercoles' => ['Miercoles', 'MiÃ©rcoles', 'Miércoles'],
+            'Sabado' => ['Sabado', 'SÃ¡bado', 'Sábado'],
             default => [$this->normalizeWeekday($dia)],
         };
     }
@@ -631,9 +597,8 @@ class AdminPanelController extends Controller
             'transferencia' => 'Transferencia',
             'tarjeta', 'stripe' => 'Tarjeta',
             'efectivo' => 'Efectivo',
-            'american_express', 'amex' => 'American Express',
+            'american_express', 'amex', 'visa' => 'Tarjeta',
             default => 'Metodo manual',
         };
     }
 }
-

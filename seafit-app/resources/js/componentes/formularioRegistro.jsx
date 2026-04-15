@@ -39,7 +39,7 @@ const METODOS_PAGO = [
     { id: 'bizum', nombre: 'Bizum', icono: 'payments' },
     { id: 'paypal', nombre: 'PayPal', icono: 'payments' },
     { id: 'visa', nombre: 'Tarjeta de credito', icono: 'credit_card' },
-    { id: 'amex', nombre: 'American Express', icono: 'credit_card' },
+    { id: 'efectivo', nombre: 'Efectivo', icono: 'payments' },
 ];
 
 // Devuelve el precio visible segun la tarifa elegida.
@@ -212,7 +212,7 @@ const FormularioRegistro = () => {
         setCargando(true);
         let stripePaymentMethodId = null;
 
-        if (datos.metodo_pago === 'visa' || datos.metodo_pago === 'amex') {
+        if (datos.metodo_pago === 'visa') {
             if (!stripe || !elements) {
                 alert('El sistema de pagos no ha cargado. Reintenta.');
                 setCargando(false);
@@ -437,7 +437,20 @@ const FormularioRegistro = () => {
                         </div>
                     )}
 
-                    {(datos.metodo_pago === 'visa' || datos.metodo_pago === 'amex') && (
+                    {datos.metodo_pago === 'efectivo' && (
+                        <div className="mb-8 p-5 border border-amber-200 rounded-xl bg-amber-50 shadow-sm">
+                            <div className="flex items-center gap-2 mb-2 text-amber-800 font-bold">
+                                <span className="material-symbols-outlined">info</span>
+                                Pago en efectivo
+                            </div>
+                            <p className="text-sm text-amber-700 m-0 leading-relaxed">
+                                Puedes pagar directamente en recepcion antes de tu primera clase.<br />
+                                <strong>Tu cuenta quedara pendiente</strong> hasta que el administrador confirme el cobro.
+                            </p>
+                        </div>
+                    )}
+
+                    {datos.metodo_pago === 'visa' && (
                         <div className="mb-8 p-5 border border-blue-200 rounded-xl bg-blue-50">
                             <label className="block text-sm font-bold text-[#0A1931] mb-3 text-left">Datos de tu tarjeta</label>
                             <div className="bg-white p-4 border border-gray-300 rounded-lg shadow-sm">

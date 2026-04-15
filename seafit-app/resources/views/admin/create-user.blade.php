@@ -133,7 +133,6 @@
                     <option value="bizum" @selected(old('metodo_pago') === 'bizum')>Bizum</option>
                     <option value="paypal" @selected(old('metodo_pago') === 'paypal')>PayPal</option>
                     <option value="visa" @selected(old('metodo_pago') === 'visa')>Visa</option>
-                    <option value="amex" @selected(old('metodo_pago') === 'amex')>Amex</option>
                     <option value="efectivo" @selected(old('metodo_pago') === 'efectivo')>Efectivo</option>
                     <option value="transferencia" @selected(old('metodo_pago') === 'transferencia')>Transferencia</option>
                 </select>

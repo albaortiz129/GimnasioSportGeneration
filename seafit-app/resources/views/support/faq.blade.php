@@ -14,11 +14,11 @@
                     Centro de Ayuda y Preguntas Frecuentes
                 </h1>
                 <p class="text-gray-600 text-[17px] font-medium max-w-2xl mx-auto leading-relaxed">
-                    Encuentra respuestas rápidas a tus dudas sobre membresías, reservas y pagos.
+                    Encuentra respuestas rÃ¡pidas a tus dudas sobre membresÃ­as, reservas y pagos.
                 </p>
             </header>
 
-            {{-- BARRA DE BÚSQUEDA: Centrada, fondo blanco, bordes finos --}}
+            {{-- BARRA DE BÃšSQUEDA: Centrada, fondo blanco, bordes finos --}}
             <div class="relative max-w-3xl mx-auto mb-16">
                 <input type="text" placeholder="Buscar preguntas..."
                     class="w-full px-6 py-4.5 rounded-xl border border-gray-200 bg-white shadow-sm outline-none focus:ring-2 focus:ring-[#1A3878]/10 transition-all text-gray-700 placeholder:text-gray-400">
@@ -31,13 +31,13 @@
                     <button class="faq-trigger flex items-center justify-between w-full p-8 text-left outline-none">
                         <h3
                             class="text-[#102A53] font-bold text-[19px] tracking-tight transition-colors group-hover:text-blue-700">
-                            ¿Cómo puedo cancelar o cambiar mi clase reservada?
+                            Â¿CÃ³mo puedo cancelar o cambiar mi clase reservada?
                         </h3>
                     </button>
                     <div class="faq-content transition-all duration-300 ease-in-out group-[.active]:max-h-[500px] max-h-0">
                         <div class="px-8 pb-8 pt-0 text-gray-600 leading-relaxed text-[15px] font-medium">
                             Puedes gestionar todas tus reservas desde el "Panel de Socio" > "Mis Reservas". Tienes hasta 2
-                            horas antes del inicio de la clase para cancelar sin penalización.
+                            horas antes del inicio de la clase para cancelar sin penalizaciÃ³n.
                         </div>
                     </div>
                 </div>
@@ -46,14 +46,13 @@
                     <button class="faq-trigger flex items-center justify-between w-full p-8 text-left outline-none">
                         <h3
                             class="text-[#102A53] font-bold text-[19px] tracking-tight transition-colors group-hover:text-blue-700">
-                            ¿Qué métodos de pago aceptan para la membresía?
+                            Â¿QuÃ© mÃ©todos de pago aceptan para la membresÃ­a?
                         </h3>
                     </button>
                     <div class="faq-content transition-all duration-300 ease-in-out group-[.active]:max-h-[500px] max-h-0">
                         <div
                             class="px-8 pb-8 pt-0 text-gray-600 leading-relaxed text-[15px] font-medium border-t border-gray-100/50 pt-6">
-                            Aceptamos tarjetas de crédito y débito (Visa, Mastercard, American Express) procesadas de forma
-                            segura a través de Stripe.
+                            Aceptamos tarjeta (Visa/Mastercard) por Stripe, y tambien pago manual por Bizum, PayPal o efectivo.
                         </div>
                     </div>
                 </div>
@@ -62,13 +61,13 @@
                     <button class="faq-trigger flex items-center justify-between w-full p-8 text-left outline-none">
                         <h3
                             class="text-[#102A53] font-bold text-[19px] tracking-tight transition-colors group-hover:text-blue-700">
-                            ¿Puedo congelar mi membresía si me voy de vacaciones?
+                            Â¿Puedo congelar mi membresÃ­a si me voy de vacaciones?
                         </h3>
                     </button>
                     <div class="faq-content transition-all duration-300 ease-in-out group-[.active]:max-h-[500px] max-h-0">
                         <div
                             class="px-8 pb-8 pt-0 text-gray-600 leading-relaxed text-[15px] font-medium border-t border-gray-100/50 pt-6">
-                            Sí, los planes Trimestrales y Anuales permiten congelar la cuenta una vez por año.
+                            SÃ­, los planes Trimestrales y Anuales permiten congelar la cuenta una vez por aÃ±o.
                         </div>
                     </div>
                 </div>
@@ -77,14 +76,14 @@
                     <button class="faq-trigger flex items-center justify-between w-full p-8 text-left outline-none">
                         <h3
                             class="text-[#102A53] font-bold text-[19px] tracking-tight transition-colors group-hover:text-blue-700">
-                            ¿Necesito registrarme para probar una clase?
+                            Â¿Necesito registrarme para probar una clase?
                         </h3>
                     </button>
                     <div class="faq-content transition-all duration-300 ease-in-out group-[.active]:max-h-[500px] max-h-0">
                         <div
                             class="px-8 pb-8 pt-0 text-gray-600 leading-relaxed text-[15px] font-medium border-t border-gray-100/50 pt-6">
-                            Sí, para probar una clase gratuita es necesario crear una cuenta básica y solicitarla desde la
-                            sección de 'Servicios'.
+                            SÃ­, para probar una clase gratuita es necesario crear una cuenta bÃ¡sica y solicitarla desde la
+                            secciÃ³n de 'Servicios'.
                         </div>
                     </div>
                 </div>
@@ -93,10 +92,10 @@
 
             {{-- BLOQUE INFERIOR --}}
             <div class="mt-20 bg-[#E8EBF0] rounded-2xl py-10 px-8 border border-gray-200 max-w-3xl mx-auto text-center">
-                <h4 class="text-[#102A53] font-bold text-[18px] mb-3tracking-tight">¿No encontraste la respuesta?</h4>
+                <h4 class="text-[#102A53] font-bold text-[18px] mb-3tracking-tight">Â¿No encontraste la respuesta?</h4>
                 <a href="{{ route('contacto') }}"
                     class="text-[#1A3878] font-semibold text-[15px] underline hover:text-[#0A1931]">
-                    Contáctanos directamente.
+                    ContÃ¡ctanos directamente.
                 </a>
             </div>
         </div>
@@ -109,7 +108,7 @@
                 const parent = trigger.closest('.faq-item');
                 const content = parent.querySelector('.faq-content');
 
-                // Si está activo, lo cerramos
+                // Si estÃ¡ activo, lo cerramos
                 if (parent.classList.contains('active')) {
                     parent.classList.remove('active');
                     content.style.maxHeight = '0px';

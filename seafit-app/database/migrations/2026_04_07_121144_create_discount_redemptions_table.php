@@ -13,7 +13,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Aplica cambios de esta migracion.
+        // Si la tabla ya existe, no falla y marca migracion como ejecutada.
+        if (Schema::hasTable('discount_redemptions')) {
+            return;
+        }
+
         Schema::create('discount_redemptions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('discount_code_id')->constrained('discount_codes')->cascadeOnDelete();
@@ -32,8 +36,9 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        // Revierte los cambios aplicados en up().
-        Schema::dropIfExists('discount_redemptions');
+        if (Schema::hasTable('discount_redemptions')) {
+            Schema::drop('discount_redemptions');
+        }
     }
 };
 

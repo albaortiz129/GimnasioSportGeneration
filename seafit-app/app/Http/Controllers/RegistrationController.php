@@ -41,13 +41,23 @@ class RegistrationController extends Controller
     public function register(Request $request)
     {
         try {
-            // Valida los datos del formulario de registro.
             $validator = Validator::make($request->all(), [
                 'nombre' => 'required|string|max:255',
                 'apellidos' => 'required|string|max:255',
-                'dni' => 'required|string|unique:users,dni',
+                'dni' => [
+                    'required',
+                    'string',
+                    'size:9',
+                    'regex:/^[0-9]{8}[A-Za-z]$/',
+                    'unique:users,dni',
+                    function ($attribute, $value, $fail) {
+                        if (!$this->isValidDni((string) $value)) {
+                            $fail('El DNI no es valido (letra incorrecta).');
+                        }
+                    },
+                ],
                 'fecha_nacimiento' => 'required|date',
-                'telefono' => 'required|string|max:20',
+                'telefono' => ['required', 'regex:/^[6789]\d{8}$/'],
                 'email' => 'required|email|unique:users,email',
                 'password' => [
                     'required',
@@ -57,26 +67,27 @@ class RegistrationController extends Controller
                     'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/',
                 ],
                 'domicilio' => 'required|string|max:255',
-                'tarifa' => 'required|string',
-                'metodo_pago' => 'required|string',
-                'cupon' => 'nullable|string',
+                'tarifa' => 'required|in:mensual,trimestral,anual',
+                'metodo_pago' => 'required|in:visa,bizum,paypal,efectivo',
+                'cupon' => 'nullable|string|max:100',
                 'stripeCodigo' => 'nullable|string',
             ], [
                 'dni.unique' => 'Ya existe un usuario registrado con ese DNI.',
+                'dni.regex' => 'El DNI debe tener 8 numeros y 1 letra (ej: 12345678Z).',
+                'telefono.regex' => 'El telefono debe tener 9 digitos y empezar por 6, 7, 8 o 9.',
                 'email.unique' => 'Ya existe un usuario registrado con ese email.',
-                'password.confirmed' => 'Las contrasenas no coinciden.',
+                'password.confirmed' => 'Las contraseñas no coinciden.',
+                'password.regex' => 'La contraseña debe incluir mayuscula, minuscula, numero y simbolo.',
             ]);
 
             if ($validator->fails()) {
-                // Devuelve errores por campo para pintarlos en el frontend.
                 return response()->json([
                     'error' => 'Errores de validacion',
                     'errors' => $validator->errors(),
                 ], 422);
             }
 
-            if (in_array($request->metodo_pago, ['visa', 'amex'], true) && !$request->filled('stripeCodigo')) {
-                // Con tarjeta, Stripe debe enviar el payment method id.
+            if ($request->metodo_pago === 'visa' && !$request->filled('stripeCodigo')) {
                 return response()->json([
                     'error' => 'Falta el metodo de pago de Stripe.',
                 ], 422);
@@ -87,7 +98,6 @@ class RegistrationController extends Controller
                 $mensajeDescuento = '';
 
                 if ($request->filled('cupon')) {
-                    // Se busca el cupon escrito por el usuario.
                     $discountCode = DiscountCode::byCode($request->cupon)->first();
 
                     if (!$discountCode || !$discountCode->isActiveNow()) {
@@ -99,39 +109,37 @@ class RegistrationController extends Controller
                     $mensajeDescuento = 'Cupon validado correctamente.';
                 }
 
-                $precioBase = $this->planBaseAmount($request->tarifa);
+                $tarifa = (string) $request->tarifa;
+                $metodoPago = (string) $request->metodo_pago;
+                $precioBase = $this->planBaseAmount($tarifa);
                 $descuentoAplicado = $discountCode
                     ? $discountCode->calculateDiscountAmount($precioBase)
                     : 0.0;
 
-                // Crear al usuario.
                 $user = new User();
-                $user->nombre = $request->nombre;
-                $user->apellidos = $request->apellidos;
-                $user->dni = $request->dni;
+                $user->nombre = trim((string) $request->nombre);
+                $user->apellidos = trim((string) $request->apellidos);
+                $user->dni = strtoupper(trim((string) $request->dni));
                 $user->fecha_nacimiento = $request->fecha_nacimiento;
-                $user->telefono = $request->telefono;
-                $user->email = $request->email;
-                $user->domicilio = $request->domicilio;
-                $user->tarifa = $request->tarifa;
-                $user->metodo_pago = $request->metodo_pago;
-                $user->password = Hash::make($request->password);
+                $user->telefono = trim((string) $request->telefono);
+                $user->email = strtolower(trim((string) $request->email));
+                $user->domicilio = trim((string) $request->domicilio);
+                $user->tarifa = $tarifa;
+                $user->metodo_pago = $metodoPago;
+                $user->password = Hash::make((string) $request->password);
 
-                $esTarjeta = in_array($request->metodo_pago, ['visa', 'amex'], true);
-                // Si no es tarjeta, queda pendiente hasta validacion manual/admin.
+                $esTarjeta = $metodoPago === 'visa';
                 $user->payment_status = $esTarjeta ? 'al_dia' : 'pendiente';
-                $user->next_payment_at = $esTarjeta ? $this->nextChargeFromPlan($request->tarifa) : null;
+                $user->next_payment_at = $esTarjeta ? $this->nextChargeFromPlan($tarifa) : null;
                 $user->save();
 
                 $mensajeFinal = 'Socio registrado con exito.';
 
-                // Flujo de pago segun metodo seleccionado.
                 if ($esTarjeta && $request->filled('stripeCodigo')) {
-                    $priceId = $this->priceIdFromPlan($request->tarifa);
+                    $priceId = $this->priceIdFromPlan($tarifa);
 
                     if ($priceId) {
                         try {
-                            // Flujo completo en Stripe: cliente + suscripcion.
                             $user->createAsStripeCustomer();
 
                             $newSubscription = $user->newSubscription('default', $priceId);
@@ -140,29 +148,30 @@ class RegistrationController extends Controller
                                 $newSubscription->withCoupon($discountCode->stripe_coupon_id);
                             }
 
-                            $newSubscription->create($request->stripeCodigo);
+                            $newSubscription->create((string) $request->stripeCodigo);
 
                             $user->payment_status = 'al_dia';
-                            $user->next_payment_at = $this->nextChargeFromPlan($request->tarifa);
+                            $user->next_payment_at = $this->nextChargeFromPlan($tarifa);
                             $user->save();
 
                             $mensajeFinal = 'Socio registrado y suscripcion activada con exito.';
                         } catch (\Throwable $e) {
-                            // Si falla Stripe, el usuario se mantiene pero en pendiente.
+                            // Si falla Stripe, no se pierde el alta; queda pendiente de revision.
                             $user->payment_status = 'pendiente';
                             $user->next_payment_at = null;
                             $user->save();
 
-                            $mensajeFinal = 'Registro creado, pero el pago con tarjeta no se pudo confirmar. Revisa tu metodo de pago.';
+                            $mensajeFinal = 'Registro creado, pero no se pudo confirmar el pago con tarjeta. Contacta con soporte.';
                         }
                     }
-                } elseif ($request->metodo_pago === 'bizum') {
+                } elseif ($metodoPago === 'bizum') {
                     $mensajeFinal = 'Registro recibido. Envia el Bizum al 600 000 000 con tu DNI como concepto para activar tu cuenta.';
-                } elseif ($request->metodo_pago === 'paypal') {
-                    $mensajeFinal = 'Registro recibido. Te hemos enviado un enlace de PayPal a ' . $user->email . ' para completar el pago.';
+                } elseif ($metodoPago === 'paypal') {
+                    $mensajeFinal = 'Registro recibido. Tu cuenta queda pendiente de validacion hasta confirmar el pago por PayPal.';
+                } elseif ($metodoPago === 'efectivo') {
+                    $mensajeFinal = 'Registro recibido. Tu cuenta queda pendiente hasta validar el pago en efectivo en recepcion.';
                 }
 
-                // Se registra el uso del cupon aunque el cobro sea pendiente/manual.
                 if ($discountCode) {
                     $discountCode->markUsed($user, 'registro', $descuentoAplicado);
                 }
@@ -175,12 +184,12 @@ class RegistrationController extends Controller
                 ], 201);
             });
         } catch (\Throwable $e) {
-            // Error global no esperado.
-            Log::error('Error en Registro SeaFit: ' . $e->getMessage());
+            Log::error('Error en Registro SeaFit', [
+                'error' => $e->getMessage(),
+            ]);
 
             return response()->json([
-                'error' => 'No se pudo completar el registro',
-                'message' => $e->getMessage(),
+                'error' => 'No se pudo completar el registro. Intentalo de nuevo en unos minutos.',
             ], 500);
         }
     }
@@ -223,5 +232,23 @@ class RegistrationController extends Controller
             'mensual' => $fecha->addMonthNoOverflow()->toDateString(),
             default => null,
         };
+    }
+
+    /**
+     * Valida matematicamente la letra del DNI.
+     */
+    private function isValidDni(string $dni): bool
+    {
+        $dni = strtoupper(trim($dni));
+
+        if (!preg_match('/^[0-9]{8}[A-Z]$/', $dni)) {
+            return false;
+        }
+
+        $numero = (int) substr($dni, 0, 8);
+        $letra = substr($dni, 8, 1);
+        $letrasValidas = 'TRWAGMYFPDXBNJZSQVHLCKE';
+
+        return $letra === $letrasValidas[$numero % 23];
     }
 }

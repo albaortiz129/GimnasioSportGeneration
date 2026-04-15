@@ -98,21 +98,26 @@
                                 class="relative min-h-[1400px] bg-[linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:100%_100px]">
                                 @forelse($clases as $clase)
                                     @php
-                                        $hora = (int) substr($clase->hora_inicio, 0, 2);
-                                        $minutos = (int) substr($clase->hora_inicio, 3, 2);
-                                        $top = ($hora - 8) * 100 + ($minutos * 100 / 60);
-
                                         $yaReservado = Auth::check() && Auth::user()->classes->contains($clase->id);
                                         $estaCompleto = $clase->capacidad_max <= 0;
+                                        $columnasTotales = max((int) ($clase->layout_cols ?? 1), 1);
+                                        $columnaActual = max((int) ($clase->layout_col ?? 0), 0);
+                                        $separacion = 2.0; // porcentaje entre columnas
+                                        $ancho = (100 - (($columnasTotales - 1) * $separacion)) / $columnasTotales;
+                                        $izquierda = $columnaActual * ($ancho + $separacion);
+                                        $top = (int) ($clase->layout_top ?? 0);
+                                        $alto = (int) ($clase->layout_height ?? 95);
+                                        $modoCompacto = $columnasTotales > 1;
+                                        $claseBoton = $modoCompacto ? 'px-4 py-2' : 'px-6 py-2.5';
                                     @endphp
 
                                     {{-- Tarjeta dinamica de clase --}}
-                                    <div class="absolute left-4 right-4 rounded-3xl p-5 border-l-[8px] shadow-sm transition-all group overflow-hidden
+                                    <div class="absolute rounded-3xl p-5 border-l-[8px] shadow-sm transition-all group overflow-hidden
                                                                                                                                         {{ $yaReservado ? 'bg-[#e6f3ff] border-[#1A3878] ring-1 ring-inset ring-blue-200' : ($estaCompleto ? 'bg-gray-100 border-gray-400' : 'bg-white border-[#a3e635] hover:shadow-xl hover:-translate-y-0.5 border shadow-sm') }}"
-                                        style="top: {{ $top }}px; height: 95px;">
+                                        style="top: {{ $top }}px; height: {{ $alto }}px; left: {{ $izquierda }}%; width: {{ $ancho }}%;">
 
-                                        <div class="flex justify-between items-center h-full">
-                                            <div>
+                                        <div class="flex h-full min-w-0 items-center justify-between gap-3">
+                                            <div class="min-w-0 flex-1 pr-2">
                                                 <div class="flex items-center gap-2 mb-1">
                                                     <span
                                                         class="text-[11px] font-black uppercase {{ $yaReservado ? 'text-[#1A3878]' : 'text-gray-400' }}">
@@ -121,16 +126,19 @@
                                                     </span>
                                                 </div>
                                                 <h4
-                                                    class="font-black text-lg text-gray-900 leading-tight uppercase tracking-tighter">
+                                                    class="font-black text-gray-900 leading-tight uppercase tracking-tighter truncate {{ $modoCompacto ? 'text-base' : 'text-lg' }}">
                                                     {{ $clase->nombre }}
                                                 </h4>
-                                                <p class="text-[11px] font-bold text-gray-500 uppercase italic">
+                                                <p class="text-[11px] font-bold text-gray-500 uppercase italic truncate">
                                                     {{ $clase->sala }} - con {{ $clase->instructor }}
+                                                </p>
+                                                <p class="text-[11px] font-bold text-gray-500 mt-1">
+                                                    Plazas libres: {{ max((int) $clase->capacidad_max, 0) }}
                                                 </p>
                                             </div>
 
                                             {{-- Acciones: reservar / cancelar / lleno --}}
-                                            <div class="flex items-center">
+                                            <div class="flex items-center justify-end shrink-0 min-w-[120px]">
                                                 @if($yaReservado)
                                                     {{-- Si esta reservada, al pasar el raton permite cancelar --}}
                                                     <div class="flex items-center">
@@ -140,12 +148,12 @@
                                                             RESERVADO
                                                         </div>
                                                         <form action="{{ route('clase.cancelar', $clase->id) }}" method="POST"
-                                                            class="hidden group-hover:block transition-all"
+                                                            class="hidden group-hover:block transition-all self-center"
                                                             onsubmit="return confirm('Seguro que quieres CANCELAR tu reserva en {{ $clase->nombre }}?')">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit"
-                                                                class="bg-red-500 text-white px-4 py-2 rounded-2xl text-[10px] font-black shadow-lg shadow-red-200 hover:bg-red-600">
+                                                                class="bg-red-500 text-white {{ $claseBoton }} rounded-2xl text-[10px] font-black shadow-lg shadow-red-200 hover:bg-red-600">
                                                                 CANCELAR PLAZA
                                                             </button>
                                                         </form>
@@ -155,10 +163,11 @@
                                                         class="bg-gray-200 text-gray-400 px-4 py-2 rounded-2xl text-[10px] font-black uppercase">Lleno</span>
                                                 @else
                                                     <form action="{{ route('clase.reservar', $clase->id) }}" method="POST"
+                                                        class="self-center"
                                                         onsubmit="return confirm('Confirmas tu reserva para {{ $clase->nombre }} a las {{ substr($clase->hora_inicio, 0, 5) }}h?')">
                                                         @csrf
                                                         <button type="submit"
-                                                            class="bg-[#0A1931] text-white px-6 py-2.5 rounded-2xl text-[10px] font-black hover:bg-[#1A3878] hover:scale-105 transition-all shadow-md">
+                                                            class="bg-[#0A1931] text-white {{ $claseBoton }} rounded-2xl text-[10px] font-black hover:bg-[#1A3878] hover:scale-105 transition-all shadow-md">
                                                             RESERVAR
                                                         </button>
                                                     </form>

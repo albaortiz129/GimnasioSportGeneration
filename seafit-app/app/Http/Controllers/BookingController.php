@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GymClass;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
@@ -15,26 +16,38 @@ class BookingController extends Controller
      */
     public function book($id)
     {
-        // Clase objetivo y usuario actual.
-        $clase = GymClass::findOrFail($id);
         $user = Auth::user();
 
-        // Carga reservas actuales para evitar reservas duplicadas.
-        $user->load('classes');
+        $resultado = DB::transaction(function () use ($id, $user) {
+            // Bloqueo de fila para evitar sobrecupo por peticiones simultaneas.
+            $clase = GymClass::query()->lockForUpdate()->findOrFail($id);
 
-        if ($user->classes->contains($clase->id)) {
+            if ($user->classes()->where('clase_id', $clase->id)->exists()) {
+                return ['status' => 'duplicate'];
+            }
+
+            if ($clase->capacidad_max <= 0) {
+                return ['status' => 'full'];
+            }
+
+            $user->classes()->attach($clase->id);
+            $clase->decrement('capacidad_max');
+
+            return [
+                'status' => 'ok',
+                'plazas' => max((int) $clase->capacidad_max, 0),
+            ];
+        });
+
+        if ($resultado['status'] === 'duplicate') {
             return back()->with('info', 'Ya tienes una reserva para esta clase.');
         }
 
-        if ($clase->capacidad_max <= 0) {
-            return back()->with('error', 'Lo sentimos, esta clase ya está llena.');
+        if ($resultado['status'] === 'full') {
+            return back()->with('error', 'Lo sentimos, esta clase ya esta llena.');
         }
 
-        // Guarda la reserva y descuenta una plaza disponible.
-        $user->classes()->attach($clase->id);
-        $clase->decrement('capacidad_max');
-
-        return back()->with('success', '¡Reserva confirmada! Te quedan ' . $clase->capacidad_max . ' plazas libres.');
+        return back()->with('success', 'Reserva confirmada. Te quedan ' . $resultado['plazas'] . ' plazas libres.');
     }
 
     /**
@@ -42,19 +55,28 @@ class BookingController extends Controller
      */
     public function cancel($id)
     {
-        // Clase objetivo y usuario actual.
-        $clase = GymClass::findOrFail($id);
         $user = Auth::user();
 
-        // Solo devuelve plaza si la reserva existia.
-        $teniaReserva = $user->classes()->where('clase_id', $clase->id)->exists();
-        $user->classes()->detach($clase->id);
+        $teniaReserva = DB::transaction(function () use ($id, $user) {
+            // Mismo bloqueo para mantener capacidad coherente.
+            $clase = GymClass::query()->lockForUpdate()->findOrFail($id);
 
-        if ($teniaReserva) {
+            $tenia = $user->classes()->where('clase_id', $clase->id)->exists();
+
+            if (!$tenia) {
+                return false;
+            }
+
+            $user->classes()->detach($clase->id);
             $clase->increment('capacidad_max');
+
+            return true;
+        });
+
+        if (!$teniaReserva) {
+            return back()->with('info', 'No tenias una reserva activa para esa clase.');
         }
 
         return back()->with('success', 'Plaza liberada correctamente.');
     }
 }
-
