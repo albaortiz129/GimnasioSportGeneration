@@ -188,16 +188,18 @@ class RegistrationController extends Controller
                 }
 
                 // Envío de bienvenida con el mismo canal de correo que el reset de contraseña.
-                DB::afterCommit(function () use ($user) {
-                    $this->sendWelcomeEmail($user);
-                });
+                $welcomeEmailSent = $this->sendWelcomeEmail($user);
+
+                if (!$welcomeEmailSent) {
+                    $mensajeFinal .= ' Aviso: no se pudo enviar el correo de bienvenida en este momento.';
+                }
 
                 return response()->json([
                     'mensaje' => $mensajeFinal,
                     'descuento' => $mensajeDescuento,
                     'usuario_id' => $user->id,
                     'email' => $user->email,
-                    'welcome_email_sent' => true,
+                    'welcome_email_sent' => $welcomeEmailSent,
                 ], 201);
             });
         } catch (\Throwable $e) {
@@ -218,49 +220,17 @@ class RegistrationController extends Controller
     {
         try {
             Mail::send('emails.bienvenida', ['user' => $user], function ($message) use ($user) {
-                // Solo email (sin nombre) para evitar errores de cabecera por caracteres especiales.
                 $message->to($user->email);
                 $message->subject('Bienvenido a SeaFit');
             });
-
-            Log::info('Correo de bienvenida enviado', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-            ]);
-
             return true;
-        } catch (\Throwable $mailError) {
-            Log::warning('No se pudo enviar email de bienvenida', [
+        } catch (\Throwable $e) {
+            Log::error('Error al enviar correo de bienvenida.', [
                 'user_id' => $user->id,
                 'email' => $user->email,
-                'error' => $mailError->getMessage(),
+                'error' => $e->getMessage(),
             ]);
-
-            try {
-                Mail::raw(
-                    "Hola {$user->nombre},\n\nTu cuenta de SeaFit se ha creado correctamente.\n\nPuedes iniciar sesion aqui: " . url('/login') . "\n\nUn saludo,\nEquipo SeaFit",
-                    function ($message) use ($user) {
-                        $message->to($user->email);
-                        $message->subject('Bienvenido a SeaFit');
-                    }
-                );
-
-                Log::info('Correo de bienvenida enviado con fallback de texto plano', [
-                    'user_id' => $user->id,
-                    'email' => $user->email,
-                ]);
-
-                return true;
-            } catch (\Throwable $fallbackError) {
-                Log::error('Fallo final al enviar correo de bienvenida', [
-                    'user_id' => $user->id,
-                    'email' => $user->email,
-                    'error_html' => $mailError->getMessage(),
-                    'error_texto' => $fallbackError->getMessage(),
-                ]);
-
-                return false;
-            }
+            return false;
         }
     }
 

@@ -209,49 +209,19 @@ class AdminPanelController extends Controller
     {
         try {
             Mail::send('emails.bienvenida', ['user' => $user], function ($message) use ($user) {
-                // Solo email para evitar fallos de cabecera por caracteres especiales en nombres.
                 $message->to($user->email);
                 $message->subject('Bienvenido a SeaFit');
             });
 
-            Log::info('Correo de bienvenida enviado desde admin', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-            ]);
-
             return true;
-        } catch (\Throwable $mailError) {
-            Log::warning('No se pudo enviar email de bienvenida desde admin', [
+        } catch (\Throwable $e) {
+            Log::error('Error al enviar correo de bienvenida desde admin.', [
                 'user_id' => $user->id,
                 'email' => $user->email,
-                'error' => $mailError->getMessage(),
+                'error' => $e->getMessage(),
             ]);
 
-            try {
-                Mail::raw(
-                    "Hola {$user->nombre},\n\nTu cuenta de SeaFit se ha creado correctamente.\n\nPuedes iniciar sesión aquí: " . url('/login') . "\n\nUn saludo,\nEquipo SeaFit",
-                    function ($message) use ($user) {
-                        $message->to($user->email);
-                        $message->subject('Bienvenido a SeaFit');
-                    }
-                );
-
-                Log::info('Correo de bienvenida enviado con fallback desde admin', [
-                    'user_id' => $user->id,
-                    'email' => $user->email,
-                ]);
-
-                return true;
-            } catch (\Throwable $fallbackError) {
-                Log::error('Fallo final al enviar bienvenida desde admin', [
-                    'user_id' => $user->id,
-                    'email' => $user->email,
-                    'error_html' => $mailError->getMessage(),
-                    'error_texto' => $fallbackError->getMessage(),
-                ]);
-
-                return false;
-            }
+            return false;
         }
     }
 
@@ -663,3 +633,4 @@ class AdminPanelController extends Controller
         };
     }
 }
+
