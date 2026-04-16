@@ -13,8 +13,6 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
@@ -191,38 +189,8 @@ class AdminPanelController extends Controller
             'is_admin' => false,
         ]);
 
-        $welcomeEmailSent = $this->sendWelcomeEmail($user);
-
-        $mensajeCreacion = 'Usuario creado correctamente.';
-        if (!$welcomeEmailSent) {
-            $mensajeCreacion .= ' No se pudo enviar el correo de bienvenida en este momento.';
-        }
-
         return redirect()->route('admin.user.edit', $user)
-            ->with('success', $mensajeCreacion);
-    }
-
-    /**
-     * Envía email de bienvenida al nuevo socio.
-     */
-    private function sendWelcomeEmail(User $user): bool
-    {
-        try {
-            Mail::send('emails.bienvenida', ['user' => $user], function ($message) use ($user) {
-                $message->to($user->email);
-                $message->subject('Bienvenido a SeaFit');
-            });
-
-            return true;
-        } catch (\Throwable $e) {
-            Log::error('Error al enviar correo de bienvenida desde admin.', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'error' => $e->getMessage(),
-            ]);
-
-            return false;
-        }
+            ->with('success', 'Usuario creado correctamente.');
     }
 
     /**

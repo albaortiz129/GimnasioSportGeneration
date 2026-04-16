@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class RegistrationController extends Controller
@@ -187,19 +186,11 @@ class RegistrationController extends Controller
                     $discountCode->markUsed($user, 'registro', $descuentoAplicado);
                 }
 
-                // Envío de bienvenida con el mismo canal de correo que el reset de contraseña.
-                $welcomeEmailSent = $this->sendWelcomeEmail($user);
-
-                if (!$welcomeEmailSent) {
-                    $mensajeFinal .= ' Aviso: no se pudo enviar el correo de bienvenida en este momento.';
-                }
-
                 return response()->json([
                     'mensaje' => $mensajeFinal,
                     'descuento' => $mensajeDescuento,
                     'usuario_id' => $user->id,
                     'email' => $user->email,
-                    'welcome_email_sent' => $welcomeEmailSent,
                 ], 201);
             });
         } catch (\Throwable $e) {
@@ -210,27 +201,6 @@ class RegistrationController extends Controller
             return response()->json([
                 'error' => 'No se pudo completar el registro. Inténtalo de nuevo en unos minutos.',
             ], 500);
-        }
-    }
-
-    /**
-     * Envía el correo de bienvenida al nuevo socio.
-     */
-    private function sendWelcomeEmail(User $user): bool
-    {
-        try {
-            Mail::send('emails.bienvenida', ['user' => $user], function ($message) use ($user) {
-                $message->to($user->email);
-                $message->subject('Bienvenido a SeaFit');
-            });
-            return true;
-        } catch (\Throwable $e) {
-            Log::error('Error al enviar correo de bienvenida.', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'error' => $e->getMessage(),
-            ]);
-            return false;
         }
     }
 
