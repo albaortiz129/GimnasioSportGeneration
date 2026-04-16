@@ -13,6 +13,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
@@ -190,18 +191,39 @@ class AdminPanelController extends Controller
             'is_admin' => false,
         ]);
 
-        // Envia email de bienvenida sin bloquear la creacion del usuario si falla el correo.
-        try {
-            Mail::send('emails.bienvenida', ['user' => $user], function ($message) use ($user) {
-                $message->to($user->email, $user->nombre . ' ' . $user->apellidos)
-                    ->subject('Bienvenido/a a SeaFit');
-            });
-        } catch (\Throwable $mailError) {
-            report($mailError);
+        $welcomeEmailSent = $this->sendWelcomeEmail($user);
+
+        $mensajeCreacion = 'Usuario creado correctamente.';
+        if (!$welcomeEmailSent) {
+            $mensajeCreacion .= ' No se pudo enviar el correo de bienvenida en este momento.';
         }
 
         return redirect()->route('admin.user.edit', $user)
-            ->with('success', 'Usuario creado correctamente.');
+            ->with('success', $mensajeCreacion);
+    }
+
+    /**
+     * Envía email de bienvenida al nuevo socio.
+     */
+    private function sendWelcomeEmail(User $user): bool
+    {
+        try {
+            Mail::send('emails.bienvenida', ['user' => $user], function ($message) use ($user) {
+                // Solo email para evitar fallos de cabecera por caracteres especiales en nombres.
+                $message->to($user->email);
+                $message->subject('Bienvenido a SeaFit');
+            });
+
+            return true;
+        } catch (\Throwable $mailError) {
+            Log::warning('No se pudo enviar email de bienvenida desde admin', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $mailError->getMessage(),
+            ]);
+
+            return false;
+        }
     }
 
     /**

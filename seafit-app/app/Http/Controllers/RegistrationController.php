@@ -176,29 +176,22 @@ class RegistrationController extends Controller
                         }
                     }
                 } elseif ($metodoPago === 'bizum') {
-                    $mensajeFinal = 'Registro recibido. Envia el Bizum al 600 000 000 con tu DNI como concepto para activar tu cuenta.';
+                    $mensajeFinal = 'Registro recibido. Envía el Bizum al 600 000 000 con tu DNI como concepto para activar tu cuenta.';
                 } elseif ($metodoPago === 'paypal') {
                     $mensajeFinal = 'Registro recibido. Tu cuenta queda pendiente de validación hasta confirmar el pago por PayPal.';
                 } elseif ($metodoPago === 'efectivo') {
-                    $mensajeFinal = 'Registro recibido. Tu cuenta queda pendiente hasta validar el pago en efectivo en recepcion.';
+                    $mensajeFinal = 'Registro recibido. Tu cuenta queda pendiente hasta validar el pago en efectivo en recepción.';
                 }
 
                 if ($discountCode) {
                     $discountCode->markUsed($user, 'registro', $descuentoAplicado);
                 }
 
-                // Envia email de bienvenida sin bloquear el alta si falla el correo.
-                try {
-                    Mail::send('emails.bienvenida', ['user' => $user], function ($message) use ($user) {
-                        $message->to($user->email, $user->nombre . ' ' . $user->apellidos)
-                            ->subject('Bienvenido/a a SeaFit');
-                    });
-                } catch (\Throwable $mailError) {
-                    Log::warning('No se pudo enviar email de bienvenida', [
-                        'user_id' => $user->id,
-                        'email' => $user->email,
-                        'error' => $mailError->getMessage(),
-                    ]);
+                // Envío de bienvenida con el mismo canal de correo que el reset de contraseña.
+                $welcomeEmailSent = $this->sendWelcomeEmail($user);
+
+                if (!$welcomeEmailSent) {
+                    $mensajeFinal .= ' Aviso: no se pudo enviar el correo de bienvenida en este momento.';
                 }
 
                 return response()->json([
@@ -206,6 +199,7 @@ class RegistrationController extends Controller
                     'descuento' => $mensajeDescuento,
                     'usuario_id' => $user->id,
                     'email' => $user->email,
+                    'welcome_email_sent' => $welcomeEmailSent,
                 ], 201);
             });
         } catch (\Throwable $e) {
@@ -216,6 +210,30 @@ class RegistrationController extends Controller
             return response()->json([
                 'error' => 'No se pudo completar el registro. Inténtalo de nuevo en unos minutos.',
             ], 500);
+        }
+    }
+
+    /**
+     * Envía el correo de bienvenida al nuevo socio.
+     */
+    private function sendWelcomeEmail(User $user): bool
+    {
+        try {
+            Mail::send('emails.bienvenida', ['user' => $user], function ($message) use ($user) {
+                // Solo email (sin nombre) para evitar errores de cabecera por caracteres especiales.
+                $message->to($user->email);
+                $message->subject('Bienvenido a SeaFit');
+            });
+
+            return true;
+        } catch (\Throwable $mailError) {
+            Log::warning('No se pudo enviar email de bienvenida', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $mailError->getMessage(),
+            ]);
+
+            return false;
         }
     }
 

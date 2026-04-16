@@ -104,7 +104,7 @@ class User extends Authenticatable
             return false;
         }
 
-        // Si la baja esta programada, se mantiene activo hasta la fecha fin del periodo.
+        // Si la baja está programada, se mantiene activo hasta la fecha de fin del período.
         if ($this->tarifa === 'cancelada') {
             if (!$this->next_payment_at) {
                 return false;

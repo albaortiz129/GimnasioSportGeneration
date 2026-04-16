@@ -74,10 +74,11 @@
                     <div class="rounded-xl border border-green-200 bg-green-50 p-4">
                         <p class="font-bold text-green-800">Suscripción activa</p>
                         <p class="text-sm text-green-700 mt-1">
-                            Plan: {{ $user->tarifa === 'cancelada' ? 'Cancelación programada' : ucfirst($user->tarifa) }} | Método: {{ ucfirst($user->metodo_pago ?? 'sin definir') }}
+                            Plan: {{ $user->tarifa === 'cancelada' ? 'Cancelación programada' : ucfirst($user->tarifa) }} |
+                            Método: {{ ucfirst($user->metodo_pago ?? 'sin definir') }}
                         </p>
                         <p class="text-sm text-green-700 mt-1">
-                            Proximo cobro: {{ $fechaCobro }}
+                            Próximo cobro: {{ $fechaCobro }}
                         </p>
                     </div>
                 @elseif($user->payment_status === 'pendiente')
@@ -131,7 +132,7 @@
                                 @csrf
                                 <button type="submit"
                                     class="bg-red-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-red-700 transition-colors">
-                                    Cancelar al final del período
+                                    Cancelar suscripción
                                 </button>
                             </form>
                         </div>
@@ -256,7 +257,8 @@
                             <option value="">Guardar método manual...</option>
                             <option value="bizum" {{ old('metodo_manual') === 'bizum' ? 'selected' : '' }}>Bizum</option>
                             <option value="paypal" {{ old('metodo_manual') === 'paypal' ? 'selected' : '' }}>PayPal</option>
-                            <option value="efectivo" {{ old('metodo_manual') === 'efectivo' ? 'selected' : '' }}>Efectivo</option>
+                            <option value="efectivo" {{ old('metodo_manual') === 'efectivo' ? 'selected' : '' }}>Efectivo
+                            </option>
                         </select>
                         @error('metodo_manual')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -319,7 +321,7 @@
                                 datoInput.required = false;
                                 datoInput.removeAttribute('inputmode');
                                 datoInput.removeAttribute('pattern');
-                                ayuda.textContent = 'El cobro en efectivo se confirma manualmente en recepcion.';
+                                ayuda.textContent = 'El cobro en efectivo se confirma manualmente en recepción.';
                                 return;
                             }
 
@@ -401,4 +403,3 @@
         </main>
     </div>
 @endsection
-

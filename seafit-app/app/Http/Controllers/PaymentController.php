@@ -50,7 +50,7 @@ class PaymentController extends Controller
 
 
     /**
-     * Cancela la renovación automática al final del periodo actual.
+     * Cancela la renovación automática al final del período actual.
      */
     public function cancelPlan()
     {
@@ -223,7 +223,7 @@ class PaymentController extends Controller
     {
         return Auth::user()->downloadInvoice($invoiceId, [
             'vendor' => 'SeaFit Gym',
-            'product' => 'Membresia SeaFit',
+            'product' => 'Membresía SeaFit',
         ]);
     }
 

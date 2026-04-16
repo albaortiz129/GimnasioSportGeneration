@@ -207,7 +207,7 @@ const FormularioRegistro = () => {
         return dniLibre && emailLibre;
     };
 
-    // Envia el registro y, si aplica, crea payment method en Stripe.
+    // Envía el registro y, si aplica, crea payment method en Stripe.
     const finalizarRegistro = async () => {
         setCargando(true);
         let stripePaymentMethodId = null;

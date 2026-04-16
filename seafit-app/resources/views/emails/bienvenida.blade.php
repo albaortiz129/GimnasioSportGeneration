@@ -1,9 +1,9 @@
-{{-- Email de bienvenida enviado al crear una cuenta nueva en SeaFit. --}}
+{{-- Correo de bienvenida enviado al crear una cuenta nueva en SeaFit. --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Bienvenido/a a SeaFit</title>
+    <title>Bienvenido a SeaFit</title>
 </head>
 <body style="margin:0;padding:0;background:#f3f6fb;font-family:Arial,Helvetica,sans-serif;color:#0A1931;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px;">
@@ -13,7 +13,7 @@
                     style="max-width:620px;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e5e7eb;">
                     <tr>
                         <td style="background:#0A1931;padding:20px 24px;">
-                            <h1 style="margin:0;font-size:24px;line-height:1.2;color:#ffffff;">Bienvenido/a a SeaFit</h1>
+                            <h1 style="margin:0;font-size:24px;line-height:1.2;color:#ffffff;">Bienvenido a SeaFit</h1>
                         </td>
                     </tr>
                     <tr>

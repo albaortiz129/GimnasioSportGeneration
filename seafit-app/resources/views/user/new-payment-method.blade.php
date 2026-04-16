@@ -50,7 +50,7 @@
                     return;
                 }
 
-                // Envia el payment_method al backend para guardarlo.
+                // Envía el payment_method al backend para guardarlo.
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = "{{ route('pago.guardar') }}";

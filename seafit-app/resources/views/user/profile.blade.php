@@ -78,7 +78,8 @@
                         @if($cancelada && !$enPeriodo && !$planActivo)
                             Sin suscripción activa
                         @else
-                            Acceso Total {{ $user->tarifa === 'cancelada' ? 'Activo (baja programada)' : ucfirst($user->tarifa) }}
+                            Acceso Total
+                            {{ $user->tarifa === 'cancelada' ? 'Activo (baja programada)' : ucfirst($user->tarifa) }}
                         @endif
                     </h2>
                     <p class="text-sm text-gray-400">
@@ -121,14 +122,14 @@
                             </p>
                         </div>
                         @if(!$enPeriodo && !$cancelacionManualProgramada)
-                        <form action="{{ route('plan.cancelar') }}" method="POST"
-                            onsubmit="return confirm('Se cancelará al final del período actual. ¿Continuar?')">
-                            @csrf
-                            <button type="submit"
-                                class="bg-red-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-red-700 transition-colors">
-                                Cancelar al final del período
-                            </button>
-                        </form>
+                            <form action="{{ route('plan.cancelar') }}" method="POST"
+                                onsubmit="return confirm('Se cancelará al final del período actual. ¿Continuar?')">
+                                @csrf
+                                <button type="submit"
+                                    class="bg-red-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-red-700 transition-colors">
+                                    Cancelar suscripción
+                                </button>
+                            </form>
                         @endif
                     </div>
                 </section>
