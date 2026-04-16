@@ -100,12 +100,20 @@ class User extends Authenticatable
             return false;
         }
 
-        if ($this->tarifa === 'cancelada') {
+        if ($this->payment_status !== 'al_dia') {
             return false;
         }
 
-        if ($this->payment_status !== 'al_dia') {
-            return false;
+        // Si la baja esta programada, se mantiene activo hasta la fecha fin del periodo.
+        if ($this->tarifa === 'cancelada') {
+            if (!$this->next_payment_at) {
+                return false;
+            }
+
+            $fechaFin = Carbon::parse($this->next_payment_at)->startOfDay();
+            $hoy = now()->startOfDay();
+
+            return $fechaFin->gte($hoy);
         }
 
         if ($this->next_payment_at) {

@@ -58,6 +58,10 @@
                 $fechaCobro = optional($user->next_payment_at)->format('d/m/Y') ?? 'Pendiente';
                 $suscripcion = $user->subscription('default');
                 $enPeriodoCancelacion = $suscripcion ? $suscripcion->onGracePeriod() : false;
+                $cancelacionManualProgramada = !$suscripcion && $user->tarifa === 'cancelada' && $planActivo;
+                $puedeCancelar = $suscripcion
+                    ? !$suscripcion->canceled()
+                    : ($planActivo && $user->tarifa !== 'cancelada');
             @endphp
 
 
@@ -70,7 +74,7 @@
                     <div class="rounded-xl border border-green-200 bg-green-50 p-4">
                         <p class="font-bold text-green-800">Suscripción activa</p>
                         <p class="text-sm text-green-700 mt-1">
-                            Plan: {{ ucfirst($user->tarifa) }} | Método: {{ ucfirst($user->metodo_pago ?? 'sin definir') }}
+                            Plan: {{ $user->tarifa === 'cancelada' ? 'Cancelación programada' : ucfirst($user->tarifa) }} | Método: {{ ucfirst($user->metodo_pago ?? 'sin definir') }}
                         </p>
                         <p class="text-sm text-green-700 mt-1">
                             Proximo cobro: {{ $fechaCobro }}
@@ -104,9 +108,9 @@
 
             </section>
 
-            @if($suscripcion)
+            @if($puedeCancelar || $enPeriodoCancelacion || $cancelacionManualProgramada)
                 <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
-                    @if($enPeriodoCancelacion)
+                    @if($enPeriodoCancelacion || $cancelacionManualProgramada)
                         <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
                             <p class="font-bold text-amber-800">Cancelación ya programada</p>
                             <p class="text-sm text-amber-700 mt-1">

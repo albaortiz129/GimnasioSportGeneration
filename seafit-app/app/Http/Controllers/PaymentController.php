@@ -6,6 +6,7 @@
  */
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DiscountCode;
@@ -55,18 +56,42 @@ class PaymentController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->subscribed('default')) {
-            return back()->with('error', 'No tienes una suscripción activa.');
+        $suscripcion = $user->subscription('default');
+
+        // Flujo para suscripciones de Stripe (tarjeta).
+        if ($suscripcion && $user->subscribed('default')) {
+            if ($suscripcion->onGracePeriod()) {
+                return back()->with('success', 'Tu suscripción ya estaba programada para cancelarse al final del período.');
+            }
+
+            // Se cancela en Stripe pero mantiene acceso hasta fin de ciclo.
+            $suscripcion->cancel();
+
+            return back()->with('success', 'Tu suscripción ha sido cancelada. Tendrás acceso hasta el final del período pagado.');
         }
 
-        if ($user->subscription('default')?->onGracePeriod()) {
-            return back()->with('success', 'Tu suscripción ya estaba programada para cancelarse al final del periodo.');
+        // Flujo para pagos manuales (Bizum/PayPal/Efectivo).
+        if ($user->tarifa === 'cancelada') {
+            return back()->with('success', 'Tu cancelación ya estaba programada para el final del período actual.');
         }
 
-        // Se cancela en Stripe pero mantiene acceso hasta fin de ciclo.
-        $user->subscription('default')->cancel();
+        if (!$user->isPlanActive()) {
+            return back()->with('error', 'No tienes una suscripción activa para cancelar.');
+        }
 
-        return back()->with('success', 'Tu suscripción ha sido cancelada. Tendrás acceso hasta el final del periodo pagado.');
+        $fechaFin = $user->next_payment_at
+            ? Carbon::parse($user->next_payment_at)->toDateString()
+            : $this->nextChargeFromPlan((string) $user->tarifa);
+
+        $user->update([
+            'tarifa' => 'cancelada',
+            'payment_status' => 'al_dia',
+            'next_payment_at' => $fechaFin,
+        ]);
+
+        $fechaVisible = $fechaFin ? Carbon::parse($fechaFin)->format('d/m/Y') : 'fin del período actual';
+
+        return back()->with('success', "Tu suscripción se cancelará al final del período actual ({$fechaVisible}).");
     }
 
     /**

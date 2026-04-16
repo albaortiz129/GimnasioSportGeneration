@@ -59,6 +59,10 @@
                 $suscripcion = $user->subscription('default');
                 $enPeriodo = $suscripcion ? $suscripcion->onGracePeriod() : false;
                 $cancelada = $user->tarifa === 'cancelada' || ($suscripcion ? $suscripcion->canceled() : false);
+                $cancelacionManualProgramada = !$suscripcion && $user->tarifa === 'cancelada' && $planActivo;
+                $puedeCancelar = $suscripcion
+                    ? !$suscripcion->canceled()
+                    : ($planActivo && $user->tarifa !== 'cancelada');
             @endphp
 
 
@@ -71,10 +75,10 @@
                 <div class="relative z-10">
                     <p class="text-xs uppercase tracking-widest text-gray-400 font-bold mb-1">Membresía Actual</p>
                     <h2 class="text-2xl md:text-3xl font-bold mb-1">
-                        @if($cancelada && !$enPeriodo)
+                        @if($cancelada && !$enPeriodo && !$planActivo)
                             Sin suscripción activa
                         @else
-                            Acceso Total {{ ucfirst($user->tarifa) }}
+                            Acceso Total {{ $user->tarifa === 'cancelada' ? 'Activo (baja programada)' : ucfirst($user->tarifa) }}
                         @endif
                     </h2>
                     <p class="text-sm text-gray-400">
@@ -107,7 +111,7 @@
                 </div>
             </section>
 
-            @if($suscripcion && !$suscripcion->canceled())
+            @if($puedeCancelar || $enPeriodo || $cancelacionManualProgramada)
                 <section class="bg-white rounded-2xl p-5 mb-8 border border-gray-100 shadow-sm">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                         <div>
@@ -116,6 +120,7 @@
                                 Mantendrás acceso hasta el {{ $fechaHasta }} y no se cobrarán futuras renovaciones.
                             </p>
                         </div>
+                        @if(!$enPeriodo && !$cancelacionManualProgramada)
                         <form action="{{ route('plan.cancelar') }}" method="POST"
                             onsubmit="return confirm('Se cancelará al final del período actual. ¿Continuar?')">
                             @csrf
@@ -124,6 +129,7 @@
                                 Cancelar al final del período
                             </button>
                         </form>
+                        @endif
                     </div>
                 </section>
             @endif
