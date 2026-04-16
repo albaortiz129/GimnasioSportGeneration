@@ -128,6 +128,16 @@ class RegistrationController extends Controller
                 $user->metodo_pago = $metodoPago;
                 $user->password = Hash::make((string) $request->password);
 
+                // Si el alta es manual, dejamos el metodo guardado desde el primer dia.
+                $manualMethods = $this->initialManualMethodsForRegistration(
+                    $metodoPago,
+                    (string) $user->telefono,
+                    (string) $user->email
+                );
+                if ($manualMethods !== []) {
+                    $user->manual_payment_methods = $manualMethods;
+                }
+
                 $esTarjeta = $metodoPago === 'visa';
                 $user->payment_status = $esTarjeta ? 'al_dia' : 'pendiente';
                 $user->next_payment_at = $esTarjeta ? $this->nextChargeFromPlan($tarifa) : null;
@@ -231,6 +241,28 @@ class RegistrationController extends Controller
             'anual' => $fecha->addYearNoOverflow()->toDateString(),
             'mensual' => $fecha->addMonthNoOverflow()->toDateString(),
             default => null,
+        };
+    }
+
+    /**
+     * Devuelve el metodo manual inicial para mostrarlo ya guardado en el panel.
+     */
+    private function initialManualMethodsForRegistration(string $metodoPago, string $telefono, string $email): array
+    {
+        return match ($metodoPago) {
+            'bizum' => [[
+                'code' => 'bizum',
+                'value' => preg_replace('/\D+/', '', $telefono),
+            ]],
+            'paypal' => [[
+                'code' => 'paypal',
+                'value' => strtolower(trim($email)),
+            ]],
+            'efectivo' => [[
+                'code' => 'efectivo',
+                'value' => null,
+            ]],
+            default => [],
         };
     }
 

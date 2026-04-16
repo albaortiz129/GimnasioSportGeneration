@@ -76,13 +76,7 @@
                         <select name="dia_semana" class="border rounded p-2" required>
                             @php $diaClase = $clase->dia_semana; @endphp
                             @foreach(['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'] as $diaItem)
-                                <option value="{{ $diaItem }}" @selected(
-                                    $diaClase === $diaItem ||
-                                    ($diaItem === 'Miercoles' && $diaClase === 'Miércoles') ||
-                                    ($diaItem === 'Miercoles' && $diaClase === 'MiÃ©rcoles') ||
-                                    ($diaItem === 'Sabado' && $diaClase === 'Sábado')
-                                    || ($diaItem === 'Sabado' && $diaClase === 'SÃ¡bado')
-                                )>{{ $diaItem }}</option>
+                                <option value="{{ $diaItem }}" @selected($diaClase === $diaItem)>{{ $diaItem }}</option>
                             @endforeach
                         </select>
 

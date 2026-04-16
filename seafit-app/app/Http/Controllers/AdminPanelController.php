@@ -548,8 +548,8 @@ class AdminPanelController extends Controller
     private function normalizeWeekday(string $dia): string
     {
         return match (trim($dia)) {
-            'Miercoles', 'MiÃ©rcoles', 'Miércoles' => 'Miercoles',
-            'Sabado', 'SÃ¡bado', 'Sábado' => 'Sabado',
+            'Miercoles' => 'Miercoles',
+            'Sabado' => 'Sabado',
             default => trim($dia),
         };
     }
@@ -560,8 +560,8 @@ class AdminPanelController extends Controller
     private function weekdayVariants(string $dia): array
     {
         return match ($this->normalizeWeekday($dia)) {
-            'Miercoles' => ['Miercoles', 'MiÃ©rcoles', 'Miércoles'],
-            'Sabado' => ['Sabado', 'SÃ¡bado', 'Sábado'],
+            'Miercoles' => ['Miercoles'],
+            'Sabado' => ['Sabado'],
             default => [$this->normalizeWeekday($dia)],
         };
     }
@@ -595,9 +595,8 @@ class AdminPanelController extends Controller
             'bizum' => 'Bizum',
             'paypal' => 'PayPal',
             'transferencia' => 'Transferencia',
-            'tarjeta', 'stripe' => 'Tarjeta',
+            'tarjeta', 'stripe', 'visa' => 'Tarjeta',
             'efectivo' => 'Efectivo',
-            'american_express', 'amex', 'visa' => 'Tarjeta',
             default => 'Metodo manual',
         };
     }

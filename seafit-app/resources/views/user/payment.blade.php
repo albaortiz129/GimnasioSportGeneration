@@ -1,7 +1,7 @@
 {{-- Vista de gestion de pago: suscripcion, tarjetas y facturas. --}}
 @extends('layouts.app')
 
-@section('titulo', 'GestiÃ³n de Pago - SeaFit')
+@section('titulo', 'Gestion de Pago - SeaFit')
 
 @section('contenido')
     <div class="flex flex-col md:flex-row min-h-screen bg-[#f8fafc] font-sans">
@@ -21,11 +21,11 @@
                 </a>
                 <a href="{{ route('pago.gestion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors bg-[#e6f3ff] text-[#1A3878]">
-                    <span class="material-symbols-outlined">payments</span> GestiÃ³n de Pago
+                    <span class="material-symbols-outlined">payments</span> Gestion de Pago
                 </a>
                 <a href="{{ route('configuracion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
-                    <span class="material-symbols-outlined">settings</span> ConfiguraciÃ³n
+                    <span class="material-symbols-outlined">settings</span> Configuracion
                 </a>
             </nav>
         </aside>
@@ -33,7 +33,7 @@
         {{-- CONTENIDO PRINCIPAL --}}
         <main class="flex-1 p-6 md:p-10 lg:p-12 max-w-[1000px]">
             <header class="mb-8">
-                <h1 class="text-3xl md:text-4xl font-black text-[#0A1931] mb-4">GestiÃ³n de Pago</h1>
+                <h1 class="text-3xl md:text-4xl font-black text-[#0A1931] mb-4">Gestion de Pago</h1>
 
                 @if(session('success'))
                     <div
@@ -47,11 +47,11 @@
                     </div>
                 @endif
 
-                <p class="text-gray-500 text-[15px]">Administra tu suscripciÃ³n, mÃ©todos de pago y revisa tu historial de
+                <p class="text-gray-500 text-[15px]">Administra tu suscripcion, metodos de pago y revisa tu historial de
                     facturas.</p>
             </header>
 
-            {{-- RESUMEN DE FACTURACIÃ“N --}}
+            {{-- RESUMEN DE FACTURACION --}}
             @php
                 // Variables auxiliares para estado de cuenta.
                 $planActivo = $user->isPlanActive();
@@ -61,7 +61,7 @@
 
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-[#0A1931]">Resumen de FacturaciÃ³n</h3>
+                    <h3 class="text-xl font-bold text-[#0A1931]">Resumen de Facturacion</h3>
                 </div>
 
                 @if($planActivo)
@@ -102,10 +102,10 @@
 
             </section>
 
-            {{-- MÃ‰TODOS DE PAGO GUARDADOS --}}
+            {{-- METODOS DE PAGO GUARDADOS --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-[#0A1931]">MÃ©todos de Pago Guardados</h3>
+                    <h3 class="text-xl font-bold text-[#0A1931]">Metodos de Pago Guardados</h3>
                 </div>
                 @php
                     // Si el principal es manual, no se marca ninguna tarjeta como principal.
@@ -332,12 +332,12 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-gray-500 text-center py-4">AÃºn no tienes facturas disponibles.</p>
+                        <p class="text-gray-500 text-center py-4">Aun no tienes facturas disponibles.</p>
                     @endforelse
                 </div>
                 {{-- Cambio conjunto de tarifa + metodo desde perfil socio. --}}
                 <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
-                    <h3 class="text-xl font-bold text-[#0A1931] mb-4">Cambiar plan y mÃ©todo de pago</h3>
+                    <h3 class="text-xl font-bold text-[#0A1931] mb-4">Cambiar plan y metodo de pago</h3>
 
                     <form action="{{ route('pago.cambiar_plan_metodo') }}" method="POST"
                         class="grid grid-cols-1 md:grid-cols-3 gap-3">

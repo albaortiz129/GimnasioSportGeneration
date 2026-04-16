@@ -73,12 +73,18 @@
                     $codigoDescuento = optional(optional($ultimoDescuento)->discountCode)->code;
                     $descuentoAplicado = (float) ($ultimoDescuento->discount_applied ?? 0);
                     $totalCobrar = max($precioBase - $descuentoAplicado, 0);
+                    $estadoPago = match ($u->payment_status) {
+                        'al_dia' => 'al dia',
+                        'pendiente' => 'pendiente',
+                        'impagado' => 'impagado',
+                        default => 'sin estado',
+                    };
                 @endphp
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between border rounded-xl p-3 mb-2">
                     <div>
                         <p class="font-bold">{{ $u->nombre }} {{ $u->apellidos }} ({{ $u->dni }})</p>
                         <p class="text-sm text-gray-600">
-                            {{ $u->email }} | Estado: <span class="font-bold">{{ $u->payment_status }}</span>
+                            {{ $u->email }} | Estado: <span class="font-bold">{{ $estadoPago }}</span>
                         </p>
                         @if($codigoDescuento)
                             <p class="text-sm text-indigo-700 mt-1">
@@ -94,9 +100,8 @@
                                     'bizum' => 'Bizum',
                                     'paypal' => 'PayPal',
                                     'transferencia' => 'Transferencia',
-                                    'tarjeta', 'stripe' => 'Tarjeta',
+                                    'tarjeta', 'stripe', 'visa' => 'Tarjeta',
                                     'efectivo' => 'Efectivo',
-                                    'american_express', 'amex', 'visa' => 'Tarjeta',
                                     default => 'pago manual',
                                 };
                             @endphp
@@ -132,6 +137,12 @@
                 $codigoDescuento = optional(optional($ultimoDescuento)->discountCode)->code;
                 $descuentoAplicado = (float) ($ultimoDescuento->discount_applied ?? 0);
                 $totalCobrar = max($precioBase - $descuentoAplicado, 0);
+                $estadoPagoUser = match ($user->payment_status) {
+                    'al_dia' => 'al dia',
+                    'pendiente' => 'pendiente',
+                    'impagado' => 'impagado',
+                    default => 'sin estado',
+                };
             @endphp
             <article class="bg-white border rounded-2xl p-4">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
@@ -154,7 +165,7 @@
                         @endif
                         @if($cobrosDisponibles)
                             |
-                            <span class="font-bold">Pago:</span> {{ $user->payment_status }}
+                            <span class="font-bold">Pago:</span> {{ $estadoPagoUser }}
                         @endif
                     </div>
                 </div>

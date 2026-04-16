@@ -491,7 +491,6 @@ class PaymentController extends Controller
     {
         return match ($marca) {
             'visa' => 'visa',
-            'amex', 'american express' => 'tarjeta',
             default => 'tarjeta',
         };
     }
