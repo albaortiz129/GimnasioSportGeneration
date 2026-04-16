@@ -1,4 +1,4 @@
-{{-- Vista de inicio de sesion de usuarios registrados. --}}
+{{-- Vista de inicio de sesión de usuarios registrados. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Inicia Sesión - SeaFit')

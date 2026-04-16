@@ -1,4 +1,4 @@
-{{-- Layout base compartido por las paginas de SeaFit. --}}
+{{-- Layout base compartido por las páginas de SeaFit. --}}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -10,7 +10,7 @@
     {{-- Token de seguridad para formularios y peticiones JS --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- Librerias visuales globales --}}
+    {{-- Librerías visuales globales --}}
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700;900&display=swap" rel="stylesheet" />
@@ -24,7 +24,7 @@
 </head>
 
 <body class="flex flex-col min-h-screen">
-    {{-- Header comun para todo el sitio --}}
+    {{-- Header común para todo el sitio --}}
     @include('components.header')
 
     {{-- Contenido de cada vista hija --}}
@@ -32,7 +32,7 @@
         @yield('contenido')
     </main>
 
-    {{-- Footer comun para todo el sitio --}}
+    {{-- Footer común para todo el sitio --}}
     @include('components.footer')
 </body>
 

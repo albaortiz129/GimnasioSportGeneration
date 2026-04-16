@@ -2,7 +2,7 @@
 
 /**
  * Controlador de servicios.
- * Carga clases por dia para las vistas de servicios y agenda.
+ * Carga clases por día para las vistas de servicios y agenda.
  */
 namespace App\Http\Controllers;
 
@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 class ServiceController extends Controller
 {
     /**
-     * Muestra la pagina principal de servicios filtrada por dia.
+     * Muestra la página principal de servicios filtrada por día.
      */
     public function index(Request $request)
     {
@@ -23,7 +23,7 @@ class ServiceController extends Controller
     }
 
     /**
-     * Muestra la agenda semanal filtrada por dia.
+     * Muestra la agenda semanal filtrada por día.
      */
     public function agenda(Request $request)
     {
@@ -34,11 +34,11 @@ class ServiceController extends Controller
     }
 
     /**
-     * Query comun para obtener clases del dia seleccionado.
+     * Query común para obtener clases del día seleccionado.
      */
     private function getClassesByDay(string $diaSeleccionado)
     {
-        // Soporta variantes antiguas/nuevas del mismo dia.
+        // Soporta variantes antiguas/nuevas del mismo día.
         $variantesDia = match ($diaSeleccionado) {
             'Miércoles' => ['Miércoles', 'Miercoles'],
             'Miercoles' => ['Miércoles', 'Miercoles'],

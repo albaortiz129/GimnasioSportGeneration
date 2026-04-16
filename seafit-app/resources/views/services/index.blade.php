@@ -8,7 +8,7 @@
         <main class="flex flex-1 flex-col items-center flex-grow">
 
 
-            {{-- Cabecera principal de la pagina --}}
+            {{-- Cabecera principal de la página --}}
             <div class="w-full text-center py-16 bg-[#F8F8F8] border-b border-gray-200">
                 <h1 class="text-gray-900 text-4xl lg:text-5xl font-black leading-tight tracking-tighter">
                     Descubre la Oferta Completa de SeaFit
@@ -20,7 +20,7 @@
             </div>
 
             <div class="layout-content-container flex flex-col w-full max-w-7xl flex-1 gap-16 px-4 py-16 lg:py-24">
-                {{-- Mensaje de exito tras una reserva/cancelacion --}}
+                {{-- Mensaje de éxito tras una reserva/cancelación --}}
                 @if(session('success'))
                     <div
                         class="bg-green-100 text-green-800 p-4 rounded-2xl border border-green-200 font-bold text-center animate-bounce">
@@ -39,7 +39,7 @@
                         </div>
                         <h2 class="text-gray-900 text-4xl font-black tracking-tight italic">Clases Colectivas</h2>
                         <p class="text-gray-600 text-lg leading-relaxed">
-                            Reserva tu plaza de forma visual en nuestro calendario interactivo. Cambia de dia para ver toda
+                            Reserva tu plaza de forma visual en nuestro calendario interactivo. Cambia de día para ver toda
                             la oferta semanal.
                         </p>
 
@@ -65,17 +65,25 @@
                     {{-- Bloque derecho: calendario de clases por horas --}}
                     <div
                         class="bg-[#F8F9FA] rounded-[2.5rem] border border-gray-200 shadow-inner overflow-hidden flex flex-col h-[750px]">
-                        {{-- Selector horizontal de dias --}}
+                        {{-- Selector horizontal de días --}}
                         <div class="p-4 bg-white border-b border-gray-200 flex gap-2 overflow-x-auto no-scrollbar">
                             @php
-                                $diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+                                $diasSemana = [
+                                    ['value' => 'Lunes', 'label' => 'Lunes'],
+                                    ['value' => 'Martes', 'label' => 'Martes'],
+                                    ['value' => 'Miercoles', 'label' => 'Miércoles'],
+                                    ['value' => 'Jueves', 'label' => 'Jueves'],
+                                    ['value' => 'Viernes', 'label' => 'Viernes'],
+                                    ['value' => 'Sabado', 'label' => 'Sábado'],
+                                    ['value' => 'Domingo', 'label' => 'Domingo'],
+                                ];
                                 $diaActivo = request('dia', 'Lunes');
                             @endphp
-                            @foreach($diasSemana as $dia)
-                                <a href="{{ route('servicios', ['dia' => $dia]) }}#clases"
+                            @foreach($diasSemana as $diaItem)
+                                <a href="{{ route('servicios', ['dia' => $diaItem['value']]) }}#clases"
                                     class="flex-shrink-0 text-xs font-black px-6 py-2.5 rounded-full transition-all uppercase tracking-widest
-                                                                                                                                    {{ $diaActivo == $dia ? 'bg-[#1A3878] text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-400 hover:bg-gray-200' }}">
-                                    {{ $dia }}
+                                                                                                                                    {{ $diaActivo == $diaItem['value'] ? 'bg-[#1A3878] text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-400 hover:bg-gray-200' }}">
+                                    {{ $diaItem['label'] }}
                                 </a>
                             @endforeach
                         </div>
@@ -221,7 +229,7 @@
                         <div class="w-14 h-14 rounded-full flex items-center justify-center bg-[#1A3878]/10 mb-2">
                             <span class="material-symbols-outlined text-3xl text-[#1A3878]">pool</span>
                         </div>
-                        <h2 class="text-4xl lg:text-5xl font-black tracking-tight text-[#0A1931]">Acceso Total (Membresia)
+                        <h2 class="text-4xl lg:text-5xl font-black tracking-tight text-[#0A1931]">Acceso Total (Membresía)
                         </h2>
                         <p class="text-lg text-gray-500 max-w-3xl mx-auto font-medium leading-relaxed">
                             Tu llave a todas nuestras instalaciones. Elige la duracion de tu plan y disfruta sin
@@ -236,7 +244,7 @@
                             <span
                                 class="material-symbols-outlined text-4xl text-[#1A3878] group-hover:scale-110 transition-transform">fitness_center</span>
                             <h4 class="font-black text-lg mt-5 text-[#0A1931]">Gimnasio y Cardio</h4>
-                            <p class="text-sm text-gray-400 mt-1 font-medium italic">Maquinaria de ultima generacion.</p>
+                            <p class="text-sm text-gray-400 mt-1 font-medium italic">Maquinaria de última generación.</p>
                         </div>
 
                         <div
@@ -252,7 +260,7 @@
                             <span
                                 class="material-symbols-outlined text-4xl text-[#1A3878] group-hover:scale-110 transition-transform">hot_tub</span>
                             <h4 class="font-black text-lg mt-5 text-[#0A1931]">Zonas Wellness</h4>
-                            <p class="text-sm text-gray-400 mt-1 font-medium italic">Sauna, bano turco y vestuarios.</p>
+                            <p class="text-sm text-gray-400 mt-1 font-medium italic">Sauna, baño turco y vestuarios.</p>
                         </div>
                     </div>
 
@@ -271,7 +279,7 @@
                     @else
                         <button type="button" onclick="window.location.href='{{ url('/tarifas') }}'"
                             class="mt-10 inline-flex items-center justify-center rounded-2xl h-14 px-8 bg-[#1A3878] text-white font-black text-lg hover:bg-[#0A1931] shadow-xl transition-all uppercase tracking-widest">
-                            Ver Planes y Precios de Membresia
+                            Ver Planes y Precios de Membresía
                         </button>
                     @endauth
 

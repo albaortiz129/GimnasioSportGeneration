@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Provider global de la aplicacion.
+ * Provider global de la aplicación.
  * Se usa para registrar servicios compartidos de Laravel.
  */
 namespace App\Providers;
@@ -15,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Registrar bindings o servicios globales personalizados aqui.
+        // Registrar bindings o servicios globales personalizados aquí.
     }
 
     /**
@@ -23,6 +23,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Configuracion global que se ejecuta al arrancar la aplicacion.
+        // Configuración global que se ejecuta al arrancar la aplicación.
     }
 }

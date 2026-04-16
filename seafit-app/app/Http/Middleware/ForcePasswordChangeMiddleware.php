@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 class ForcePasswordChangeMiddleware
 {
     /**
-     * Permite seguir solo si el usuario ya cambio su contraseña temporal.
+     * Permite seguir solo si el usuario ya cambió su contraseña temporal.
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -23,7 +23,7 @@ class ForcePasswordChangeMiddleware
             return $next($request);
         }
 
-        // Rutas permitidas mientras aun no cambio su clave.
+        // Rutas permitidas mientras aún no cambia su clave.
         if ($request->routeIs('password.force.form', 'password.force.update', 'logout')) {
             return $next($request);
         }

@@ -1,7 +1,7 @@
-{{-- Vista de configuracion del socio para editar datos de cuenta. --}}
+{{-- Vista de configuración del socio para editar datos de cuenta. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Configuracion - SeaFit')
+@section('titulo', 'Configuración - SeaFit')
 
 @section('contenido')
     <div class="flex flex-col md:flex-row min-h-screen bg-[#f8fafc] font-sans">
@@ -21,12 +21,12 @@
                 </a>
                 <a href="{{ route('pago.gestion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
-                    <span class="material-symbols-outlined">payments</span> Gestion de Pago
+                    <span class="material-symbols-outlined">payments</span> Gestión de Pago
                 </a>
-                {{-- Enlace activo: pagina de configuracion --}}
+                {{-- Enlace activo: página de configuración --}}
                 <a href="{{ route('configuracion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors bg-[#e6f3ff] text-[#1A3878]">
-                    <span class="material-symbols-outlined">settings</span> Configuracion
+                    <span class="material-symbols-outlined">settings</span> Configuración
                 </a>
             </nav>
         </aside>
@@ -44,7 +44,7 @@
 
             <header class="mb-8">
                 <h1 class="text-3xl md:text-4xl font-black text-[#0A1931] mb-2">Hola, {{ $user->nombre }}!</h1>
-                <p class="text-gray-500 text-[15px]">Bienvenida a tu panel personal. Aqui puedes gestionar tu cuenta y
+                <p class="text-gray-500 text-[15px]">Bienvenida a tu panel personal. Aquí puedes gestionar tu cuenta y
                     revisar tu progreso.</p>
             </header>
 
@@ -56,10 +56,10 @@
                 </div>
 
                 <div class="relative z-10">
-                    <p class="text-xs uppercase tracking-widest text-gray-300 font-bold mb-1">Membresia Actual</p>
+                    <p class="text-xs uppercase tracking-widest text-gray-300 font-bold mb-1">Membresía Actual</p>
                     <h2 class="text-2xl md:text-3xl font-bold mb-1">Acceso Total {{ ucfirst($user->tarifa) }}</h2>
                     <p class="text-sm text-gray-400">
-                        Valido hasta: {{ optional($user->next_payment_at)->format('d/m/Y') ?? 'Pendiente de validacion' }}
+                        Válido hasta: {{ optional($user->next_payment_at)->format('d/m/Y') ?? 'Pendiente de validación' }}
                     </p>
 
                 </div>
@@ -93,7 +93,7 @@
                                     class="font-normal text-gray-500">{{ $user->dni }}</span></p>
                         </div>
                         <div>
-                            <p class="text-sm font-bold text-[#0A1931] m-0">Telefono: <span
+                            <p class="text-sm font-bold text-[#0A1931] m-0">Teléfono: <span
                                     class="font-normal text-gray-500">{{ $user->telefono }}</span></p>
                         </div>
                         <div class="col-span-1 sm:col-span-2">
@@ -103,7 +103,7 @@
                     </div>
                     <button onclick="activarEdicion()"
                         class="text-[#1A3878] font-bold bg-transparent border-none p-0 cursor-pointer text-sm underline hover:text-[#0A1931] transition-colors">
-                        Editar Informacion
+                        Editar Información
                     </button>
                 </div>
 
@@ -141,7 +141,7 @@
                             @enderror
                         </div>
                         <div>
-                            <label class="block text-sm text-gray-500 font-semibold mb-1">Telefono</label>
+                            <label class="block text-sm text-gray-500 font-semibold mb-1">Teléfono</label>
                             <input id="cfg_telefono" type="text" name="telefono" value="{{ old('telefono', $user->telefono) }}"
                                 maxlength="9"
                                 class="w-full p-3 border border-gray-300 rounded-xl text-[#0A1931] focus:ring-2 focus:ring-[#1A3878] outline-none transition-all @error('telefono') border-red-500 bg-red-50 @enderror">
@@ -248,7 +248,7 @@
                 const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
                 if (!valor) return setError(emailInput, emailError, 'El email es obligatorio');
-                if (!regexEmail.test(valor)) return setError(emailInput, emailError, 'Formato de email invalido');
+                if (!regexEmail.test(valor)) return setError(emailInput, emailError, 'Formato de email inválido');
                 return setError(emailInput, emailError, '');
             }
 
@@ -257,17 +257,17 @@
                 dniInput.value = valor;
 
                 if (!valor) return setError(dniInput, dniError, 'El DNI es obligatorio');
-                if (!/^[0-9]{8}[A-Z]$/.test(valor)) return setError(dniInput, dniError, 'Formato DNI: 8 numeros y 1 letra');
-                if (!validarDNIMatematico(valor)) return setError(dniInput, dniError, 'DNI invalido (letra incorrecta)');
+                if (!/^[0-9]{8}[A-Z]$/.test(valor)) return setError(dniInput, dniError, 'Formato DNI: 8 números y 1 letra');
+                if (!validarDNIMatematico(valor)) return setError(dniInput, dniError, 'DNI inválido (letra incorrecta)');
                 return setError(dniInput, dniError, '');
             }
 
             function validarTelefonoCampo() {
                 const valor = (telefonoInput.value || '').trim();
 
-                if (!valor) return setError(telefonoInput, telefonoError, 'El telefono es obligatorio');
+                if (!valor) return setError(telefonoInput, telefonoError, 'El teléfono es obligatorio');
                 if (!/^[6789]\d{8}$/.test(valor)) {
-                    return setError(telefonoInput, telefonoError, 'Telefono valido: 9 digitos empezando por 6, 7, 8 o 9');
+                    return setError(telefonoInput, telefonoError, 'Teléfono válido: 9 dígitos empezando por 6, 7, 8 o 9');
                 }
                 return setError(telefonoInput, telefonoError, '');
             }
@@ -302,7 +302,7 @@
                 }
             });
 
-            // Si el backend devolvio errores, abrir directamente modo edicion.
+            // Si el backend devolvió errores, abrir directamente modo edición.
             const hayErroresServidor = @json($errors->any());
             if (hayErroresServidor) {
                 lectura.classList.add('hidden');

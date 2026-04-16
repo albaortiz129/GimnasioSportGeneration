@@ -20,13 +20,13 @@
             <input type="time" name="hora_inicio" class="border rounded p-2" required>
 
             <select name="dia_semana" class="border rounded p-2" required>
-                <option>Lunes</option>
-                <option>Martes</option>
-                <option>Miercoles</option>
-                <option>Jueves</option>
-                <option>Viernes</option>
-                <option>Sabado</option>
-                <option>Domingo</option>
+                <option value="Lunes">Lunes</option>
+                <option value="Martes">Martes</option>
+                <option value="Miercoles">Miércoles</option>
+                <option value="Jueves">Jueves</option>
+                <option value="Viernes">Viernes</option>
+                <option value="Sabado">Sábado</option>
+                <option value="Domingo">Domingo</option>
             </select>
 
             <input type="number" name="capacidad_max" min="0" placeholder="Plazas disponibles" class="border rounded p-2"
@@ -34,19 +34,26 @@
             <input name="imagen" placeholder="Ruta imagen (opcional)" class="border rounded p-2">
             <button class="bg-[#0A1931] text-white rounded p-2 font-bold">Crear clase</button>
 
-            <textarea name="descripcion" placeholder="Descripcion" class="border rounded p-2 md:col-span-4"></textarea>
+            <textarea name="descripcion" placeholder="Descripción" class="border rounded p-2 md:col-span-4"></textarea>
         </form>
 
-        {{-- Filtro rapido por dia de la semana. --}}
+        {{-- Filtro rápido por día de la semana. --}}
         <div class="flex gap-2 overflow-x-auto mb-6">
             <a href="{{ route('admin.classes.index') }}"
                 class="px-4 py-2 rounded-full text-sm font-bold {{ empty($dia) ? 'bg-[#1A3878] text-white' : 'bg-gray-100 text-gray-600' }}">
                 Todos
             </a>
             @foreach($diasSemana as $d)
+                @php
+                    $diaVisible = match ($d) {
+                        'Miercoles' => 'Miércoles',
+                        'Sabado' => 'Sábado',
+                        default => $d,
+                    };
+                @endphp
                 <a href="{{ route('admin.classes.index', ['dia' => $d]) }}"
                     class="px-4 py-2 rounded-full text-sm font-bold {{ ($dia ?? null) === $d ? 'bg-[#1A3878] text-white' : 'bg-gray-100 text-gray-600' }}">
-                    {{ $d }}
+                    {{ $diaVisible }}
                 </a>
             @endforeach
         </div>
@@ -61,7 +68,7 @@
                 @endphp
 
                 <div class="bg-white border rounded-2xl p-4">
-                    {{-- Formulario de edicion rapida de la clase actual. --}}
+                    {{-- Formulario de edición rápida de la clase actual. --}}
                     <form action="{{ route('admin.classes.update', $clase) }}" method="POST"
                         class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-4">
                         @csrf
@@ -72,11 +79,18 @@
                         <input type="time" name="hora_inicio" value="{{ substr($clase->hora_inicio, 0, 5) }}"
                             class="border rounded p-2" required>
 
-                        {{-- Se normaliza visualmente el dia para soportar datos antiguos. --}}
+                        {{-- Se normaliza visualmente el día para soportar datos antiguos. --}}
                         <select name="dia_semana" class="border rounded p-2" required>
                             @php $diaClase = $clase->dia_semana; @endphp
                             @foreach(['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'] as $diaItem)
-                                <option value="{{ $diaItem }}" @selected($diaClase === $diaItem)>{{ $diaItem }}</option>
+                                @php
+                                    $diaVisible = match ($diaItem) {
+                                        'Miercoles' => 'Miércoles',
+                                        'Sabado' => 'Sábado',
+                                        default => $diaItem,
+                                    };
+                                @endphp
+                                <option value="{{ $diaItem }}" @selected($diaClase === $diaItem)>{{ $diaVisible }}</option>
                             @endforeach
                         </select>
 
@@ -109,7 +123,7 @@
 
                         <div>
                             {{-- Alta manual de alumno en la clase con buscador dentro del propio bloque. --}}
-                            <h3 class="font-bold mb-2">Anadir usuario</h3>
+                            <h3 class="font-bold mb-2">Añadir usuario</h3>
                             <form action="{{ route('admin.classes.usuarios.store', $clase) }}" method="POST" class="space-y-2">
                                 @csrf
 
@@ -140,14 +154,14 @@
                                     </select>
 
                                     <button class="bg-[#0A1931] text-white px-4 rounded" @disabled($usuariosDisponibles->isEmpty())>
-                                        Anadir
+                                        Añadir
                                     </button>
                                 </div>
                             </form>
 
                             {{-- Borrado completo de la clase. --}}
                             <form action="{{ route('admin.classes.destroy', $clase) }}" method="POST" class="mt-4"
-                                onsubmit="return confirm('Eliminar clase?')">
+                                onsubmit="return confirm('¿Eliminar clase?')">
                                 @csrf
                                 @method('DELETE')
                                 <button class="text-red-700 font-bold">Eliminar clase</button>

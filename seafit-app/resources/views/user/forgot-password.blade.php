@@ -1,4 +1,4 @@
-{{-- Vista para solicitar email de recuperacion de contraseña. --}}
+{{-- Vista para solicitar email de recuperación de contraseña. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Recuperar Contraseña - SeaFit')

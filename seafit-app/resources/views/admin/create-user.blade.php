@@ -63,7 +63,7 @@
             </div>
 
             <div>
-                <input id="telefono" name="telefono" placeholder="Telefono" value="{{ old('telefono') }}"
+                <input id="telefono" name="telefono" placeholder="Teléfono" value="{{ old('telefono') }}"
                     class="border rounded p-3 w-full @error('telefono') border-red-500 bg-red-50 @enderror" required
                     maxlength="9">
                 <p id="telefono_error" class="text-red-500 text-xs mt-1 font-medium hidden"></p>
@@ -111,7 +111,7 @@
                 @enderror
             </div>
 
-            {{-- Datos de plan y metodo de pago inicial. --}}
+            {{-- Datos de plan y método de pago inicial. --}}
             <div>
                 <select id="tarifa" name="tarifa"
                     class="border rounded p-3 w-full @error('tarifa') border-red-500 bg-red-50 @enderror" required>
@@ -129,7 +129,7 @@
             <div>
                 <select id="metodo_pago" name="metodo_pago"
                     class="border rounded p-3 w-full @error('metodo_pago') border-red-500 bg-red-50 @enderror" required>
-                    <option value="">Selecciona metodo de pago</option>
+                    <option value="">Selecciona método de pago</option>
                     <option value="bizum" @selected(old('metodo_pago') === 'bizum')>Bizum</option>
                     <option value="paypal" @selected(old('metodo_pago') === 'paypal')>PayPal</option>
                     <option value="visa" @selected(old('metodo_pago') === 'visa')>Visa</option>
@@ -223,8 +223,8 @@
                 dniInput.value = valor;
 
                 if (!valor) return setError(dniInput, dniError, 'El DNI es obligatorio');
-                if (!/^[0-9]{8}[A-Z]$/.test(valor)) return setError(dniInput, dniError, 'Formato DNI: 8 numeros y 1 letra');
-                if (!validarDNIMatematico(valor)) return setError(dniInput, dniError, 'DNI invalido (letra incorrecta)');
+                if (!/^[0-9]{8}[A-Z]$/.test(valor)) return setError(dniInput, dniError, 'Formato DNI: 8 números y 1 letra');
+                if (!validarDNIMatematico(valor)) return setError(dniInput, dniError, 'DNI inválido (letra incorrecta)');
                 return setError(dniInput, dniError, '');
             }
 
@@ -237,9 +237,9 @@
             function validarTelefonoCampo() {
                 const valor = (telefonoInput.value || '').trim();
 
-                if (!valor) return setError(telefonoInput, telefonoError, 'El telefono es obligatorio');
+                if (!valor) return setError(telefonoInput, telefonoError, 'El teléfono es obligatorio');
                 if (!/^[6789]\d{8}$/.test(valor)) {
-                    return setError(telefonoInput, telefonoError, 'Telefono valido: 9 digitos empezando por 6, 7, 8 o 9');
+                    return setError(telefonoInput, telefonoError, 'Teléfono válido: 9 dígitos empezando por 6, 7, 8 o 9');
                 }
 
                 return setError(telefonoInput, telefonoError, '');
@@ -249,7 +249,7 @@
                 const valor = (emailInput.value || '').trim();
                 const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!valor) return setError(emailInput, emailError, 'El email es obligatorio');
-                if (!regexEmail.test(valor)) return setError(emailInput, emailError, 'Formato de email invalido');
+                if (!regexEmail.test(valor)) return setError(emailInput, emailError, 'Formato de email inválido');
                 return setError(emailInput, emailError, '');
             }
 
@@ -296,11 +296,11 @@
 
             function validarMetodoPagoCampo() {
                 const valor = (metodoPagoInput.value || '').trim();
-                if (!valor) return setError(metodoPagoInput, metodoPagoError, 'Debes seleccionar un metodo de pago');
+                if (!valor) return setError(metodoPagoInput, metodoPagoError, 'Debes seleccionar un método de pago');
                 return setError(metodoPagoInput, metodoPagoError, '');
             }
 
-            // Validacion en vivo para mostrar errores antes del submit.
+            // Validación en vivo para mostrar errores antes del submit.
             nombreInput.addEventListener('input', validarNombreCampo);
             nombreInput.addEventListener('blur', validarNombreCampo);
             apellidosInput.addEventListener('input', validarApellidosCampo);
@@ -326,7 +326,7 @@
             metodoPagoInput.addEventListener('change', validarMetodoPagoCampo);
 
             form.addEventListener('submit', function (event) {
-                // Validacion final antes de enviar al backend.
+                // Validación final antes de enviar al backend.
                 const okNombre = validarNombreCampo();
                 const okApellidos = validarApellidosCampo();
                 const okDni = validarDniCampo();

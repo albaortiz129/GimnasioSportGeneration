@@ -31,12 +31,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (TokenMismatchException $e, $request) {
             if ($request->expectsJson()) {
                 return response()->json([
-                    'message' => 'Tu sesion ha caducado. Recarga la pagina e intentalo de nuevo.',
+                    'message' => 'Tu sesión ha caducado. Recarga la página e inténtalo de nuevo.',
                 ], 419);
             }
 
             return back()
                 ->withInput($request->except('_token'))
-                ->with('error', 'Tu sesion ha caducado. Hemos recargado seguridad; vuelve a enviar el formulario.');
+                ->with('error', 'Tu sesión ha caducado. Hemos recargado seguridad; vuelve a enviar el formulario.');
         });
     })->create();

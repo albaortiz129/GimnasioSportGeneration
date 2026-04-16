@@ -12,17 +12,25 @@
             <p class="text-gray-500 font-medium">Gestiona tus entrenamientos de forma visual</p>
         </header>
 
-        {{-- Selector de dias para filtrar agenda. --}}
+        {{-- Selector de días para filtrar agenda. --}}
         <div class="flex justify-center gap-2 mb-8 bg-white p-2 rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
             @php
-                $dias = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+                $dias = [
+                    ['value' => 'Lunes', 'label' => 'Lunes'],
+                    ['value' => 'Martes', 'label' => 'Martes'],
+                    ['value' => 'Miercoles', 'label' => 'Miércoles'],
+                    ['value' => 'Jueves', 'label' => 'Jueves'],
+                    ['value' => 'Viernes', 'label' => 'Viernes'],
+                    ['value' => 'Sabado', 'label' => 'Sábado'],
+                    ['value' => 'Domingo', 'label' => 'Domingo'],
+                ];
                 $diaActual = request('dia', 'Lunes');
             @endphp
-            @foreach($dias as $dia)
-                <a href="{{ route('agenda', ['dia' => $dia]) }}"
+            @foreach($dias as $diaItem)
+                <a href="{{ route('agenda', ['dia' => $diaItem['value']]) }}"
                     class="px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap
-                    {{ $diaActual == $dia ? 'bg-[#1A3878] text-white shadow-md' : 'text-gray-400 hover:bg-gray-50' }}">
-                    {{ $dia }}
+                    {{ $diaActual == $diaItem['value'] ? 'bg-[#1A3878] text-white shadow-md' : 'text-gray-400 hover:bg-gray-50' }}">
+                    {{ $diaItem['label'] }}
                 </a>
             @endforeach
         </div>
@@ -80,7 +88,7 @@
                                     </p>
                                 </div>
 
-                                {{-- Acciones segun estado de reserva. --}}
+                                {{-- Acciones según estado de reserva. --}}
                                 <div class="relative flex items-center justify-end shrink-0 min-w-[120px]">
                                     @if($yaReservado)
                                         <div class="flex items-center">
@@ -120,7 +128,7 @@
                     @empty
                         <div class="h-full flex flex-col items-center justify-center text-gray-300">
                             <span class="material-symbols-outlined text-6xl mb-2">event_busy</span>
-                            <p class="italic font-bold">Sin entrenamientos para este dia</p>
+                            <p class="italic font-bold">Sin entrenamientos para este día</p>
                         </div>
                     @endforelse
                 </div>

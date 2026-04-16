@@ -29,11 +29,11 @@ class PaymentController extends Controller
     {
         $user = Auth::user();
 
-        // Metodos guardados en Stripe.
+        // Métodos guardados en Stripe.
         $metodosPago = $user->paymentMethods();
         $metodoPrincipal = $user->defaultPaymentMethod();
 
-        // Metodos manuales guardados en la BD (Bizum/PayPal/Efectivo).
+        // Métodos manuales guardados en la BD (Bizum/PayPal/Efectivo).
         $metodosManuales = collect($user->manual_payment_methods ?? [])
             ->map(fn($metodo) => $this->normalizeManualMethod($metodo))
             ->filter()
@@ -56,13 +56,17 @@ class PaymentController extends Controller
         $user = Auth::user();
 
         if (!$user->subscribed('default')) {
-            return back()->with('error', 'No tienes una suscripcion activa.');
+            return back()->with('error', 'No tienes una suscripción activa.');
+        }
+
+        if ($user->subscription('default')?->onGracePeriod()) {
+            return back()->with('success', 'Tu suscripción ya estaba programada para cancelarse al final del periodo.');
         }
 
         // Se cancela en Stripe pero mantiene acceso hasta fin de ciclo.
         $user->subscription('default')->cancel();
 
-        return back()->with('success', 'Tu suscripcion ha sido cancelada. Tendras acceso hasta el final del periodo pagado.');
+        return back()->with('success', 'Tu suscripción ha sido cancelada. Tendrás acceso hasta el final del periodo pagado.');
     }
 
     /**
@@ -80,7 +84,7 @@ class PaymentController extends Controller
         $nuevaTarifa = $request->input('tarifa', 'mensual');
         $codigoCupon = $request->input('cupon');
 
-        // Valida cupon solo si el usuario ha escrito uno.
+        // Valida cupón solo si el usuario ha escrito uno.
         $cupon = $this->resolveStripeCoupon($codigoCupon, $user, 'reanudar_plan');
         if ($cupon['error']) {
             return back()->with('error', $cupon['error']);
@@ -92,7 +96,7 @@ class PaymentController extends Controller
             $subscription = $user->subscription('default');
 
             if ($subscription) {
-                // Si ya existe suscripcion, se reutiliza y se ajusta plan/cupon.
+                // Si ya existe suscripción, se reutiliza y se ajusta plan/cupón.
                 if ($user->tarifa !== $nuevaTarifa) {
                     $subscription->swap($planId);
                 }
@@ -105,7 +109,7 @@ class PaymentController extends Controller
                     $subscription->resume();
                 }
             } else {
-                // Si no existe, se crea desde cero con el metodo por defecto.
+                // Si no existe, se crea desde cero con el método por defecto.
                 if (!$user->hasDefaultPaymentMethod()) {
                     return back()->with('error', 'No tienes una tarjeta guardada.');
                 }
@@ -158,7 +162,7 @@ class PaymentController extends Controller
                 'metodo_pago' => $this->paymentMethodFromBrand($marca),
             ]);
 
-            return back()->with('success', 'Metodo de pago principal actualizado correctamente.');
+            return back()->with('success', 'Método de pago principal actualizado correctamente.');
         } catch (\Exception $e) {
             return back()->with('error', 'Error al actualizar en Stripe: ' . $e->getMessage());
         }
@@ -179,7 +183,7 @@ class PaymentController extends Controller
         $paymentMethod = $user->findPaymentMethod($paymentMethodId);
 
         if (!$paymentMethod) {
-            return back()->with('error', 'No se pudo encontrar el metodo de pago.');
+            return back()->with('error', 'No se pudo encontrar el método de pago.');
         }
 
         $paymentMethod->delete();
@@ -205,7 +209,7 @@ class PaymentController extends Controller
     {
         $user = Auth::user();
 
-        // Si aun no es cliente de Stripe, se crea su perfil remoto.
+        // Si aún no es cliente de Stripe, se crea su perfil remoto.
         if (!$user->stripe_id) {
             $user->createAsStripeCustomer();
         }
@@ -238,7 +242,7 @@ class PaymentController extends Controller
                 $user->updateDefaultPaymentMethod($request->payment_method);
             }
 
-            return redirect()->route('pago.gestion')->with('success', 'Tarjeta anadida correctamente.');
+            return redirect()->route('pago.gestion')->with('success', 'Tarjeta añadida correctamente.');
         } catch (\Throwable $e) {
             return back()->with('error', 'No se pudo guardar la tarjeta: ' . $e->getMessage());
         }
@@ -253,17 +257,17 @@ class PaymentController extends Controller
             'metodo_manual' => 'required|in:bizum,paypal,efectivo',
             'dato_manual' => 'nullable|string|max:120',
         ], [
-            'metodo_manual.required' => 'Selecciona un metodo manual.',
-            'metodo_manual.in' => 'Metodo manual no valido.',
+            'metodo_manual.required' => 'Selecciona un método manual.',
+            'metodo_manual.in' => 'Método manual no válido.',
             'dato_manual.max' => 'El dato es demasiado largo.',
         ]);
 
-        // Reglas extra por tipo de metodo.
+        // Reglas extra por tipo de método.
         if ($data['metodo_manual'] === 'bizum') {
             $request->validate([
                 'dato_manual' => 'regex:/^[6789]\d{8}$/',
             ], [
-                'dato_manual.regex' => 'El telefono de Bizum debe tener 9 digitos y empezar por 6, 7, 8 o 9.',
+                'dato_manual.regex' => 'El teléfono de Bizum debe tener 9 dígitos y empezar por 6, 7, 8 o 9.',
             ]);
         }
 
@@ -271,7 +275,7 @@ class PaymentController extends Controller
             $request->validate([
                 'dato_manual' => 'email:rfc',
             ], [
-                'dato_manual.email' => 'El email de PayPal no es valido.',
+                'dato_manual.email' => 'El email de PayPal no es válido.',
             ]);
         }
 
@@ -295,7 +299,7 @@ class PaymentController extends Controller
             $datoManual = null;
         }
 
-        // Detecta si era alta nueva o una actualizacion del metodo.
+        // Detecta si era alta nueva o una actualización del método.
         $yaExistia = $manuales->contains(fn($metodo) => $metodo['code'] === $data['metodo_manual']);
 
         $user->manual_payment_methods = $manuales
@@ -314,7 +318,7 @@ class PaymentController extends Controller
 
         $user->save();
 
-        return back()->with('success', $yaExistia ? 'Metodo manual actualizado.' : 'Metodo manual guardado.');
+        return back()->with('success', $yaExistia ? 'Método manual actualizado.' : 'Método manual guardado.');
     }
 
     /**
@@ -333,14 +337,14 @@ class PaymentController extends Controller
             ->values();
 
         if (!$manuales->contains(fn($metodo) => $metodo['code'] === $data['metodo_manual'])) {
-            return back()->with('error', 'Metodo no encontrado.');
+            return back()->with('error', 'Método no encontrado.');
         }
 
         $user->update([
             'metodo_pago' => $data['metodo_manual'],
         ]);
 
-        return back()->with('success', 'Metodo principal actualizado.');
+        return back()->with('success', 'Método principal actualizado.');
     }
 
     /**
@@ -367,7 +371,7 @@ class PaymentController extends Controller
             ->values()
             ->all();
 
-        // Si se borra el principal, se intenta seleccionar otro automaticamente.
+        // Si se borra el principal, se intenta seleccionar otro automáticamente.
         if ($user->metodo_pago === $data['metodo_manual']) {
             if ($manuales->isNotEmpty()) {
                 $user->metodo_pago = $manuales->first()['code'];
@@ -379,7 +383,7 @@ class PaymentController extends Controller
 
         $user->save();
 
-        return back()->with('success', 'Metodo manual eliminado.');
+        return back()->with('success', 'Método manual eliminado.');
     }
 
     /**
@@ -440,7 +444,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Cuber telefono de Bizum.
+     * Cubre teléfono de Bizum.
      */
     private function maskPhone(string $telefono): string
     {
@@ -485,7 +489,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Convierte la marca de Stripe al valor interno de metodo_pago.
+     * Convierte la marca de Stripe al valor interno de `metodo_pago`.
      */
     private function paymentMethodFromBrand(?string $marca): string
     {
@@ -535,7 +539,7 @@ class PaymentController extends Controller
         // Flujo de pago con tarjeta (Stripe).
         if ($metodo === 'visa') {
             if (!$user->hasDefaultPaymentMethod()) {
-                return back()->with('error', 'Para pagar con tarjeta, primero anade una tarjeta.');
+                return back()->with('error', 'Para pagar con tarjeta, primero añade una tarjeta.');
             }
 
             $cupon = $this->resolveStripeCoupon($codigoCupon, $user, 'cambio_plan');
@@ -576,7 +580,7 @@ class PaymentController extends Controller
                     $cupon['model']->markUsed($user, 'cambio_plan', $descuentoAplicado);
                 }
 
-                return back()->with('success', 'Plan y metodo actualizados correctamente.');
+                return back()->with('success', 'Plan y método actualizados correctamente.');
             } catch (\Throwable $e) {
                 return back()->with('error', 'No se pudo actualizar: ' . $e->getMessage());
             }
@@ -584,7 +588,7 @@ class PaymentController extends Controller
 
         // Los cupones solo se aceptan cuando se cobra por Stripe.
         if (!empty($codigoCupon)) {
-            return back()->with('error', 'El cupon solo se aplica a pagos con tarjeta Stripe.');
+            return back()->with('error', 'El cupón solo se aplica a pagos con tarjeta Stripe.');
         }
 
         $user->update([
@@ -614,7 +618,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Resuelve y valida un cupon para Stripe.
+     * Resuelve y valida un cupón para Stripe.
      * Devuelve:
      * - model: modelo DiscountCode o null
      * - stripe_coupon_id: id de Stripe o null
@@ -638,7 +642,7 @@ class PaymentController extends Controller
             return [
                 'model' => null,
                 'stripe_coupon_id' => null,
-                'error' => 'El cupon no existe.',
+                'error' => 'El cupón no existe.',
             ];
         }
 
@@ -646,7 +650,7 @@ class PaymentController extends Controller
             return [
                 'model' => null,
                 'stripe_coupon_id' => null,
-                'error' => 'El cupon no esta activo, esta caducado o ya fue usado.',
+                'error' => 'El cupón no está activo, está caducado o ya fue usado.',
             ];
         }
 
@@ -654,7 +658,7 @@ class PaymentController extends Controller
             return [
                 'model' => null,
                 'stripe_coupon_id' => null,
-                'error' => 'El cupon no esta vinculado a Stripe.',
+                'error' => 'El cupón no está vinculado a Stripe.',
             ];
         }
 

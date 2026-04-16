@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Controlador de autenticacion: gestiona inicio y cierre de sesion.
+ * Controlador de autenticación: gestiona inicio y cierre de sesión.
  */
 namespace App\Http\Controllers;
 
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     /**
-     * Valida credenciales e inicia sesion.
+     * Valida credenciales e inicia sesión.
      */
     public function login(Request $request)
     {
@@ -23,12 +23,12 @@ class AuthController extends Controller
 
         try {
             if (Auth::attempt($credentials)) {
-                // Seguridad de sesion tras login correcto.
+                // Seguridad de sesión tras login correcto.
                 $request->session()->regenerate();
 
                 $user = Auth::user();
 
-                // Admin entra al panel de gestion.
+                // Admin entra al panel de gestión.
                 if ($user->is_admin) {
                     return redirect()->route('admin.dashboard');
                 }
@@ -42,28 +42,28 @@ class AuthController extends Controller
                 return redirect()->intended('/perfil');
             }
         } catch (QueryException $exception) {
-            // Si no hay conexion con MySQL, evita error 500 en pantalla.
+            // Si no hay conexión con MySQL, evita error 500 en pantalla.
             report($exception);
 
             return back()->withErrors([
-                'email' => 'No hay conexion con la base de datos local. Inicia MySQL y vuelve a intentarlo.',
+                'email' => 'No hay conexión con la base de datos local. Inicia MySQL y vuelve a intentarlo.',
             ])->onlyInput('email');
         }
 
         return back()->withErrors([
-            'email' => 'El correo electronico o la contraseña no coinciden.',
+            'email' => 'El correo electrónico o la contraseña no coinciden.',
         ])->onlyInput('email');
     }
 
     /**
-     * Cierra sesion y limpia estado de seguridad.
+     * Cierra sesión y limpia estado de seguridad.
      */
     public function logout(Request $request)
     {
-        // Cerrar sesion del usuario autenticado.
+        // Cerrar sesión del usuario autenticado.
         Auth::logout();
 
-        // Borra la sesion anterior y crea un token nuevo de seguridad.
+        // Borra la sesión anterior y crea un token nuevo de seguridad.
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

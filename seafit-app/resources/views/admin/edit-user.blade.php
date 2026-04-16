@@ -1,4 +1,4 @@
-{{-- Vista de edicion de datos de un usuario desde el panel admin. --}}
+{{-- Vista de edición de datos de un usuario desde el panel admin. --}}
 @extends('layouts.app')
 
 @section('contenido')
@@ -14,7 +14,7 @@
             </div>
         @endif
 
-        {{-- Formulario de edicion completa de la ficha del cliente. --}}
+        {{-- Formulario de edición completa de la ficha del cliente. --}}
         <form action="{{ route('admin.user.update', $user->id) }}" method="POST"
             class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white border rounded-2xl p-6">
             @csrf
@@ -47,7 +47,7 @@
             </div>
 
             <div>
-                <label class="block font-bold">Telefono</label>
+                <label class="block font-bold">Teléfono</label>
                 <input type="text" name="telefono" value="{{ old('telefono', $user->telefono) }}"
                     class="w-full border rounded p-2" required>
             </div>
@@ -88,7 +88,7 @@
             </div>
 
             <div>
-                <label class="block font-bold">Metodo de pago</label>
+                <label class="block font-bold">Método de pago</label>
                 <input type="text" name="metodo_pago" value="{{ old('metodo_pago', $user->metodo_pago) }}"
                     class="w-full border rounded p-2" required>
             </div>
@@ -105,7 +105,7 @@
             </div>
 
             <div>
-                <label class="block font-bold">Proximo cobro</label>
+                <label class="block font-bold">Próximo cobro</label>
                 <input type="date" name="next_payment_at"
                     value="{{ old('next_payment_at', optional($user->next_payment_at)->format('Y-m-d')) }}"
                     class="w-full border rounded p-2">

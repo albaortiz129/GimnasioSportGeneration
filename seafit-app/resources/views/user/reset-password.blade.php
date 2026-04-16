@@ -21,7 +21,7 @@
                         <p class="text-gray-500 text-sm mt-2 leading-relaxed">Configura tu nueva clave de acceso.</p>
                     </div>
 
-                    {{-- Lista de errores de validacion del backend. --}}
+                    {{-- Lista de errores de validación del backend. --}}
                     @if ($errors->any())
                         <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl">
                             @foreach ($errors->all() as $error)
@@ -52,7 +52,7 @@
                                 class="w-full px-4 py-4 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#1A3878]/10 focus:border-[#1A3878] transition-all text-sm">
                         </div>
 
-                        {{-- Confirmacion de la nueva contraseña. --}}
+                        {{-- Confirmación de la nueva contraseña. --}}
                         <div>
                             <label
                                 class="block text-xs font-black text-[#0A1931] uppercase tracking-widest ml-1 mb-2">Confirmar

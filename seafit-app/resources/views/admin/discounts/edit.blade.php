@@ -1,28 +1,28 @@
-{{-- Vista de admin para editar un codigo de descuento. --}}
+{{-- Vista de admin para editar un código de descuento. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Editar descuento - Admin')
 
 @section('contenido')
     <div class="max-w-4xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-black text-[#0A1931] mb-6">Editar codigo: {{ $discountCode->code }}</h1>
+        <h1 class="text-2xl font-black text-[#0A1931] mb-6">Editar código: {{ $discountCode->code }}</h1>
 
-        {{-- Error general de validacion devuelto por backend. --}}
+        {{-- Error general de validación devuelto por backend. --}}
         @if($errors->any())
             <div class="mb-4 p-3 rounded bg-red-100 text-red-800 border border-red-200">
                 Revisa los campos marcados.
             </div>
         @endif
 
-        {{-- Formulario de edicion del codigo seleccionado. --}}
+        {{-- Formulario de edición del código seleccionado. --}}
         <form action="{{ route('admin.discounts.update', $discountCode) }}" method="POST"
             class="bg-white border rounded-2xl p-6 space-y-4">
             @csrf
             @method('PUT')
 
-            {{-- Codigo editable del cupon. --}}
+            {{-- Código editable del cupón. --}}
             <div>
-                <label class="block text-sm font-bold mb-1">Codigo</label>
+                <label class="block text-sm font-bold mb-1">Código</label>
                 <input type="text" name="code" value="{{ old('code', $discountCode->code) }}"
                     class="w-full border rounded p-3 @error('code') border-red-500 @enderror" required>
                 @error('code') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
@@ -49,7 +49,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {{-- Rango opcional de fechas de activacion/caducidad. --}}
+                {{-- Rango opcional de fechas de activación/caducidad. --}}
                 <div>
                     <label class="block text-sm font-bold mb-1">Inicio (opcional)</label>
                     <input type="datetime-local" name="starts_at"
@@ -68,15 +68,15 @@
             </div>
 
             <div>
-                {{-- Limite global de usos (si se quiere restringir). --}}
-                <label class="block text-sm font-bold mb-1">Maximo de usos (opcional)</label>
+                {{-- Límite global de usos (si se quiere restringir). --}}
+                <label class="block text-sm font-bold mb-1">Máximo de usos (opcional)</label>
                 <input type="number" min="1" name="max_uses" value="{{ old('max_uses', $discountCode->max_uses) }}"
                     class="w-full border rounded p-3 @error('max_uses') border-red-500 @enderror">
                 @error('max_uses') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                {{-- Vinculacion opcional con cupon de Stripe. --}}
+                {{-- Vinculación opcional con cupón de Stripe. --}}
                 <label class="block text-sm font-bold mb-1">Stripe coupon id (opcional)</label>
                 <input type="text" name="stripe_coupon_id"
                     value="{{ old('stripe_coupon_id', $discountCode->stripe_coupon_id) }}"
@@ -85,7 +85,7 @@
             </div>
 
             <div>
-                {{-- Notas internas para administracion. --}}
+                {{-- Notas internas para administración. --}}
                 <label class="block text-sm font-bold mb-1">Notas (opcional)</label>
                 <textarea name="notes" rows="3"
                     class="w-full border rounded p-3 @error('notes') border-red-500 @enderror">{{ old('notes', $discountCode->notes) }}</textarea>
@@ -93,7 +93,7 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-6">
-                {{-- Opciones de estado y limite por usuario. --}}
+                {{-- Opciones de estado y límite por usuario. --}}
                 <label class="inline-flex items-center gap-2">
                     <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $discountCode->is_active))>
                     <span class="text-sm font-medium">Activo</span>

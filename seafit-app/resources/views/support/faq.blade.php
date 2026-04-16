@@ -1,4 +1,4 @@
-{{-- Vista de preguntas frecuentes con acordeon de ayuda. --}}
+{{-- Vista de preguntas frecuentes con acordeón de ayuda. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Centro de Ayuda - SeaFit')
@@ -14,11 +14,11 @@
                     Centro de Ayuda y Preguntas Frecuentes
                 </h1>
                 <p class="text-gray-600 text-[17px] font-medium max-w-2xl mx-auto leading-relaxed">
-                    Encuentra respuestas rapidas a tus dudas sobre membresias, reservas y pagos.
+                    Encuentra respuestas rápidas a tus dudas sobre membresías, reservas y pagos.
                 </p>
             </header>
 
-            {{-- Barra de busqueda visual (no filtra contenido). --}}
+            {{-- Barra de búsqueda visual (no filtra contenido). --}}
             <div class="relative max-w-3xl mx-auto mb-16">
                 <input type="text" placeholder="Buscar preguntas..."
                     class="w-full px-6 py-4.5 rounded-xl border border-gray-200 bg-white shadow-sm outline-none focus:ring-2 focus:ring-[#1A3878]/10 transition-all text-gray-700 placeholder:text-gray-400">
@@ -30,13 +30,13 @@
                 <div class="faq-item bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group active">
                     <button class="faq-trigger flex items-center justify-between w-full p-8 text-left outline-none">
                         <h3 class="text-[#102A53] font-bold text-[19px] tracking-tight transition-colors group-hover:text-blue-700">
-                            ¿Como puedo cancelar o cambiar mi clase reservada?
+                            ¿Cómo puedo cancelar o cambiar mi clase reservada?
                         </h3>
                     </button>
                     <div class="faq-content transition-all duration-300 ease-in-out group-[.active]:max-h-[500px] max-h-0">
                         <div class="px-8 pb-8 pt-0 text-gray-600 leading-relaxed text-[15px] font-medium">
                             Puedes gestionar todas tus reservas desde el "Panel de Socio" > "Mis Reservas".
-                            Tienes hasta 2 horas antes del inicio de la clase para cancelar sin penalizacion.
+                            Tienes hasta 2 horas antes del inicio de la clase para cancelar sin penalización.
                         </div>
                     </div>
                 </div>
@@ -44,12 +44,12 @@
                 <div class="faq-item bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group">
                     <button class="faq-trigger flex items-center justify-between w-full p-8 text-left outline-none">
                         <h3 class="text-[#102A53] font-bold text-[19px] tracking-tight transition-colors group-hover:text-blue-700">
-                            ¿Que metodos de pago aceptan para la membresia?
+                            ¿Qué métodos de pago aceptan para la membresía?
                         </h3>
                     </button>
                     <div class="faq-content transition-all duration-300 ease-in-out group-[.active]:max-h-[500px] max-h-0">
                         <div class="px-8 pb-8 pt-0 text-gray-600 leading-relaxed text-[15px] font-medium border-t border-gray-100/50 pt-6">
-                            Aceptamos tarjeta (Visa/Mastercard) por Stripe, y tambien pago manual por Bizum, PayPal o efectivo.
+                            Aceptamos tarjeta (Visa/Mastercard) por Stripe, y también pago manual por Bizum, PayPal o efectivo.
                         </div>
                     </div>
                 </div>
@@ -57,12 +57,12 @@
                 <div class="faq-item bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group">
                     <button class="faq-trigger flex items-center justify-between w-full p-8 text-left outline-none">
                         <h3 class="text-[#102A53] font-bold text-[19px] tracking-tight transition-colors group-hover:text-blue-700">
-                            ¿Puedo congelar mi membresia si me voy de vacaciones?
+                            ¿Puedo congelar mi membresía si me voy de vacaciones?
                         </h3>
                     </button>
                     <div class="faq-content transition-all duration-300 ease-in-out group-[.active]:max-h-[500px] max-h-0">
                         <div class="px-8 pb-8 pt-0 text-gray-600 leading-relaxed text-[15px] font-medium border-t border-gray-100/50 pt-6">
-                            Si, los planes Trimestrales y Anuales permiten congelar la cuenta una vez por anio.
+                            Sí, los planes trimestrales y anuales permiten congelar la cuenta una vez por año.
                         </div>
                     </div>
                 </div>
@@ -75,25 +75,25 @@
                     </button>
                     <div class="faq-content transition-all duration-300 ease-in-out group-[.active]:max-h-[500px] max-h-0">
                         <div class="px-8 pb-8 pt-0 text-gray-600 leading-relaxed text-[15px] font-medium border-t border-gray-100/50 pt-6">
-                            Si, para probar una clase gratuita necesitas crear una cuenta basica y solicitarla desde la seccion "Servicios".
+                            Sí, para probar una clase gratuita necesitas crear una cuenta básica y solicitarla desde la sección "Servicios".
                         </div>
                     </div>
                 </div>
 
             </div>
 
-            {{-- Bloque inferior de contacto rapido. --}}
+            {{-- Bloque inferior de contacto rápido. --}}
             <div class="mt-20 bg-[#E8EBF0] rounded-2xl py-10 px-8 border border-gray-200 max-w-3xl mx-auto text-center">
                 <h4 class="text-[#102A53] font-bold text-[18px] mb-3 tracking-tight">¿No encontraste la respuesta?</h4>
                 <a href="{{ route('contacto') }}"
                     class="text-[#1A3878] font-semibold text-[15px] underline hover:text-[#0A1931]">
-                    Contactanos directamente.
+                    Contáctanos directamente.
                 </a>
             </div>
         </div>
     </div>
 
-    {{-- Script del acordeon. --}}
+    {{-- Script del acordeón. --}}
     <script>
         document.querySelectorAll('.faq-trigger').forEach(trigger => {
             trigger.addEventListener('click', () => {

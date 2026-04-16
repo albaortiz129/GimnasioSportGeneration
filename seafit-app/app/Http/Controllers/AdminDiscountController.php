@@ -41,7 +41,7 @@ class AdminDiscountController extends Controller
             'created_by' => auth()->id(),
         ]);
 
-        return redirect()->route('admin.discounts.index')->with('success', 'Codigo creado.');
+        return redirect()->route('admin.discounts.index')->with('success', 'Código creado.');
     }
 
     /**
@@ -60,7 +60,7 @@ class AdminDiscountController extends Controller
         $data = $this->validateData($request, $discountCode->id);
         $discountCode->update($data);
 
-        return redirect()->route('admin.discounts.index')->with('success', 'Codigo actualizado.');
+        return redirect()->route('admin.discounts.index')->with('success', 'Código actualizado.');
     }
 
     /**
@@ -69,12 +69,12 @@ class AdminDiscountController extends Controller
     public function destroy(DiscountCode $discountCode)
     {
         if ($discountCode->redemptions()->exists()) {
-            return back()->with('error', 'No se puede borrar un codigo ya usado. Desactivalo.');
+            return back()->with('error', 'No se puede borrar un código ya usado. Desactívalo.');
         }
 
         $discountCode->delete();
 
-        return back()->with('success', 'Codigo eliminado.');
+        return back()->with('success', 'Código eliminado.');
     }
 
     /**
@@ -82,7 +82,7 @@ class AdminDiscountController extends Controller
      */
     private function validateData(Request $request, ?int $ignoreId = null): array
     {
-        // Reglas comunes para alta y edicion.
+        // Reglas comunes para alta y edición.
         $data = $request->validate([
             'code' => [
                 'required',
@@ -106,9 +106,9 @@ class AdminDiscountController extends Controller
         $data['is_active'] = $request->boolean('is_active');
         $data['one_use_per_user'] = $request->boolean('one_use_per_user');
 
-        // Porcentaje maximo permitido en descuentos de tipo percent.
+        // Porcentaje máximo permitido en descuentos de tipo percent.
         if ($data['type'] === 'percent' && (float) $data['value'] > 100) {
-            abort(422, 'Si el tipo es porcentaje, el valor maximo es 100.');
+            abort(422, 'Si el tipo es porcentaje, el valor máximo es 100.');
         }
 
         return $data;

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Middleware de autorizacion: restringe rutas administrativas a usuarios con rol admin.
+ * Middleware de autorización: restringe rutas administrativas a usuarios con rol admin.
  */
 namespace App\Http\Middleware;
 
@@ -16,7 +16,7 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Solo deja pasar si hay sesion y rol admin.
+        // Solo deja pasar si hay sesión y rol admin.
         if (auth()->check() && auth()->user()->is_admin) {
             return $next($request);
         }

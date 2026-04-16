@@ -1,4 +1,4 @@
-{{-- Cabecera principal: logo, menu y acceso de sesion. --}}
+{{-- Cabecera principal: logo, menú y acceso de sesión. --}}
 <header class="w-full bg-white shadow-sm">
     <div class="flex justify-between items-center max-w-[1200px] mx-auto py-[10px] px-5">
 
@@ -9,7 +9,7 @@
             </a>
         </div>
 
-        {{-- Menu central --}}
+        {{-- Menú central --}}
         <div class="flex justify-center flex-[2]">
             <nav class="flex gap-[25px]">
                 <a href="{{ url('/') }}"
@@ -27,11 +27,11 @@
                 <div class="flex">
                     <a href="{{ url('/registro') }}"
                         class="bg-[#1A3878] text-white py-2 px-5 border-2 border-[#1A3878] rounded-l-xl font-bold text-sm">
-                        Registrate
+                        Regístrate
                     </a>
                     <a href="{{ url('/login') }}"
                         class="bg-transparent text-[#1A3878] py-2 px-5 border-2 border-[#1A3878] border-l-0 rounded-r-xl font-bold text-sm transition-colors duration-300 hover:bg-gray-50">
-                        Iniciar sesion
+                        Iniciar sesión
                     </a>
                 </div>
             @endguest
@@ -56,7 +56,7 @@
                         @csrf
                         <button type="submit"
                             class="bg-[#0A1931] text-white py-2 px-[18px] rounded-full font-bold text-sm transition-colors hover:bg-[#1A3878]">
-                            Cerrar sesion
+                            Cerrar sesión
                         </button>
                     </form>
                 </div>

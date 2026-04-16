@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Modelo de codigos de descuento administrables desde el panel.
+ * Modelo de códigos de descuento administrables desde el panel.
  */
 class DiscountCode extends Model
 {
@@ -30,7 +30,7 @@ class DiscountCode extends Model
     ];
 
     /**
-     * Conversion automatica de tipos.
+     * Conversión automática de tipos.
      */
     protected function casts(): array
     {
@@ -44,7 +44,7 @@ class DiscountCode extends Model
     }
 
     /**
-     * Fuerza el codigo en mayusculas antes de guardar.
+     * Fuerza el código en mayúsculas antes de guardar.
      */
     protected static function booted(): void
     {
@@ -54,7 +54,7 @@ class DiscountCode extends Model
     }
 
     /**
-     * Relacion con los usos del codigo.
+     * Relación con los usos del código.
      */
     public function redemptions(): HasMany
     {
@@ -62,7 +62,7 @@ class DiscountCode extends Model
     }
 
     /**
-     * Scope para buscar por codigo.
+     * Scope para buscar por código.
      */
     public function scopeByCode(Builder $query, string $code): Builder
     {
@@ -70,7 +70,7 @@ class DiscountCode extends Model
     }
 
     /**
-     * Comprueba si el codigo esta activo ahora mismo.
+     * Comprueba si el código está activo ahora mismo.
      */
     public function isActiveNow(): bool
     {
@@ -81,17 +81,17 @@ class DiscountCode extends Model
             return false;
         }
 
-        // Si aun no empezo, no aplica.
+        // Si aún no empezó, no aplica.
         if ($this->starts_at && $now->lt($this->starts_at)) {
             return false;
         }
 
-        // Si ya vencio, no aplica.
+        // Si ya venció, no aplica.
         if ($this->ends_at && $now->gt($this->ends_at)) {
             return false;
         }
 
-        // Si alcanzo limite de usos, no aplica.
+        // Si alcanzó límite de usos, no aplica.
         if (!is_null($this->max_uses) && $this->used_count >= $this->max_uses) {
             return false;
         }
@@ -119,7 +119,7 @@ class DiscountCode extends Model
     }
 
     /**
-     * Marca el codigo como usado y guarda el historial.
+     * Marca el código como usado y guarda el historial.
      */
     public function markUsed(User $user, string $context = 'registro', ?float $amount = null): void
     {

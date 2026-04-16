@@ -23,7 +23,7 @@ const ETIQUETAS_CAMPOS = {
     email: 'Email',
     password: 'Contraseña',
     password_confirmation: 'Confirmar contraseña',
-    telefono: 'Telefono',
+    telefono: 'Teléfono',
     domicilio: 'Domicilio',
 };
 
@@ -31,14 +31,14 @@ const ETIQUETAS_CAMPOS = {
 const TARIFAS = [
     { id: 'mensual', nombre: 'Mensual', precio: '29.99 EUR', desc: 'Sin permanencia' },
     { id: 'trimestral', nombre: 'Trimestral', precio: '75.00 EUR', desc: 'Ahorra un 15%' },
-    { id: 'anual', nombre: 'Anual', precio: '250.00 EUR', desc: 'La mejor opcion' },
+    { id: 'anual', nombre: 'Anual', precio: '250.00 EUR', desc: 'La mejor opción' },
 ];
 
-// Metodos de pago admitidos en registro.
+// Métodos de pago admitidos en registro.
 const METODOS_PAGO = [
     { id: 'bizum', nombre: 'Bizum', icono: 'payments' },
     { id: 'paypal', nombre: 'PayPal', icono: 'payments' },
-    { id: 'visa', nombre: 'Tarjeta de credito', icono: 'credit_card' },
+    { id: 'visa', nombre: 'Tarjeta de crédito', icono: 'credit_card' },
     { id: 'efectivo', nombre: 'Efectivo', icono: 'payments' },
 ];
 
@@ -99,19 +99,19 @@ const FormularioRegistro = () => {
                 if (!valor.trim()) error = 'Los apellidos son obligatorios';
                 break;
             case 'dni':
-                if (!validarDNIMatematico(valor)) error = 'DNI invalido (letra incorrecta)';
+                if (!validarDNIMatematico(valor)) error = 'DNI inválido (letra incorrecta)';
                 break;
             case 'fecha_nacimiento':
                 if (!valor) error = 'La fecha es obligatoria';
                 break;
             case 'email': {
                 const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!regexEmail.test(valor)) error = 'Formato de email invalido';
+                if (!regexEmail.test(valor)) error = 'Formato de email inválido';
                 break;
             }
             case 'password':
                 if (!validarPasswordFuerte(valor)) {
-                    error = 'Min. 8 caracteres, 1 mayuscula, 1 numero y 1 simbolo';
+                    error = 'Min. 8 caracteres, 1 mayúscula, 1 número y 1 símbolo';
                 }
                 break;
             case 'password_confirmation':
@@ -122,7 +122,7 @@ const FormularioRegistro = () => {
                 }
                 break;
             case 'telefono':
-                if (!/^[6789]\d{8}$/.test(valor)) error = 'Telefono no valido';
+                if (!/^[6789]\d{8}$/.test(valor)) error = 'Teléfono no válido';
                 break;
             case 'domicilio':
                 if (!valor.trim()) error = 'El domicilio es obligatorio';
@@ -189,7 +189,7 @@ const FormularioRegistro = () => {
 
             return true;
         } catch (error) {
-            // Si falla la comprobacion, no bloqueamos al usuario aqui.
+            // Si falla la comprobación, no bloqueamos al usuario aquí.
             return true;
         }
     };
@@ -255,7 +255,7 @@ const FormularioRegistro = () => {
             const resultado = await respuesta.json();
 
             if (respuesta.ok) {
-                alert(resultado.mensaje || 'Registro completado con exito.');
+                alert(resultado.mensaje || 'Registro completado con éxito.');
                 window.location.href = '/login';
                 return;
             }
@@ -280,11 +280,11 @@ const FormularioRegistro = () => {
             if (resultado.errors) {
                 msg += Object.values(resultado.errors).flat().join('\n- ');
             } else {
-                msg += resultado.error || 'Ocurrio un problema.';
+                msg += resultado.error || 'Ocurrió un problema.';
             }
             alert(msg);
         } catch (error) {
-            alert('No hay conexion con el servidor.');
+            alert('No hay conexión con el servidor.');
         } finally {
             setCargando(false);
         }
@@ -359,7 +359,7 @@ const FormularioRegistro = () => {
             {paso === 2 && (
                 <section className="px-8 sm:px-14 pb-8 text-left">
                     <h1 className="text-3xl font-extrabold text-[#0A1931] mb-2">Elige tu plan</h1>
-                    <p className="text-[15px] text-gray-500 mb-8">Paso 2: seleccion de tarifa</p>
+                    <p className="text-[15px] text-gray-500 mb-8">Paso 2: selección de tarifa</p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                         {TARIFAS.map((t) => (
@@ -377,7 +377,7 @@ const FormularioRegistro = () => {
 
                     <div className="mt-8">
                         <label className="block text-sm font-bold text-[#0A1931] mb-2">
-                            Codigo de descuento (opcional)
+                            Código de descuento (opcional)
                         </label>
                         <input
                             type="text"
@@ -387,7 +387,7 @@ const FormularioRegistro = () => {
                             className="w-full p-3.5 border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3878] bg-[#fdfdfd]"
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                            Si tienes un codigo, escribelo aqui. Se validara al finalizar el registro.
+                            Si tienes un código, escríbelo aquí. Se validará al finalizar el registro.
                         </p>
                     </div>
                 </section>
@@ -396,7 +396,7 @@ const FormularioRegistro = () => {
             {/* Paso 3: pago */}
             {paso === 3 && (
                 <div className="px-8 sm:px-14 pb-8 text-left">
-                    <h1 className="text-3xl font-extrabold text-[#0A1931] mb-2">Metodo de pago</h1>
+                    <h1 className="text-3xl font-extrabold text-[#0A1931] mb-2">Método de pago</h1>
                     <p className="text-[15px] text-gray-500 mb-8">Total: <strong className="text-[#1A3878]">{precioActual}</strong></p>
 
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 mb-8">
@@ -432,7 +432,7 @@ const FormularioRegistro = () => {
                             </div>
                             <p className="text-sm text-blue-700 m-0 leading-relaxed">
                                 Al hacer clic en "Finalizar Registro", procesaremos tu solicitud.<br />
-                                <strong>Recibiras un enlace de pago seguro en tu correo</strong> ({datos.email}) para completar la suscripcion de {precioActual}.
+                                <strong>Recibirás un enlace de pago seguro en tu correo</strong> ({datos.email}) para completar la suscripción de {precioActual}.
                             </p>
                         </div>
                     )}
@@ -444,7 +444,7 @@ const FormularioRegistro = () => {
                                 Pago en efectivo
                             </div>
                             <p className="text-sm text-amber-700 m-0 leading-relaxed">
-                                Puedes pagar directamente en recepcion antes de tu primera clase.<br />
+                                Puedes pagar directamente en recepción antes de tu primera clase.<br />
                                 <strong>Tu cuenta quedara pendiente</strong> hasta que el administrador confirme el cobro.
                             </p>
                         </div>
@@ -473,7 +473,7 @@ const FormularioRegistro = () => {
             <div className="flex justify-between items-center bg-[#f8fafc] px-8 sm:px-14 py-6 border-t">
                 {paso > 1 && (
                     <button onClick={volverPaso} className="text-gray-500 font-bold hover:underline">
-                        Atras
+                        Atrás
                     </button>
                 )}
                 {paso < 3 && (

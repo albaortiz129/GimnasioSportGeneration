@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Controlador del panel de administracion.
+ * Controlador del panel de administración.
  * Gestiona usuarios, cobros manuales y clases.
  */
 namespace App\Http\Controllers;
@@ -13,6 +13,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
@@ -96,7 +97,7 @@ class AdminPanelController extends Controller
                 $impagados = $impagadosQuery->get();
 
             } catch (QueryException $exception) {
-                // Si la base de datos no esta al dia, no rompemos el panel.
+                // Si la base de datos no está al día, no rompemos el panel.
                 report($exception);
                 $billingColumnsReady = false;
                 $impagados = collect();
@@ -146,7 +147,7 @@ class AdminPanelController extends Controller
                     $letraCorrecta = $letrasValidas[$numero % 23];
 
                     if ($letra !== $letraCorrecta) {
-                        $fail('El DNI no es valido (letra incorrecta).');
+                        $fail('El DNI no es válido (letra incorrecta).');
                     }
                 },
             ],
@@ -164,11 +165,11 @@ class AdminPanelController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/',
             ],
         ], [
-            'telefono.regex' => 'El telefono debe tener 9 digitos y empezar por 6, 7, 8 o 9.',
-            'dni.regex' => 'El DNI debe tener 8 numeros y 1 letra (ej: 12345678Z).',
-            'password.min' => 'La contrasena debe tener al menos 8 caracteres.',
-            'password.confirmed' => 'Las contrasenas no coinciden.',
-            'password.regex' => 'La contrasena debe incluir mayuscula, minuscula, numero y simbolo.',
+            'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9.',
+            'dni.regex' => 'El DNI debe tener 8 números y 1 letra (ej: 12345678Z).',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+            'password.regex' => 'La contraseña debe incluir mayúscula, minúscula, número y símbolo.',
         ]);
 
         $data['dni'] = strtoupper($data['dni']);
@@ -189,12 +190,22 @@ class AdminPanelController extends Controller
             'is_admin' => false,
         ]);
 
+        // Envia email de bienvenida sin bloquear la creacion del usuario si falla el correo.
+        try {
+            Mail::send('emails.bienvenida', ['user' => $user], function ($message) use ($user) {
+                $message->to($user->email, $user->nombre . ' ' . $user->apellidos)
+                    ->subject('Bienvenido/a a SeaFit');
+            });
+        } catch (\Throwable $mailError) {
+            report($mailError);
+        }
+
         return redirect()->route('admin.user.edit', $user)
             ->with('success', 'Usuario creado correctamente.');
     }
 
     /**
-     * Formulario de edicion de usuario.
+     * Formulario de edición de usuario.
      */
     public function edit(User $user)
     {
@@ -231,9 +242,9 @@ class AdminPanelController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/',
             ],
         ], [
-            'password.min' => 'La contrasena debe tener al menos 8 caracteres.',
-            'password.confirmed' => 'Las contrasenas no coinciden.',
-            'password.regex' => 'Debe incluir mayuscula, minuscula, numero y caracter especial.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+            'password.regex' => 'Debe incluir mayúscula, minúscula, número y carácter especial.',
         ]);
 
         if (!empty($data['password'])) {
@@ -276,7 +287,7 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Registra un cobro manual y activa el pago al dia.
+     * Registra un cobro manual y activa el pago al día.
      */
     public function manualCharge(Request $request, User $user)
     {
@@ -299,11 +310,11 @@ class AdminPanelController extends Controller
             'manual_payment_note' => $data['nota'],
         ]);
 
-        return back()->with('success', 'Cobro manual registrado y pago al dia.');
+        return back()->with('success', 'Cobro manual registrado y pago al día.');
     }
 
     /**
-     * Renueva manualmente la suscripcion.
+     * Renueva manualmente la suscripción.
      */
     public function renewSubscription(User $user)
     {
@@ -321,7 +332,7 @@ class AdminPanelController extends Controller
                     'next_payment_at' => $fechaActual->toDateString(),
                 ]);
 
-                return back()->with('success', 'Pago regularizado. La fecha de renovacion se mantiene.');
+                return back()->with('success', 'Pago regularizado. La fecha de renovación se mantiene.');
             }
         }
 
@@ -330,7 +341,7 @@ class AdminPanelController extends Controller
             'next_payment_at' => $this->nextChargeDate($user->tarifa, now()),
         ]);
 
-        return back()->with('success', 'Suscripcion renovada.');
+        return back()->with('success', 'Suscripción renovada.');
     }
 
     /**
@@ -359,7 +370,7 @@ class AdminPanelController extends Controller
         }
 
         if ($user->is_admin) {
-            return back()->with('error', 'No puedes eliminar otro administrador desde aqui.');
+            return back()->with('error', 'No puedes eliminar otro administrador desde aquí.');
         }
 
         $user->delete();
@@ -368,7 +379,7 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Pantalla de administracion de clases con filtros.
+     * Pantalla de administración de clases con filtros.
      */
     public function classesIndex(Request $request)
     {
@@ -494,7 +505,7 @@ class AdminPanelController extends Controller
             return back()->with('error', 'No quedan plazas libres en esa clase.');
         }
 
-        return back()->with('success', 'Usuario anadido a la clase.');
+        return back()->with('success', 'Usuario añadido a la clase.');
     }
 
     /**
@@ -543,7 +554,7 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Normaliza nombres de dia para guardar siempre en formato ASCII.
+     * Normaliza nombres de día para guardar siempre en formato ASCII.
      */
     private function normalizeWeekday(string $dia): string
     {
@@ -587,7 +598,7 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Devuelve nombre legible del metodo de pago.
+     * Devuelve nombre legible del método de pago.
      */
     private function paymentMethodLabel(?string $method): string
     {
@@ -597,7 +608,7 @@ class AdminPanelController extends Controller
             'transferencia' => 'Transferencia',
             'tarjeta', 'stripe', 'visa' => 'Tarjeta',
             'efectivo' => 'Efectivo',
-            default => 'Metodo manual',
+            default => 'Método manual',
         };
     }
 }

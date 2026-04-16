@@ -1,9 +1,9 @@
-﻿{{-- Plantilla de correo para enviar enlace de recuperacion de contraseña. --}}
+{{-- Plantilla de correo para enviar enlace de recuperación de contraseña. --}}
 <!DOCTYPE html>
 <html>
 
 <head>
-    {{-- Titulo del correo para cliente de email. --}}
+    {{-- Título del correo para cliente de email. --}}
     <title>Recuperar contraseña</title>
 </head>
 
@@ -13,7 +13,7 @@
     <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en SeaFit.</p>
     <p>Haz clic en el siguiente enlace para crear una nueva contraseña:</p>
 
-    {{-- Enlace con token unico para recuperar la contraseña --}}
+    {{-- Enlace con token único para recuperar la contraseña --}}
     <p style="margin: 30px 0;">
         <a href="{{ route('password.reset', $token) }}"
             style="background-color: #1A3878; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">

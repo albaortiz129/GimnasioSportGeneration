@@ -2,7 +2,7 @@
 
 /**
  * Controlador de seguridad de contraseñas.
- * Gestiona recuperacion por email y cambios desde perfil.
+ * Gestiona recuperación por email y cambios desde perfil.
  */
 namespace App\Http\Controllers;
 
@@ -19,7 +19,7 @@ use Illuminate\Support\Str;
 class PasswordController extends Controller
 {
     /**
-     * Muestra el formulario para solicitar recuperacion por email.
+     * Muestra el formulario para solicitar recuperación por email.
      */
     public function showRequestForm()
     {
@@ -27,7 +27,7 @@ class PasswordController extends Controller
     }
 
     /**
-     * Genera token y envia enlace de recuperacion.
+     * Genera token y envía enlace de recuperación.
      */
     public function sendResetLink(Request $request)
     {
@@ -38,7 +38,7 @@ class PasswordController extends Controller
 
         if (!$user) {
             // Respuesta neutra para no filtrar si el email existe.
-            return back()->with('status', 'Si el correo existe, te enviaremos un enlace de recuperacion.');
+            return back()->with('status', 'Si el correo existe, te enviaremos un enlace de recuperación.');
         }
 
         $token = Str::random(64);
@@ -58,17 +58,17 @@ class PasswordController extends Controller
                 $message->subject('Recuperar contraseña - SeaFit');
             });
         } catch (\Throwable $e) {
-            Log::error('Error al enviar correo de recuperacion.', [
+            Log::error('Error al enviar correo de recuperación.', [
                 'email' => $email,
                 'error' => $e->getMessage(),
             ]);
 
             return back()->withErrors([
-                'email' => 'No se pudo enviar el correo ahora mismo. Intentalo de nuevo en unos minutos.',
+                'email' => 'No se pudo enviar el correo ahora mismo. Inténtalo de nuevo en unos minutos.',
             ]);
         }
 
-        return back()->with('status', 'Si el correo existe, te enviaremos un enlace de recuperacion.');
+        return back()->with('status', 'Si el correo existe, te enviaremos un enlace de recuperación.');
     }
 
     /**
@@ -80,7 +80,7 @@ class PasswordController extends Controller
     }
 
     /**
-     * Guarda la nueva contraseña si email y token son validos.
+     * Guarda la nueva contraseña si email y token son válidos.
      */
     public function updatePassword(Request $request)
     {
@@ -96,8 +96,8 @@ class PasswordController extends Controller
             'token' => 'required',
         ], [
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'password.confirmed' => 'Las contraseña no coinciden.',
-            'password.regex' => 'La contraseña debe incluir mayuscula, minuscula, numero y simbolo.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+            'password.regex' => 'La contraseña debe incluir mayúscula, minúscula, número y símbolo.',
         ]);
 
         $email = strtolower(trim((string) $request->email));
@@ -107,7 +107,7 @@ class PasswordController extends Controller
             ->first();
 
         if (!$resetRecord) {
-            return back()->withErrors(['email' => 'El enlace de recuperacion no es valido o ha caducado.']);
+            return back()->withErrors(['email' => 'El enlace de recuperación no es válido o ha caducado.']);
         }
 
         $expiresAt = Carbon::parse($resetRecord->created_at)
@@ -116,7 +116,7 @@ class PasswordController extends Controller
         if (now()->greaterThan($expiresAt)) {
             DB::table('password_reset_tokens')->where('email', $email)->delete();
 
-            return back()->withErrors(['email' => 'El enlace de recuperacion ha caducado. Solicita uno nuevo.']);
+            return back()->withErrors(['email' => 'El enlace de recuperación ha caducado. Solicita uno nuevo.']);
         }
 
         // Compatibilidad: tokens antiguos en claro + nuevos hasheados.
@@ -127,7 +127,7 @@ class PasswordController extends Controller
             : hash_equals($storedToken, (string) $request->token);
 
         if (!$tokenValido) {
-            return back()->withErrors(['email' => 'El enlace de recuperacion no es valido o ha caducado.']);
+            return back()->withErrors(['email' => 'El enlace de recuperación no es válido o ha caducado.']);
         }
 
         $user = User::where('email', $email)->first();
@@ -142,7 +142,7 @@ class PasswordController extends Controller
 
         DB::table('password_reset_tokens')->where('email', $email)->delete();
 
-        return redirect()->route('login')->with('success', 'Tu contraseña ha sido cambiada con exito. Ya puedes entrar.');
+        return redirect()->route('login')->with('success', 'Tu contraseña ha sido cambiada con éxito. Ya puedes entrar.');
     }
 
     /**
@@ -160,9 +160,9 @@ class PasswordController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/',
             ],
         ], [
-            'password.confirmed' => 'La confirmacion de la nueva contraseña no coincide.',
+            'password.confirmed' => 'La confirmación de la nueva contraseña no coincide.',
             'password.min' => 'La nueva contraseña debe tener al menos 8 caracteres.',
-            'password.regex' => 'La nueva contraseña debe incluir mayuscula, minuscula, numero y simbolo.',
+            'password.regex' => 'La nueva contraseña debe incluir mayúscula, minúscula, número y símbolo.',
         ]);
 
         $user = Auth::user();
@@ -199,9 +199,9 @@ class PasswordController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/',
             ],
         ], [
-            'password.confirmed' => 'La confirmacion no coincide.',
+            'password.confirmed' => 'La confirmación no coincide.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'password.regex' => 'La contraseña debe incluir mayuscula, minuscula, numero y simbolo.',
+            'password.regex' => 'La contraseña debe incluir mayúscula, minúscula, número y símbolo.',
         ]);
 
         $user = Auth::user();

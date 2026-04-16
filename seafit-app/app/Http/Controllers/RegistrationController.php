@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class RegistrationController extends Controller
@@ -36,7 +37,7 @@ class RegistrationController extends Controller
     }
 
     /**
-     * Registra un nuevo socio y, segun el metodo de pago, activa suscripcion.
+     * Registra un nuevo socio y, según el método de pago, activa suscripción.
      */
     public function register(Request $request)
     {
@@ -52,7 +53,7 @@ class RegistrationController extends Controller
                     'unique:users,dni',
                     function ($attribute, $value, $fail) {
                         if (!$this->isValidDni((string) $value)) {
-                            $fail('El DNI no es valido (letra incorrecta).');
+                            $fail('El DNI no es válido (letra incorrecta).');
                         }
                     },
                 ],
@@ -73,23 +74,23 @@ class RegistrationController extends Controller
                 'stripeCodigo' => 'nullable|string',
             ], [
                 'dni.unique' => 'Ya existe un usuario registrado con ese DNI.',
-                'dni.regex' => 'El DNI debe tener 8 numeros y 1 letra (ej: 12345678Z).',
-                'telefono.regex' => 'El telefono debe tener 9 digitos y empezar por 6, 7, 8 o 9.',
+                'dni.regex' => 'El DNI debe tener 8 números y 1 letra (ej: 12345678Z).',
+                'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9.',
                 'email.unique' => 'Ya existe un usuario registrado con ese email.',
                 'password.confirmed' => 'Las contraseñas no coinciden.',
-                'password.regex' => 'La contraseña debe incluir mayuscula, minuscula, numero y simbolo.',
+                'password.regex' => 'La contraseña debe incluir mayúscula, minúscula, número y símbolo.',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
-                    'error' => 'Errores de validacion',
+                    'error' => 'Errores de validación',
                     'errors' => $validator->errors(),
                 ], 422);
             }
 
             if ($request->metodo_pago === 'visa' && !$request->filled('stripeCodigo')) {
                 return response()->json([
-                    'error' => 'Falta el metodo de pago de Stripe.',
+                    'error' => 'Falta el método de pago de Stripe.',
                 ], 422);
             }
 
@@ -102,11 +103,11 @@ class RegistrationController extends Controller
 
                     if (!$discountCode || !$discountCode->isActiveNow()) {
                         return response()->json([
-                            'error' => 'Cupon no valido o caducado.',
+                            'error' => 'Cupón no válido o caducado.',
                         ], 422);
                     }
 
-                    $mensajeDescuento = 'Cupon validado correctamente.';
+                    $mensajeDescuento = 'Cupón validado correctamente.';
                 }
 
                 $tarifa = (string) $request->tarifa;
@@ -128,7 +129,7 @@ class RegistrationController extends Controller
                 $user->metodo_pago = $metodoPago;
                 $user->password = Hash::make((string) $request->password);
 
-                // Si el alta es manual, dejamos el metodo guardado desde el primer dia.
+                // Si el alta es manual, dejamos el método guardado desde el primer día.
                 $manualMethods = $this->initialManualMethodsForRegistration(
                     $metodoPago,
                     (string) $user->telefono,
@@ -143,7 +144,7 @@ class RegistrationController extends Controller
                 $user->next_payment_at = $esTarjeta ? $this->nextChargeFromPlan($tarifa) : null;
                 $user->save();
 
-                $mensajeFinal = 'Socio registrado con exito.';
+                $mensajeFinal = 'Socio registrado con éxito.';
 
                 if ($esTarjeta && $request->filled('stripeCodigo')) {
                     $priceId = $this->priceIdFromPlan($tarifa);
@@ -164,7 +165,7 @@ class RegistrationController extends Controller
                             $user->next_payment_at = $this->nextChargeFromPlan($tarifa);
                             $user->save();
 
-                            $mensajeFinal = 'Socio registrado y suscripcion activada con exito.';
+                            $mensajeFinal = 'Socio registrado y suscripción activada con éxito.';
                         } catch (\Throwable $e) {
                             // Si falla Stripe, no se pierde el alta; queda pendiente de revision.
                             $user->payment_status = 'pendiente';
@@ -177,13 +178,27 @@ class RegistrationController extends Controller
                 } elseif ($metodoPago === 'bizum') {
                     $mensajeFinal = 'Registro recibido. Envia el Bizum al 600 000 000 con tu DNI como concepto para activar tu cuenta.';
                 } elseif ($metodoPago === 'paypal') {
-                    $mensajeFinal = 'Registro recibido. Tu cuenta queda pendiente de validacion hasta confirmar el pago por PayPal.';
+                    $mensajeFinal = 'Registro recibido. Tu cuenta queda pendiente de validación hasta confirmar el pago por PayPal.';
                 } elseif ($metodoPago === 'efectivo') {
                     $mensajeFinal = 'Registro recibido. Tu cuenta queda pendiente hasta validar el pago en efectivo en recepcion.';
                 }
 
                 if ($discountCode) {
                     $discountCode->markUsed($user, 'registro', $descuentoAplicado);
+                }
+
+                // Envia email de bienvenida sin bloquear el alta si falla el correo.
+                try {
+                    Mail::send('emails.bienvenida', ['user' => $user], function ($message) use ($user) {
+                        $message->to($user->email, $user->nombre . ' ' . $user->apellidos)
+                            ->subject('Bienvenido/a a SeaFit');
+                    });
+                } catch (\Throwable $mailError) {
+                    Log::warning('No se pudo enviar email de bienvenida', [
+                        'user_id' => $user->id,
+                        'email' => $user->email,
+                        'error' => $mailError->getMessage(),
+                    ]);
                 }
 
                 return response()->json([
@@ -199,13 +214,13 @@ class RegistrationController extends Controller
             ]);
 
             return response()->json([
-                'error' => 'No se pudo completar el registro. Intentalo de nuevo en unos minutos.',
+                'error' => 'No se pudo completar el registro. Inténtalo de nuevo en unos minutos.',
             ], 500);
         }
     }
 
     /**
-     * Obtiene el price_id de Stripe segun la tarifa elegida.
+     * Obtiene el `price_id` de Stripe según la tarifa elegida.
      */
     private function priceIdFromPlan(string $tarifa): ?string
     {
@@ -230,7 +245,7 @@ class RegistrationController extends Controller
     }
 
     /**
-     * Calcula la fecha del proximo cobro segun la tarifa.
+     * Calcula la fecha del próximo cobro según la tarifa.
      */
     private function nextChargeFromPlan(string $tarifa): ?string
     {
@@ -245,7 +260,7 @@ class RegistrationController extends Controller
     }
 
     /**
-     * Devuelve el metodo manual inicial para mostrarlo ya guardado en el panel.
+     * Devuelve el método manual inicial para mostrarlo ya guardado en el panel.
      */
     private function initialManualMethodsForRegistration(string $metodoPago, string $telefono, string $email): array
     {

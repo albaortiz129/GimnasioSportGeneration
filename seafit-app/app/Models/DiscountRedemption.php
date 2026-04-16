@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Historial de usos de codigos de descuento.
+ * Historial de usos de códigos de descuento.
  */
 class DiscountRedemption extends Model
 {
@@ -22,7 +22,7 @@ class DiscountRedemption extends Model
     ];
 
     /**
-     * Conversion automatica de tipos.
+     * Conversión automática de tipos.
      */
     protected function casts(): array
     {
@@ -33,7 +33,7 @@ class DiscountRedemption extends Model
     }
 
     /**
-     * Codigo de descuento asociado.
+     * Código de descuento asociado.
      */
     public function discountCode(): BelongsTo
     {
@@ -41,7 +41,7 @@ class DiscountRedemption extends Model
     }
 
     /**
-     * Usuario que uso el codigo.
+     * Usuario que usó el código.
      */
     public function user(): BelongsTo
     {

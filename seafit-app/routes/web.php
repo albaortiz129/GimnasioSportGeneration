@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Definicion de rutas web de SeaFit: paginas publicas, privadas y administracion.
+ * Definición de rutas web de SeaFit: páginas públicas, privadas y administración.
  */
 use App\Http\Controllers\AdminPanelController;
 use App\Http\Controllers\AuthController;
@@ -18,7 +18,7 @@ use Illuminate\Validation\Rule;
 
 /*
 |--------------------------------------------------------------------------
-| Paginas publicas
+| Páginas públicas
 |--------------------------------------------------------------------------
 */
 Route::get('/', fn() => view('home.index'))->name('home');
@@ -37,7 +37,7 @@ Route::post('/valoracion', [AssessmentController::class, 'send'])->name('valorac
 
 /*
 |--------------------------------------------------------------------------
-| Autenticacion
+| Autenticación
 |--------------------------------------------------------------------------
 */
 Route::get('/registro', fn() => view('user.register'))->name('registro');
@@ -95,7 +95,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/configuracion/actualizar', function (Request $request) {
             $user = Auth::user();
 
-            // Mismas reglas de validacion que en registro/admin.
+            // Mismas reglas de validación que en registro/admin.
             $data = $request->validate([
                 'nombre' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,
@@ -113,15 +113,15 @@ Route::middleware(['auth'])->group(function () {
                         $letraCorrecta = $letrasValidas[$numero % 23];
 
                         if ($letra !== $letraCorrecta) {
-                            $fail('El DNI no es valido (letra incorrecta).');
+                            $fail('El DNI no es válido (letra incorrecta).');
                         }
                     },
                 ],
                 'telefono' => ['required', 'regex:/^[6789]\d{8}$/'],
                 'domicilio' => 'required|string|max:255',
             ], [
-                'dni.regex' => 'El DNI debe tener 8 numeros y 1 letra (ej: 12345678Z).',
-                'telefono.regex' => 'El telefono debe tener 9 digitos y empezar por 6, 7, 8 o 9.',
+                'dni.regex' => 'El DNI debe tener 8 números y 1 letra (ej: 12345678Z).',
+                'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9.',
             ]);
 
             $data['dni'] = strtoupper($data['dni']);
@@ -141,7 +141,7 @@ Route::middleware(['auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Recuperacion de contraseña
+| Recuperación de contraseña
 |--------------------------------------------------------------------------
 */
 Route::get('/recuperar-password', [PasswordController::class, 'showRequestForm'])->name('password.request');
@@ -156,7 +156,7 @@ Route::post('/reset-password', [PasswordController::class, 'updatePassword'])->n
 */
 Route::post('/trabaja-con-nosotros/enviar', function () {
     // Pendiente: integrar mailer real y almacenamiento de candidaturas.
-    return back()->with('success', 'Candidatura enviada con exito.');
+    return back()->with('success', 'Candidatura enviada con éxito.');
 })->name('empleo.enviar');
 
 /*

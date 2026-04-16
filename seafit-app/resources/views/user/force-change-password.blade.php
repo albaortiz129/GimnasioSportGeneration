@@ -9,7 +9,7 @@
         <h1 class="text-2xl font-bold mb-2 text-[#0A1931]">Cambia tu contraseña</h1>
         <p class="text-sm text-gray-500 mb-6">Es obligatorio en el primer acceso.</p>
 
-        {{-- Mensaje de error si falla la validacion. --}}
+        {{-- Mensaje de error si falla la validación. --}}
         @if($errors->any())
             <div class="bg-red-100 text-red-700 p-3 rounded mb-4">{{ $errors->first() }}</div>
         @endif

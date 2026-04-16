@@ -12,7 +12,7 @@
 @endphp
 
 <div class="max-w-7xl mx-auto px-4 py-8">
-    {{-- Mensajes rapidos de resultado (exito o error) --}}
+    {{-- Mensajes rápidos de resultado (éxito o error) --}}
     @if(session('success'))
         <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded mb-4">
             {{ session('success') }}
@@ -26,10 +26,10 @@
 
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-3xl font-black text-gray-800">Panel de Gestion</h1>
+            <h1 class="text-3xl font-black text-gray-800">Panel de Gestión</h1>
             <p class="text-sm text-gray-500">Administra usuarios, planes, cobros y clases.</p>
         </div>
-        {{-- Accesos rapidos a pantallas principales del panel admin. --}}
+        {{-- Accesos rápidos a pantallas principales del panel admin. --}}
         <div class="flex gap-2">
             <a href="{{ route('admin.user.create') }}"
                 class="bg-[#0A1931] text-white px-4 py-2 rounded-xl font-bold text-sm">
@@ -61,8 +61,8 @@
         <h2 class="text-lg font-bold mb-3 text-red-700">Clientes con impago o pago vencido</h2>
         @if(!$cobrosDisponibles)
             <p class="text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
-                El modulo de cobros aun no esta disponible en esta base de datos.
-                Ejecuta las migraciones pendientes para activar esta seccion.
+                El módulo de cobros aún no está disponible en esta base de datos.
+                Ejecuta las migraciones pendientes para activar esta sección.
             </p>
         @else
             @if(isset($impagados) && $impagados->isNotEmpty())
@@ -74,7 +74,7 @@
                     $descuentoAplicado = (float) ($ultimoDescuento->discount_applied ?? 0);
                     $totalCobrar = max($precioBase - $descuentoAplicado, 0);
                     $estadoPago = match ($u->payment_status) {
-                        'al_dia' => 'al dia',
+                        'al_dia' => 'al día',
                         'pendiente' => 'pendiente',
                         'impagado' => 'impagado',
                         default => 'sin estado',
@@ -88,7 +88,7 @@
                         </p>
                         @if($codigoDescuento)
                             <p class="text-sm text-indigo-700 mt-1">
-                                Cupon: <span class="font-bold">{{ $codigoDescuento }}</span>
+                                Cupón: <span class="font-bold">{{ $codigoDescuento }}</span>
                                 | Descuento: -{{ number_format($descuentoAplicado, 2, ',', '.') }} EUR
                                 | Cobro estimado: {{ number_format($totalCobrar, 2, ',', '.') }} EUR
                             </p>
@@ -117,7 +117,7 @@
                         @endif
                     </div>
                     <div class="text-sm text-gray-600">
-                        Proximo cobro: {{ optional($u->next_payment_at)->format('d/m/Y') ?? 'Sin fecha' }}
+                        Próximo cobro: {{ optional($u->next_payment_at)->format('d/m/Y') ?? 'Sin fecha' }}
                     </div>
                 </div>
                 @endforeach
@@ -138,7 +138,7 @@
                 $descuentoAplicado = (float) ($ultimoDescuento->discount_applied ?? 0);
                 $totalCobrar = max($precioBase - $descuentoAplicado, 0);
                 $estadoPagoUser = match ($user->payment_status) {
-                    'al_dia' => 'al dia',
+                    'al_dia' => 'al día',
                     'pendiente' => 'pendiente',
                     'impagado' => 'impagado',
                     default => 'sin estado',
@@ -151,13 +151,13 @@
                         <p class="text-sm text-gray-600">{{ $user->email }} | DNI: {{ $user->dni }}</p>
                         @if($codigoDescuento)
                             <p class="text-sm text-indigo-700 mt-1">
-                                Cupon usado: <span class="font-bold">{{ $codigoDescuento }}</span>
+                                Cupón usado: <span class="font-bold">{{ $codigoDescuento }}</span>
                                 | Descuento aplicado: -{{ number_format($descuentoAplicado, 2, ',', '.') }} EUR
                             </p>
                         @endif
                     </div>
                     <div class="text-sm">
-                        {{-- Resumen rapido de estado de plan/pago del cliente. --}}
+                        {{-- Resumen rápido de estado de plan/pago del cliente. --}}
                         <span class="font-bold">Plan:</span> {{ ucfirst($user->tarifa) }}
                         @if($user->tarifa !== 'cancelada')
                             | <span class="font-bold">Cobro estimado:</span>
@@ -172,7 +172,7 @@
 
                 <div class="grid grid-cols-1 xl:grid-cols-4 gap-3">
                     @if($cobrosDisponibles)
-                        {{-- Formulario rapido para cambiar solo la tarifa. --}}
+                        {{-- Formulario rápido para cambiar solo la tarifa. --}}
                         <form action="{{ route('admin.user.plan', $user) }}" method="POST" class="border rounded-xl p-3">
                             @csrf
                             @method('PUT')
@@ -185,7 +185,7 @@
                             <button class="w-full bg-[#1A3878] text-white py-2 rounded font-bold text-sm">Guardar plan</button>
                         </form>
 
-                        {{-- Registro de cobro manual con metodo y nota interna. --}}
+                        {{-- Registro de cobro manual con método y nota interna. --}}
                         <form action="{{ route('admin.user.manual_charge', $user) }}" method="POST"
                             class="border rounded-xl p-3">
                             @csrf
@@ -213,7 +213,7 @@
                             <form action="{{ route('admin.user.renew', $user) }}" method="POST">
                                 @csrf
                                 <button class="w-full bg-green-600 text-white py-2 rounded font-bold text-sm">Renovar
-                                    suscripcion</button>
+                                    suscripción</button>
                             </form>
                             <form action="{{ route('admin.user.mark_unpaid', $user) }}" method="POST">
                                 @csrf
@@ -224,18 +224,18 @@
                     @else
                         <div class="border rounded-xl p-3 xl:col-span-3">
                             <p class="text-sm text-yellow-700">
-                                Las acciones de cobro estan desactivadas hasta ejecutar las migraciones pendientes.
+                                Las acciones de cobro están desactivadas hasta ejecutar las migraciones pendientes.
                             </p>
                         </div>
                     @endif
 
                     <div class="border rounded-xl p-3 flex flex-col gap-2">
-                        <p class="font-bold text-sm mb-1">Gestion de usuario</p>
+                        <p class="font-bold text-sm mb-1">Gestión de usuario</p>
                         <a href="{{ route('admin.user.edit', $user) }}"
                             class="text-center bg-blue-600 text-white py-2 rounded font-bold text-sm">Editar ficha</a>
 
                         <form action="{{ route('admin.user.delete', $user) }}" method="POST"
-                            onsubmit="return confirm('Seguro que quieres eliminar este usuario?')">
+                            onsubmit="return confirm('¿Seguro que quieres eliminar este usuario?')">
                             @csrf
                             @method('DELETE')
                             <button class="w-full bg-red-600 text-white py-2 rounded font-bold text-sm">Eliminar

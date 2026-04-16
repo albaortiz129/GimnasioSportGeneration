@@ -1,26 +1,26 @@
-{{-- Vista de admin para crear un codigo de descuento. --}}
+{{-- Vista de admin para crear un código de descuento. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Nuevo descuento - Admin')
 
 @section('contenido')
     <div class="max-w-4xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-black text-[#0A1931] mb-6">Nuevo codigo de descuento</h1>
+        <h1 class="text-2xl font-black text-[#0A1931] mb-6">Nuevo código de descuento</h1>
 
-        {{-- Error general si el backend detecta algun problema de validacion. --}}
+        {{-- Error general si el backend detecta algún problema de validación. --}}
         @if($errors->any())
             <div class="mb-4 p-3 rounded bg-red-100 text-red-800 border border-red-200">
                 Revisa los campos marcados.
             </div>
         @endif
 
-        {{-- Formulario de alta de cupon. --}}
+        {{-- Formulario de alta de cupón. --}}
         <form action="{{ route('admin.discounts.store') }}" method="POST" class="bg-white border rounded-2xl p-6 space-y-4">
             @csrf
 
-            {{-- Codigo visible que escribira el usuario en registro/pago. --}}
+            {{-- Código visible que escribirá el usuario en registro/pago. --}}
             <div>
-                <label class="block text-sm font-bold mb-1">Codigo</label>
+                <label class="block text-sm font-bold mb-1">Código</label>
                 <input type="text" name="code" value="{{ old('code') }}" placeholder="SEAFIT20"
                     class="w-full border rounded p-3 @error('code') border-red-500 @enderror" required>
                 @error('code') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
@@ -46,7 +46,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {{-- Ventana de validez temporal del codigo. --}}
+                {{-- Ventana de validez temporal del código. --}}
                 <div>
                     <label class="block text-sm font-bold mb-1">Inicio (opcional)</label>
                     <input type="datetime-local" name="starts_at" value="{{ old('starts_at') }}"
@@ -63,15 +63,15 @@
             </div>
 
             <div>
-                {{-- Limite global de usos del codigo. --}}
-                <label class="block text-sm font-bold mb-1">Maximo de usos (opcional)</label>
+                {{-- Límite global de usos del código. --}}
+                <label class="block text-sm font-bold mb-1">Máximo de usos (opcional)</label>
                 <input type="number" min="1" name="max_uses" value="{{ old('max_uses') }}"
                     class="w-full border rounded p-3 @error('max_uses') border-red-500 @enderror">
                 @error('max_uses') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                {{-- ID del cupon creado en Stripe (si aplica). --}}
+                {{-- ID del cupón creado en Stripe (si aplica). --}}
                 <label class="block text-sm font-bold mb-1">Stripe coupon id (opcional)</label>
                 <input type="text" name="stripe_coupon_id" value="{{ old('stripe_coupon_id') }}"
                     placeholder="Ej: 25OFF_MENSUAL"
@@ -80,7 +80,7 @@
             </div>
 
             <div>
-                {{-- Notas internas para administracion. --}}
+                {{-- Notas internas para administración. --}}
                 <label class="block text-sm font-bold mb-1">Notas (opcional)</label>
                 <textarea name="notes" rows="3"
                     class="w-full border rounded p-3 @error('notes') border-red-500 @enderror">{{ old('notes') }}</textarea>
@@ -88,7 +88,7 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-6">
-                {{-- Flags rapidos de comportamiento del cupon. --}}
+                {{-- Flags rápidos de comportamiento del cupón. --}}
                 <label class="inline-flex items-center gap-2">
                     <input type="checkbox" name="is_active" value="1" @checked(old('is_active', true))>
                     <span class="text-sm font-medium">Activo</span>

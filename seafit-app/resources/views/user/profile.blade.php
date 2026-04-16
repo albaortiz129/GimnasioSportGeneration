@@ -101,11 +101,32 @@
                     @else
                         <a href="{{ route('pago.gestion') }}"
                             class="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-bold transition-all border border-white/20 no-underline">
-                            Gestionar Pago
+                            Gestión de Pago
                         </a>
                     @endif
                 </div>
             </section>
+
+            @if($suscripcion && !$suscripcion->canceled())
+                <section class="bg-white rounded-2xl p-5 mb-8 border border-gray-100 shadow-sm">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div>
+                            <p class="font-bold text-[#0A1931]">Cancelar suscripción al final del período</p>
+                            <p class="text-sm text-gray-500">
+                                Mantendrás acceso hasta el {{ $fechaHasta }} y no se cobrarán futuras renovaciones.
+                            </p>
+                        </div>
+                        <form action="{{ route('plan.cancelar') }}" method="POST"
+                            onsubmit="return confirm('Se cancelará al final del período actual. ¿Continuar?')">
+                            @csrf
+                            <button type="submit"
+                                class="bg-red-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-red-700 transition-colors">
+                                Cancelar al final del período
+                            </button>
+                        </form>
+                    </div>
+                </section>
+            @endif
 
             {{-- DATOS DE CUENTA --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
