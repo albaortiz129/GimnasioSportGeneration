@@ -188,18 +188,16 @@ class RegistrationController extends Controller
                 }
 
                 // Envío de bienvenida con el mismo canal de correo que el reset de contraseña.
-                $welcomeEmailSent = $this->sendWelcomeEmail($user);
-
-                if (!$welcomeEmailSent) {
-                    $mensajeFinal .= ' Aviso: no se pudo enviar el correo de bienvenida en este momento.';
-                }
+                DB::afterCommit(function () use ($user) {
+                    $this->sendWelcomeEmail($user);
+                });
 
                 return response()->json([
                     'mensaje' => $mensajeFinal,
                     'descuento' => $mensajeDescuento,
                     'usuario_id' => $user->id,
                     'email' => $user->email,
-                    'welcome_email_sent' => $welcomeEmailSent,
+                    'welcome_email_sent' => true,
                 ], 201);
             });
         } catch (\Throwable $e) {
@@ -225,6 +223,11 @@ class RegistrationController extends Controller
                 $message->subject('Bienvenido a SeaFit');
             });
 
+            Log::info('Correo de bienvenida enviado', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
+
             return true;
         } catch (\Throwable $mailError) {
             Log::warning('No se pudo enviar email de bienvenida', [
@@ -233,7 +236,31 @@ class RegistrationController extends Controller
                 'error' => $mailError->getMessage(),
             ]);
 
-            return false;
+            try {
+                Mail::raw(
+                    "Hola {$user->nombre},\n\nTu cuenta de SeaFit se ha creado correctamente.\n\nPuedes iniciar sesion aqui: " . url('/login') . "\n\nUn saludo,\nEquipo SeaFit",
+                    function ($message) use ($user) {
+                        $message->to($user->email);
+                        $message->subject('Bienvenido a SeaFit');
+                    }
+                );
+
+                Log::info('Correo de bienvenida enviado con fallback de texto plano', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                ]);
+
+                return true;
+            } catch (\Throwable $fallbackError) {
+                Log::error('Fallo final al enviar correo de bienvenida', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'error_html' => $mailError->getMessage(),
+                    'error_texto' => $fallbackError->getMessage(),
+                ]);
+
+                return false;
+            }
         }
     }
 
@@ -317,3 +344,4 @@ class RegistrationController extends Controller
         return $letra === $letrasValidas[$numero % 23];
     }
 }
+
