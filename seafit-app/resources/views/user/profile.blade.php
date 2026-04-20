@@ -109,6 +109,7 @@
                             Gestión de Pago
                         </a>
                     @endif
+
                 </div>
             </section>
 
@@ -236,7 +237,7 @@
         </main>
     </div>
 
-    {{-- MODAL DE SELECCIÓN DE PLAN (Fuera de Main para evitar cortes visuales) --}}
+    {{-- MODAL DE SELECCIÓN DE PLAN--}}
     <div id="modalPlanes"
         class="fixed inset-0 bg-black/70 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-[2rem] p-8 md:p-10 max-w-md w-full shadow-2xl relative">
@@ -304,4 +305,5 @@
             </form>
         </div>
     </div>
+
 @endsection

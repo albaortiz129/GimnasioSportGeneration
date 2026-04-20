@@ -86,7 +86,14 @@ class AdminPanelController extends Controller
                                     ->whereDate('next_payment_at', '<', today());
                             });
                     })
-                    ->orderByRaw("FIELD(payment_status, 'impagado', 'pendiente', 'al_dia')")
+                    ->orderByRaw("
+                        CASE payment_status
+                            WHEN 'impagado' THEN 1
+                            WHEN 'pendiente' THEN 2
+                            WHEN 'al_dia' THEN 3
+                            ELSE 4
+                        END
+                    ")
                     ->orderBy('next_payment_at');
 
                 if ($discountsTablesReady) {
@@ -376,7 +383,18 @@ class AdminPanelController extends Controller
 
         $diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
 
-        $ordenDias = "FIELD(dia_semana, 'Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo')";
+        $ordenDias = "
+            CASE dia_semana
+                WHEN 'Lunes' THEN 1
+                WHEN 'Martes' THEN 2
+                WHEN 'Miercoles' THEN 3
+                WHEN 'Jueves' THEN 4
+                WHEN 'Viernes' THEN 5
+                WHEN 'Sabado' THEN 6
+                WHEN 'Domingo' THEN 7
+                ELSE 8
+            END
+        ";
 
         // Carga clases con usuarios asociados (solo socios, sin admins).
         $clases = GymClass::with([

@@ -45,6 +45,11 @@
                             Panel Admin
                         </a>
                     @else
+                        <button type="button" id="abrirQrHeader"
+                            class="inline-flex items-center justify-center w-9 h-9 rounded-full border border-[#1A3878]/30 text-[#1A3878] hover:bg-[#1A3878]/10 transition-colors"
+                            title="Mostrar QR">
+                            <span class="material-symbols-outlined text-[18px]">qr_code_2</span>
+                        </button>
                         <a href="{{ url('/perfil') }}"
                             class="flex items-center gap-1 text-[#0A1931] font-semibold text-base hover:text-[#1A3878] transition-colors">
                             <span class="material-symbols-outlined">account_circle</span>
@@ -65,3 +70,68 @@
 
     </div>
 </header>
+
+@auth
+    @if(!auth()->user()->is_admin)
+        {{-- Modal QR para socios --}}
+        <div id="modalQrHeader"
+            class="fixed inset-0 bg-black/70 backdrop-blur-md z-[120] hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl text-center">
+                <h3 class="text-2xl font-black text-[#0A1931] mb-2">Tu QR</h3>
+
+                <div class="bg-white border border-gray-200 rounded-2xl p-4 inline-block">
+                    <img id="qrImgHeader" width="220" height="220" alt="QR" class="w-[220px] h-[220px] object-contain" />
+                </div>
+
+                <button type="button" id="cerrarQrHeader"
+                    class="mt-5 w-full bg-[#0A1931] text-white py-3 rounded-xl font-bold hover:bg-[#1A3878] transition-colors">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+
+        <script>
+            (() => {
+                const abrirBtn = document.getElementById('abrirQrHeader');
+                const cerrarBtn = document.getElementById('cerrarQrHeader');
+                const modal = document.getElementById('modalQrHeader');
+                const qrImg = document.getElementById('qrImgHeader');
+                const userId = @json(auth()->id());
+                let intervaloQr = null;
+
+                function crearTextoQr() {
+                    const random = Math.random().toString(36).slice(2, 10).toUpperCase();
+                    return `SEAFIT-CHECKIN|USER:${userId}|TS:${Date.now()}|RND:${random}`;
+                }
+
+                function actualizarQr() {
+                    if (!qrImg) return;
+                    const data = encodeURIComponent(crearTextoQr());
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${data}&margin=0`;
+                }
+
+                function abrirModal() {
+                    if (!modal) return;
+                    modal.classList.remove('hidden');
+                    actualizarQr();
+                    clearInterval(intervaloQr);
+                    intervaloQr = setInterval(actualizarQr, 20000);
+                }
+
+                function cerrarModal() {
+                    if (!modal) return;
+                    modal.classList.add('hidden');
+                    clearInterval(intervaloQr);
+                    intervaloQr = null;
+                }
+
+                abrirBtn?.addEventListener('click', abrirModal);
+                cerrarBtn?.addEventListener('click', cerrarModal);
+
+                modal?.addEventListener('click', (event) => {
+                    if (event.target === modal) cerrarModal();
+                });
+            })();
+        </script>
+    @endif
+@endauth
