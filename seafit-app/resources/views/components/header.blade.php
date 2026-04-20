@@ -45,6 +45,7 @@
                             Panel Admin
                         </a>
                     @else
+                        {{-- Botón pequeño del QR al lado de "Mi Perfil". --}}
                         <button type="button" id="abrirQrHeader"
                             class="inline-flex items-center justify-center w-9 h-9 rounded-full border border-[#1A3878]/30 text-[#1A3878] hover:bg-[#1A3878]/10 transition-colors"
                             title="Mostrar QR">
@@ -92,24 +93,30 @@
 
         <script>
             (() => {
+                // Elementos del botón, modal e imagen QR.
                 const abrirBtn = document.getElementById('abrirQrHeader');
                 const cerrarBtn = document.getElementById('cerrarQrHeader');
                 const modal = document.getElementById('modalQrHeader');
                 const qrImg = document.getElementById('qrImgHeader');
+
+                // ID del usuario actual para que su QR sea único.
                 const userId = @json(auth()->id());
                 let intervaloQr = null;
 
+                // Crea el texto interno que se codifica en el QR.
                 function crearTextoQr() {
                     const random = Math.random().toString(36).slice(2, 10).toUpperCase();
                     return `SEAFIT-CHECKIN|USER:${userId}|TS:${Date.now()}|RND:${random}`;
                 }
 
+                // Solicita una imagen QR nueva a la API pública.
                 function actualizarQr() {
                     if (!qrImg) return;
                     const data = encodeURIComponent(crearTextoQr());
                     qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${data}&margin=0`;
                 }
 
+                // Abre el modal y refresca el QR cada 20 segundos.
                 function abrirModal() {
                     if (!modal) return;
                     modal.classList.remove('hidden');
@@ -118,6 +125,7 @@
                     intervaloQr = setInterval(actualizarQr, 20000);
                 }
 
+                // Cierra el modal y para el refresco automático.
                 function cerrarModal() {
                     if (!modal) return;
                     modal.classList.add('hidden');
@@ -125,9 +133,11 @@
                     intervaloQr = null;
                 }
 
+                // Eventos de abrir y cerrar.
                 abrirBtn?.addEventListener('click', abrirModal);
                 cerrarBtn?.addEventListener('click', cerrarModal);
 
+                // Cierra también si haces clic fuera del cuadro.
                 modal?.addEventListener('click', (event) => {
                     if (event.target === modal) cerrarModal();
                 });
