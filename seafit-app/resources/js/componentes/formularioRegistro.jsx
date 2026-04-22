@@ -35,9 +35,9 @@ const TARIFAS = [
 ];
 
 // Métodos de pago admitidos en registro.
+// Bizum y PayPal quedan desactivados por decisión de negocio.
+// Se pueden reactivar en el futuro añadiendo aquí sus opciones.
 const METODOS_PAGO = [
-    { id: 'bizum', nombre: 'Bizum', icono: 'payments' },
-    { id: 'paypal', nombre: 'PayPal', icono: 'payments' },
     { id: 'visa', nombre: 'Tarjeta de crédito', icono: 'credit_card' },
     { id: 'efectivo', nombre: 'Efectivo', icono: 'payments' },
 ];
@@ -66,7 +66,7 @@ const FormularioRegistro = () => {
         password_confirmation: '',
         domicilio: '',
         tarifa: '',
-        metodo_pago: 'bizum',
+        metodo_pago: 'visa',
         cupon: '',
     });
 
@@ -415,27 +415,8 @@ const FormularioRegistro = () => {
                         ))}
                     </div>
 
-                    {datos.metodo_pago === 'bizum' && (
-                        <div className="mb-8 p-5 border border-green-200 rounded-xl bg-green-50 shadow-sm">
-                            <p className="text-sm text-green-700 m-0 leading-relaxed">
-                                Para finalizar, realiza un Bizum al: <strong className="text-[#0A1931]">600 000 000</strong><br />
-                                Concepto: <strong className="text-[#0A1931]">{datos.dni} - SeaFit</strong>
-                            </p>
-                        </div>
-                    )}
-
-                    {datos.metodo_pago === 'paypal' && (
-                        <div className="mb-8 p-5 border border-blue-200 rounded-xl bg-blue-50 shadow-sm">
-                            <div className="flex items-center gap-2 mb-2 text-blue-800 font-bold">
-                                <span className="material-symbols-outlined">info</span>
-                                Pago via PayPal
-                            </div>
-                            <p className="text-sm text-blue-700 m-0 leading-relaxed">
-                                Al hacer clic en "Finalizar Registro", procesaremos tu solicitud.<br />
-                                <strong>Recibirás un enlace de pago seguro en tu correo</strong> ({datos.email}) para completar la suscripción de {precioActual}.
-                            </p>
-                        </div>
-                    )}
+                    {/* Bloques Bizum/PayPal retirados por ahora.
+                        Si se activan en el futuro, volver a pintar aquí su UI de instrucciones. */}
 
                     {datos.metodo_pago === 'efectivo' && (
                         <div className="mb-8 p-5 border border-amber-200 rounded-xl bg-amber-50 shadow-sm">

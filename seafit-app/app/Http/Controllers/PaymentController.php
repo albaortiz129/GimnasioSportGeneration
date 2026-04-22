@@ -10,6 +10,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DiscountCode;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 
 class PaymentController extends Controller
@@ -34,7 +36,9 @@ class PaymentController extends Controller
         $metodosPago = $user->paymentMethods();
         $metodoPrincipal = $user->defaultPaymentMethod();
 
-        // Métodos manuales guardados en la BD (Bizum/PayPal/Efectivo).
+        // Métodos manuales guardados en la BD.
+        // Bizum/PayPal se conservan solo para compatibilidad con datos antiguos
+        // y por si se reactivan en el futuro.
         $metodosManuales = collect($user->manual_payment_methods ?? [])
             ->map(fn($metodo) => $this->normalizeManualMethod($metodo))
             ->filter()
@@ -70,7 +74,8 @@ class PaymentController extends Controller
             return back()->with('success', 'Tu suscripción ha sido cancelada. Tendrás acceso hasta el final del período pagado.');
         }
 
-        // Flujo para pagos manuales (Bizum/PayPal/Efectivo).
+        // Flujo para pagos manuales (actualmente efectivo/transferencia).
+        // Bizum/PayPal quedan fuera, pero pueden recuperarse en el futuro.
         if ($user->tarifa === 'cancelada') {
             return back()->with('success', 'Tu cancelación ya estaba programada para el final del período actual.');
         }
@@ -158,6 +163,13 @@ class PaymentController extends Controller
                 $descuentoAplicado = $cupon['model']->calculateDiscountAmount($this->planBaseAmount($nuevaTarifa));
                 $cupon['model']->markUsed($user, 'reanudar_plan', $descuentoAplicado);
             }
+
+            // Envia correo para confirmar que el pago con tarjeta esta aprobado.
+            $this->sendPaymentApprovedEmail(
+                $user,
+                'Tarjeta',
+                'Pago con tarjeta confirmado al activar o reanudar el plan'
+            );
 
             return back()->with('success', 'Plan activado correctamente.');
         } catch (\Throwable $e) {
@@ -274,12 +286,13 @@ class PaymentController extends Controller
     }
 
     /**
-     * Guarda o actualiza un método manual (Bizum/PayPal/Efectivo) y su dato.
+     * Guarda o actualiza un método manual activo y su dato.
      */
     public function saveManualMethod(Request $request)
     {
         $data = $request->validate([
-            'metodo_manual' => 'required|in:bizum,paypal,efectivo',
+            // Bizum/PayPal desactivados temporalmente.
+            'metodo_manual' => 'required|in:transferencia,efectivo',
             'dato_manual' => 'nullable|string|max:120',
         ], [
             'metodo_manual.required' => 'Selecciona un método manual.',
@@ -288,19 +301,12 @@ class PaymentController extends Controller
         ]);
 
         // Reglas extra por tipo de método.
-        if ($data['metodo_manual'] === 'bizum') {
+        if ($data['metodo_manual'] === 'transferencia') {
             $request->validate([
-                'dato_manual' => 'regex:/^[6789]\d{8}$/',
+                'dato_manual' => 'required|string|min:6|max:120',
             ], [
-                'dato_manual.regex' => 'El teléfono de Bizum debe tener 9 dígitos y empezar por 6, 7, 8 o 9.',
-            ]);
-        }
-
-        if ($data['metodo_manual'] === 'paypal') {
-            $request->validate([
-                'dato_manual' => 'email:rfc',
-            ], [
-                'dato_manual.email' => 'El email de PayPal no es válido.',
+                'dato_manual.required' => 'Indica un dato para la transferencia (por ejemplo IBAN o referencia).',
+                'dato_manual.min' => 'El dato de transferencia es demasiado corto.',
             ]);
         }
 
@@ -311,14 +317,6 @@ class PaymentController extends Controller
             ->values();
 
         $datoManual = trim((string) ($data['dato_manual'] ?? ''));
-
-        if ($data['metodo_manual'] === 'bizum') {
-            $datoManual = preg_replace('/\D+/', '', $datoManual);
-        }
-
-        if ($data['metodo_manual'] === 'paypal') {
-            $datoManual = strtolower($datoManual);
-        }
 
         if ($data['metodo_manual'] === 'efectivo') {
             $datoManual = null;
@@ -337,7 +335,7 @@ class PaymentController extends Controller
             ->all();
 
         // Si el principal actual no es manual, pasa a ser el recien guardado.
-        if (!in_array($user->metodo_pago, ['bizum', 'paypal', 'efectivo'], true)) {
+        if (!in_array($user->metodo_pago, ['transferencia', 'efectivo', 'bizum', 'paypal'], true)) {
             $user->metodo_pago = $data['metodo_manual'];
         }
 
@@ -352,7 +350,8 @@ class PaymentController extends Controller
     public function setPrimaryManualMethod(Request $request)
     {
         $data = $request->validate([
-            'metodo_manual' => 'required|in:bizum,paypal,efectivo',
+            // Bizum/PayPal se mantienen aquí para poder gestionar datos antiguos.
+            'metodo_manual' => 'required|in:transferencia,efectivo,bizum,paypal',
         ]);
 
         $user = Auth::user();
@@ -378,7 +377,8 @@ class PaymentController extends Controller
     public function deleteManualMethod(Request $request)
     {
         $data = $request->validate([
-            'metodo_manual' => 'required|in:bizum,paypal,efectivo',
+            // Bizum/PayPal se mantienen aquí para poder eliminar datos antiguos.
+            'metodo_manual' => 'required|in:transferencia,efectivo,bizum,paypal',
         ]);
 
         $user = Auth::user();
@@ -419,7 +419,8 @@ class PaymentController extends Controller
         if (is_string($metodo)) {
             $code = strtolower(trim($metodo));
 
-            if (!in_array($code, ['bizum', 'paypal', 'efectivo'], true)) {
+            // Bizum/PayPal se aceptan solo para compatibilidad histórica.
+            if (!in_array($code, ['transferencia', 'efectivo', 'bizum', 'paypal'], true)) {
                 return null;
             }
 
@@ -434,7 +435,8 @@ class PaymentController extends Controller
         if (is_array($metodo)) {
             $code = strtolower(trim((string) ($metodo['code'] ?? '')));
 
-            if (!in_array($code, ['bizum', 'paypal', 'efectivo'], true)) {
+            // Bizum/PayPal se aceptan solo para compatibilidad histórica.
+            if (!in_array($code, ['transferencia', 'efectivo', 'bizum', 'paypal'], true)) {
                 return null;
             }
 
@@ -462,6 +464,7 @@ class PaymentController extends Controller
         }
 
         return match ($code) {
+            'transferencia' => $value,
             'bizum' => $this->maskPhone($value),
             'paypal' => $this->maskEmail($value),
             default => $value,
@@ -506,6 +509,8 @@ class PaymentController extends Controller
     private function manualMethodName(string $code): string
     {
         return match ($code) {
+            'transferencia' => 'Transferencia',
+            // Etiquetas legacy por si se reactivan o existen datos antiguos.
             'bizum' => 'Bizum',
             'paypal' => 'PayPal',
             'efectivo' => 'Efectivo',
@@ -552,7 +557,8 @@ class PaymentController extends Controller
     {
         $request->validate([
             'tarifa' => 'required|in:mensual,trimestral,anual',
-            'metodo_pago' => 'required|in:visa,bizum,paypal,transferencia,efectivo',
+            // Bizum/PayPal desactivados temporalmente.
+            'metodo_pago' => 'required|in:visa,transferencia,efectivo',
             'cupon' => 'nullable|string|max:100',
         ]);
 
@@ -604,6 +610,13 @@ class PaymentController extends Controller
                     $descuentoAplicado = $cupon['model']->calculateDiscountAmount($this->planBaseAmount($tarifa));
                     $cupon['model']->markUsed($user, 'cambio_plan', $descuentoAplicado);
                 }
+
+                // Envia correo para confirmar que el pago con tarjeta esta aprobado.
+                $this->sendPaymentApprovedEmail(
+                    $user,
+                    'Tarjeta',
+                    'Pago con tarjeta confirmado al cambiar plan'
+                );
 
                 return back()->with('success', 'Plan y método actualizados correctamente.');
             } catch (\Throwable $e) {
@@ -692,6 +705,32 @@ class PaymentController extends Controller
             'stripe_coupon_id' => $discount->stripe_coupon_id,
             'error' => null,
         ];
+    }
+
+    /**
+     * Envia correo al socio cuando el pago queda aprobado.
+     */
+    private function sendPaymentApprovedEmail($user, string $metodo, string $origen): void
+    {
+        try {
+            Mail::send('emails.payment-approved', [
+                'nombre' => $user->nombre,
+                'metodo' => $metodo,
+                'tarifa' => ucfirst((string) $user->tarifa),
+                'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha',
+                'origen' => $origen,
+            ], function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('Pago aprobado - SeaFit');
+            });
+        } catch (\Throwable $e) {
+            // Si falla el correo, no se rompe el flujo de pago.
+            Log::error('Error al enviar correo de pago aprobado (payment controller).', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
 }

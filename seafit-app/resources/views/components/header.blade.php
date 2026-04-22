@@ -37,7 +37,7 @@
             @endguest
 
             @auth
-                <div class="flex items-center gap-5">
+                <div class="flex items-center gap-3 sm:gap-5">
                     @if(auth()->user()->is_admin)
                         <a href="{{ route('admin.dashboard') }}"
                             class="flex items-center gap-1 text-red-600 font-bold text-base hover:text-red-800 transition-colors bg-red-50 px-3 py-1 rounded-lg border border-red-200">
@@ -47,13 +47,13 @@
                     @else
                         {{-- Botón pequeño del QR al lado de "Mi Perfil". --}}
                         <button type="button" id="abrirQrHeader"
-                            class="inline-flex items-center justify-center w-9 h-9 rounded-full border border-[#1A3878]/30 text-[#1A3878] hover:bg-[#1A3878]/10 transition-colors"
+                            class="inline-flex items-center justify-center w-9 h-9 rounded-full border border-[#1A3878]/30 text-[#1A3878] hover:bg-[#1A3878]/10 transition-colors shrink-0"
                             title="Mostrar QR">
                             <span class="material-symbols-outlined text-[18px]">qr_code_2</span>
                         </button>
                         <a href="{{ url('/perfil') }}"
-                            class="flex items-center gap-1 text-[#0A1931] font-semibold text-base hover:text-[#1A3878] transition-colors">
-                            <span class="material-symbols-outlined">account_circle</span>
+                            class="inline-flex items-center gap-1.5 text-[#0A1931] font-semibold text-base hover:text-[#1A3878] transition-colors whitespace-nowrap leading-none shrink-0">
+                            <span class="material-symbols-outlined text-[22px] leading-none">account_circle</span>
                             Mi Perfil
                         </a>
                     @endif

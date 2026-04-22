@@ -1,13 +1,16 @@
 <?php
 
 /**
- * Controlador de reservas: alta y cancelacion de plazas en clases.
+ * Controlador de reservas: alta y cancelación de plazas en clases.
  */
 namespace App\Http\Controllers;
 
 use App\Models\GymClass;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class BookingController extends Controller
 {
@@ -19,7 +22,7 @@ class BookingController extends Controller
         $user = Auth::user();
 
         $resultado = DB::transaction(function () use ($id, $user) {
-            // Bloqueo de fila para evitar sobrecupo por peticiones simultaneas.
+            // Bloqueo de fila para evitar sobrecupo por peticiones simultáneas.
             $clase = GymClass::query()->lockForUpdate()->findOrFail($id);
 
             if ($user->classes()->where('clase_id', $clase->id)->exists()) {
@@ -36,6 +39,14 @@ class BookingController extends Controller
             return [
                 'status' => 'ok',
                 'plazas' => max((int) $clase->capacidad_max, 0),
+                // Datos de clase para email de confirmación de reserva.
+                'clase' => [
+                    'nombre' => (string) $clase->nombre,
+                    'dia' => (string) $clase->dia_semana,
+                    'hora' => substr((string) $clase->hora_inicio, 0, 5),
+                    'sala' => (string) $clase->sala,
+                    'instructor' => (string) $clase->instructor,
+                ],
             ];
         });
 
@@ -44,7 +55,37 @@ class BookingController extends Controller
         }
 
         if ($resultado['status'] === 'full') {
-            return back()->with('error', 'Lo sentimos, esta clase ya esta llena.');
+            return back()->with('error', 'Lo sentimos, esta clase ya está llena.');
+        }
+
+        // Email informativo de reserva confirmada.
+        // Si falla el envío, no se revierte la reserva.
+        try {
+            $datosClase = (array) ($resultado['clase'] ?? []);
+            $hora = (string) ($datosClase['hora'] ?? '');
+            $horaFin = $hora !== ''
+                ? Carbon::createFromFormat('H:i', $hora)->addHour()->format('H:i')
+                : '';
+
+            Mail::send('emails.class-booked', [
+                'nombre' => $user->nombre,
+                'claseNombre' => (string) ($datosClase['nombre'] ?? 'Clase'),
+                'diaSemana' => (string) ($datosClase['dia'] ?? 'Sin día'),
+                'horaInicio' => $hora !== '' ? $hora : 'Sin hora',
+                'horaFin' => $horaFin !== '' ? $horaFin : null,
+                'sala' => (string) ($datosClase['sala'] ?? 'Sin sala'),
+                'instructor' => (string) ($datosClase['instructor'] ?? 'Sin instructor'),
+            ], function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('Reserva confirmada - SeaFit');
+            });
+        } catch (\Throwable $e) {
+            Log::error('Error al enviar correo de reserva de clase.', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'class_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
         }
 
         return back()->with('success', 'Reserva confirmada. Te quedan ' . $resultado['plazas'] . ' plazas libres.');
@@ -74,7 +115,7 @@ class BookingController extends Controller
         });
 
         if (!$teniaReserva) {
-            return back()->with('info', 'No tenias una reserva activa para esa clase.');
+            return back()->with('info', 'No tenías una reserva activa para esa clase.');
         }
 
         return back()->with('success', 'Plaza liberada correctamente.');

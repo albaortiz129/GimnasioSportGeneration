@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+
 
 class AdminPanelController extends Controller
 {
@@ -135,7 +138,7 @@ class AdminPanelController extends Controller
      */
     public function store(Request $request)
     {
-        // Validacion completa del formulario de alta.
+        // Validación completa del formulario de alta.
         $data = $request->validate([
             'nombre' => 'required|string|max:255',
             'apellidos' => 'required|string|max:255',
@@ -293,7 +296,9 @@ class AdminPanelController extends Controller
 
         $data = $request->validate([
             'tarifa' => 'required|in:mensual,trimestral,anual',
-            'metodo_manual' => 'required|in:efectivo,bizum,transferencia,tarjeta,paypal',
+            // Bizum/PayPal desactivados por ahora en el panel.
+            // Si se habilitan en el futuro, añadirlos de nuevo aquí.
+            'metodo_manual' => 'required|in:efectivo,transferencia,tarjeta',
             'nota' => 'nullable|string|max:255',
         ]);
 
@@ -305,6 +310,29 @@ class AdminPanelController extends Controller
             'next_payment_at' => $this->nextChargeDate($data['tarifa']),
             'manual_payment_note' => $data['nota'],
         ]);
+
+        $metodoLabel = $this->paymentMethodLabel($data['metodo_manual']);
+
+        try {
+            // Envia correo al socio para confirmar el pago aprobado.
+            Mail::send('emails.payment-approved', [
+                'nombre' => $user->nombre,
+                'metodo' => $metodoLabel,
+                'tarifa' => ucfirst((string) $user->tarifa),
+                'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha',
+                'origen' => 'Cobro manual registrado por administracion',
+            ], function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('Pago aprobado - SeaFit');
+            });
+        } catch (\Throwable $e) {
+            Log::error('Error al enviar correo de pago aprobado (manualCharge).', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
 
         return back()->with('success', 'Cobro manual registrado y pago al día.');
     }
@@ -422,7 +450,7 @@ class AdminPanelController extends Controller
      */
     public function classStore(Request $request)
     {
-        // Reglas basicas de alta para evitar datos incompletos.
+        // Reglas básicas de alta para evitar datos incompletos.
         $data = $request->validate([
             'nombre' => 'required|string|max:255',
             'instructor' => 'required|string|max:255',
@@ -476,7 +504,7 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Anade un usuario a una clase y descuenta una plaza.
+     * Añade un usuario a una clase y descuenta una plaza.
      */
     public function addUserToClass(Request $request, GymClass $clase)
     {
@@ -547,7 +575,7 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Calcula la siguiente fecha de cobro segun tarifa.
+     * Calcula la siguiente fecha de cobro según tarifa.
      */
     private function nextChargeDate(string $tarifa, ?Carbon $base = null): string
     {
@@ -573,7 +601,7 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Devuelve variantes utiles para filtrar datos antiguos y nuevos.
+     * Devuelve variantes útiles para filtrar datos antiguos y nuevos.
      */
     private function weekdayVariants(string $dia): array
     {
@@ -601,6 +629,27 @@ class AdminPanelController extends Controller
             'last_manual_payment_at' => now(),
         ]);
 
+        try {
+            // Envia correo al socio para confirmar el pago aprobado.
+            Mail::send('emails.payment-approved', [
+                'nombre' => $user->nombre,
+                'metodo' => $metodoLabel,
+                'tarifa' => ucfirst((string) $user->tarifa),
+                'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha',
+                'origen' => 'Pago pendiente validado por administracion',
+            ], function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('Pago aprobado - SeaFit');
+            });
+        } catch (\Throwable $e) {
+            Log::error('Error al enviar correo de pago aprobado (approveManualPayment).', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+
         return back()->with('success', "Pago recibido por {$metodoLabel}. Cuenta activada.");
     }
 
@@ -610,6 +659,7 @@ class AdminPanelController extends Controller
     private function paymentMethodLabel(?string $method): string
     {
         return match (strtolower((string) $method)) {
+            // Etiquetas legacy para mostrar datos antiguos y futura reactivación.
             'bizum' => 'Bizum',
             'paypal' => 'PayPal',
             'transferencia' => 'Transferencia',
@@ -619,4 +669,6 @@ class AdminPanelController extends Controller
         };
     }
 }
+
+
 

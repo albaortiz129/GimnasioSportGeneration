@@ -35,7 +35,8 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'domicilio' => 'Calle Falsa 123',
             'tarifa' => 'mensual',
-            'metodo_pago' => 'bizum',
+            // Método por defecto alineado con métodos activos.
+            'metodo_pago' => 'visa',
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];

@@ -49,7 +49,7 @@
                     </button>
                     <div class="faq-content transition-all duration-300 ease-in-out group-[.active]:max-h-[500px] max-h-0">
                         <div class="px-8 pb-8 pt-0 text-gray-600 leading-relaxed text-[15px] font-medium border-t border-gray-100/50 pt-6">
-                            Aceptamos tarjeta (Visa/Mastercard) por Stripe, y también pago manual por Bizum, PayPal o efectivo.
+                            Aceptamos tarjeta (Visa/Mastercard) por Stripe, además de pago manual por transferencia o efectivo.
                         </div>
                     </div>
                 </div>

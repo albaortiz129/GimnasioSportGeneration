@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class RegistrationController extends Controller
@@ -36,7 +37,7 @@ class RegistrationController extends Controller
     }
 
     /**
-     * Registra un nuevo socio y, según el método de pago, activa suscripción.
+     * Registra un nuevo socio y, según el método de pago, activa la suscripción.
      */
     public function register(Request $request)
     {
@@ -68,7 +69,9 @@ class RegistrationController extends Controller
                 ],
                 'domicilio' => 'required|string|max:255',
                 'tarifa' => 'required|in:mensual,trimestral,anual',
-                'metodo_pago' => 'required|in:visa,bizum,paypal,efectivo',
+                // Bizum y PayPal están desactivados en el registro.
+                // Si se quieren recuperar en el futuro, añádelos de nuevo aquí.
+                'metodo_pago' => 'required|in:visa,efectivo',
                 'cupon' => 'nullable|string|max:100',
                 'stripeCodigo' => 'nullable|string',
             ], [
@@ -128,12 +131,8 @@ class RegistrationController extends Controller
                 $user->metodo_pago = $metodoPago;
                 $user->password = Hash::make((string) $request->password);
 
-                // Si el alta es manual, dejamos el método guardado desde el primer día.
-                $manualMethods = $this->initialManualMethodsForRegistration(
-                    $metodoPago,
-                    (string) $user->telefono,
-                    (string) $user->email
-                );
+                // Si el alta es manual, se guarda el método inicial.
+                $manualMethods = $this->initialManualMethodsForRegistration($metodoPago);
                 if ($manualMethods !== []) {
                     $user->manual_payment_methods = $manualMethods;
                 }
@@ -151,7 +150,6 @@ class RegistrationController extends Controller
                     if ($priceId) {
                         try {
                             $user->createAsStripeCustomer();
-
                             $newSubscription = $user->newSubscription('default', $priceId);
 
                             if ($discountCode && $discountCode->stripe_coupon_id) {
@@ -164,9 +162,29 @@ class RegistrationController extends Controller
                             $user->next_payment_at = $this->nextChargeFromPlan($tarifa);
                             $user->save();
 
+                            try {
+                                // Envía correo al socio cuando el pago con tarjeta se confirma en el registro.
+                                Mail::send('emails.payment-approved', [
+                                    'nombre' => $user->nombre,
+                                    'metodo' => 'Tarjeta',
+                                    'tarifa' => ucfirst((string) $user->tarifa),
+                                    'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha',
+                                    'origen' => 'Pago con tarjeta confirmado en el registro',
+                                ], function ($message) use ($user) {
+                                    $message->to($user->email);
+                                    $message->subject('Pago aprobado - SeaFit');
+                                });
+                            } catch (\Throwable $e) {
+                                Log::error('Error al enviar correo de pago aprobado (registro tarjeta).', [
+                                    'user_id' => $user->id,
+                                    'email' => $user->email,
+                                    'error' => $e->getMessage(),
+                                ]);
+                            }
+
                             $mensajeFinal = 'Socio registrado y suscripción activada con éxito.';
                         } catch (\Throwable $e) {
-                            // Si falla Stripe, no se pierde el alta; queda pendiente de revision.
+                            // Si falla Stripe, no se pierde el alta; queda pendiente de revisión.
                             $user->payment_status = 'pendiente';
                             $user->next_payment_at = null;
                             $user->save();
@@ -174,10 +192,6 @@ class RegistrationController extends Controller
                             $mensajeFinal = 'Registro creado, pero no se pudo confirmar el pago con tarjeta. Contacta con soporte.';
                         }
                     }
-                } elseif ($metodoPago === 'bizum') {
-                    $mensajeFinal = 'Registro recibido. Envía el Bizum al 600 000 000 con tu DNI como concepto para activar tu cuenta.';
-                } elseif ($metodoPago === 'paypal') {
-                    $mensajeFinal = 'Registro recibido. Tu cuenta queda pendiente de validación hasta confirmar el pago por PayPal.';
                 } elseif ($metodoPago === 'efectivo') {
                     $mensajeFinal = 'Registro recibido. Tu cuenta queda pendiente hasta validar el pago en efectivo en recepción.';
                 }
@@ -247,27 +261,23 @@ class RegistrationController extends Controller
     /**
      * Devuelve el método manual inicial para mostrarlo ya guardado en el panel.
      */
-    private function initialManualMethodsForRegistration(string $metodoPago, string $telefono, string $email): array
+    private function initialManualMethodsForRegistration(string $metodoPago): array
     {
         return match ($metodoPago) {
-            'bizum' => [[
-                'code' => 'bizum',
-                'value' => preg_replace('/\D+/', '', $telefono),
-            ]],
-            'paypal' => [[
-                'code' => 'paypal',
-                'value' => strtolower(trim($email)),
-            ]],
-            'efectivo' => [[
-                'code' => 'efectivo',
-                'value' => null,
-            ]],
+            // Bizum y PayPal se dejan fuera por ahora.
+            // Esta función se conserva para futuras ampliaciones de pago manual.
+            'efectivo' => [
+                [
+                    'code' => 'efectivo',
+                    'value' => null,
+                ]
+            ],
             default => [],
         };
     }
 
     /**
-     * Valida matematicamente la letra del DNI.
+     * Valida matemáticamente la letra del DNI.
      */
     private function isValidDni(string $dni): bool
     {
@@ -284,4 +294,3 @@ class RegistrationController extends Controller
         return $letra === $letrasValidas[$numero % 23];
     }
 }
-

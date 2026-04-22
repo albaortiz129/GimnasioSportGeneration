@@ -130,8 +130,7 @@
                 <select id="metodo_pago" name="metodo_pago"
                     class="border rounded p-3 w-full @error('metodo_pago') border-red-500 bg-red-50 @enderror" required>
                     <option value="">Selecciona método de pago</option>
-                    <option value="bizum" @selected(old('metodo_pago') === 'bizum')>Bizum</option>
-                    <option value="paypal" @selected(old('metodo_pago') === 'paypal')>PayPal</option>
+                    {{-- Bizum/PayPal desactivados por ahora. Se pueden reactivar en el futuro. --}}
                     <option value="visa" @selected(old('metodo_pago') === 'visa')>Visa</option>
                     <option value="efectivo" @selected(old('metodo_pago') === 'efectivo')>Efectivo</option>
                     <option value="transferencia" @selected(old('metodo_pago') === 'transferencia')>Transferencia</option>

@@ -147,7 +147,8 @@
                 </div>
                 @php
                     // Si el principal es manual, no se marca ninguna tarjeta como principal.
-                    $principalEsManual = in_array($user->metodo_pago, ['bizum', 'paypal', 'efectivo'], true);
+                    // Bizum/PayPal se mantienen en esta comprobación para datos legacy.
+                    $principalEsManual = in_array($user->metodo_pago, ['transferencia', 'efectivo', 'bizum', 'paypal'], true);
                 @endphp
 
                 {{-- Tarjetas guardadas en Stripe. --}}
@@ -248,15 +249,15 @@
                     <p class="text-gray-500 text-sm">No tienes métodos guardados todavía.</p>
                 @endif
 
-                {{-- Alta/edición de un método manual (Bizum, PayPal o Efectivo). --}}
+                {{-- Alta/edición de un método manual activo (Transferencia o Efectivo).
+                     Bizum/PayPal quedan desactivados por ahora para nuevas altas. --}}
                 <form action="{{ route('pago.guardar_manual') }}" method="POST"
                     class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3" id="form-metodo-manual">
                     @csrf
                     <div>
                         <select name="metodo_manual" id="metodo_manual" class="border rounded p-3 w-full" required>
                             <option value="">Guardar método manual...</option>
-                            <option value="bizum" {{ old('metodo_manual') === 'bizum' ? 'selected' : '' }}>Bizum</option>
-                            <option value="paypal" {{ old('metodo_manual') === 'paypal' ? 'selected' : '' }}>PayPal</option>
+                            <option value="transferencia" {{ old('metodo_manual') === 'transferencia' ? 'selected' : '' }}>Transferencia</option>
                             <option value="efectivo" {{ old('metodo_manual') === 'efectivo' ? 'selected' : '' }}>Efectivo
                             </option>
                         </select>
@@ -294,23 +295,13 @@
                         const actualizarCampoDato = () => {
                             const metodo = metodoInput.value;
 
-                            if (metodo === 'bizum') {
+                            if (metodo === 'transferencia') {
                                 datoInput.type = 'text';
-                                datoInput.placeholder = 'Teléfono Bizum (ejemplo: 612345678)';
-                                datoInput.setAttribute('inputmode', 'numeric');
-                                datoInput.setAttribute('pattern', '^[6789]\\d{8}$');
-                                datoInput.required = true;
-                                ayuda.textContent = 'Teléfono de 9 dígitos, empezando por 6, 7, 8 o 9.';
-                                return;
-                            }
-
-                            if (metodo === 'paypal') {
-                                datoInput.type = 'email';
-                                datoInput.placeholder = 'Email de PayPal (ejemplo: correo@dominio.com)';
+                                datoInput.placeholder = 'IBAN o referencia de transferencia';
                                 datoInput.removeAttribute('inputmode');
                                 datoInput.removeAttribute('pattern');
                                 datoInput.required = true;
-                                ayuda.textContent = 'Introduce un email valido para PayPal.';
+                                ayuda.textContent = 'Guarda una referencia para identificar la transferencia.';
                                 return;
                             }
 
@@ -389,8 +380,6 @@
 
                         <select name="metodo_pago" class="border rounded p-3" required>
                             <option value="visa">Visa</option>
-                            <option value="bizum">Bizum</option>
-                            <option value="paypal">PayPal</option>
                             <option value="transferencia">Transferencia</option>
                             <option value="efectivo">Efectivo</option>
                         </select>
