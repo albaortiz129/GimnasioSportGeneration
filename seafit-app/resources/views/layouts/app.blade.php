@@ -23,6 +23,8 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ time() }}">
 </head>
 
+@include('components.ai-chat')
+
 <body class="flex flex-col min-h-screen">
     {{-- Header común para todo el sitio --}}
     @include('components.header')

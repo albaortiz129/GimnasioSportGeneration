@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
+use App\Http\Controllers\AiChatController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -195,3 +197,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::put('/descuentos/{discountCode}', [AdminDiscountController::class, 'update'])->name('admin.discounts.update');
     Route::delete('/descuentos/{discountCode}', [AdminDiscountController::class, 'destroy'])->name('admin.discounts.destroy');
 });
+
+/*
+|--------------------------------------------------------------------------
+| IA
+|--------------------------------------------------------------------------
+*/
+Route::post('/ia/chat', [AiChatController::class, 'ask'])
+    ->middleware('throttle:40,1')
+    ->name('ia.chat');

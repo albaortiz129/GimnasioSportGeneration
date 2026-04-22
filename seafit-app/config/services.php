@@ -40,4 +40,17 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'openrouter' => [
+        'api_key' => env('OPENROUTER_API_KEY'),
+        'base_url' => env('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1'),
+        'model' => env('OPENROUTER_MODEL', 'openrouter/free'),
+    ],
+    'ai_chat' => [
+        'enabled' => env('AI_CHAT_ENABLED', true),
+        'support_email' => env('AI_SUPPORT_EMAIL', 'soporte.seafit@gmail.com'),
+        // Umbral mínimo para aceptar una respuesta local por reglas.
+        'min_local_score' => (int) env('AI_CHAT_MIN_LOCAL_SCORE', 5),
+    ],
+
+
 ];
