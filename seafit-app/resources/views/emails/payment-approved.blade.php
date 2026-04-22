@@ -1,3 +1,4 @@
+{{-- Plantilla de correo para confirmar un pago aprobado al socio. --}}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -11,9 +12,9 @@
 
     <p>Tu pago ha sido aprobado correctamente en SeaFit.</p>
 
-    <p><strong>Metodo de pago:</strong> {{ $metodo }}</p>
+    <p><strong>Método de pago:</strong> {{ $metodo }}</p>
     <p><strong>Plan activo:</strong> {{ $tarifa }}</p>
-    <p><strong>Proximo cobro:</strong> {{ $proximoCobro }}</p>
+    <p><strong>Próximo cobro:</strong> {{ $proximoCobro }}</p>
 
     @if(!empty($origen))
         <p><strong>Detalle:</strong> {{ $origen }}</p>

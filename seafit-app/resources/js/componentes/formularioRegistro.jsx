@@ -42,7 +42,7 @@ const METODOS_PAGO = [
     { id: 'efectivo', nombre: 'Efectivo', icono: 'payments' },
 ];
 
-// Devuelve el precio visible segun la tarifa elegida.
+// Devuelve el precio visible según la tarifa elegida.
 const obtenerPrecioTarifa = (tarifa) => {
     if (tarifa === 'anual') return '250.00 EUR';
     if (tarifa === 'trimestral') return '75.00 EUR';
@@ -136,7 +136,10 @@ const FormularioRegistro = () => {
     };
 
     const handleChange = (campo, valor) => {
-        setDatos((prev) => ({ ...prev, [campo]: valor }));
+        // El email se mantiene en minúsculas para evitar duplicados por formato.
+        const valorNormalizado = campo === 'email' ? valor.toLowerCase() : valor;
+
+        setDatos((prev) => ({ ...prev, [campo]: valorNormalizado }));
 
         // Si cambia la password, se limpia/revalida la confirmacion.
         if (campo === 'password') {
@@ -226,7 +229,7 @@ const FormularioRegistro = () => {
                 card: cardElement,
                 billing_details: {
                     name: `${datos.nombre} ${datos.apellidos}`,
-                    email: datos.email,
+                    email: (datos.email || '').toLowerCase(),
                 },
             });
 
@@ -248,6 +251,7 @@ const FormularioRegistro = () => {
                 },
                 body: JSON.stringify({
                     ...datos,
+                    email: (datos.email || '').toLowerCase(),
                     stripeCodigo: stripePaymentMethodId,
                 }),
             });
@@ -426,7 +430,7 @@ const FormularioRegistro = () => {
                             </div>
                             <p className="text-sm text-amber-700 m-0 leading-relaxed">
                                 Puedes pagar directamente en recepción antes de tu primera clase.<br />
-                                <strong>Tu cuenta quedara pendiente</strong> hasta que el administrador confirme el cobro.
+                                <strong>Tu cuenta quedará pendiente</strong> hasta que el administrador confirme el cobro.
                             </p>
                         </div>
                     )}

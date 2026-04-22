@@ -51,7 +51,7 @@
                     facturas.</p>
             </header>
 
-            {{-- RESUMEN DE FACTURACION --}}
+            {{-- RESUMEN DE FACTURACIÓN --}}
             @php
                 // Variables auxiliares para estado de cuenta.
                 $planActivo = $user->isPlanActive();
@@ -140,14 +140,14 @@
                 </section>
             @endif
 
-            {{-- METODOS DE PAGO GUARDADOS --}}
+            {{-- MÉTODOS DE PAGO GUARDADOS --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
                     <h3 class="text-xl font-bold text-[#0A1931]">Métodos de Pago Guardados</h3>
                 </div>
                 @php
                     // Si el principal es manual, no se marca ninguna tarjeta como principal.
-                    // Bizum/PayPal se mantienen en esta comprobación para datos legacy.
+                    // Bizum/PayPal se mantienen en esta comprobación para datos anteriores.
                     $principalEsManual = in_array($user->metodo_pago, ['transferencia', 'efectivo', 'bizum', 'paypal'], true);
                 @endphp
 

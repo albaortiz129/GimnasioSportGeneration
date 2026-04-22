@@ -13,11 +13,10 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
-
 
 class AdminPanelController extends Controller
 {
@@ -123,7 +122,7 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Muesta el formulario para crear usuario desde admin sin guardar en la BBDD.
+     * Muestra el formulario para crear usuario desde admin sin guardar en la BBDD.
      */
     public function create(Request $request)
     {
@@ -165,7 +164,7 @@ class AdminPanelController extends Controller
             'email' => 'required|email|unique:users,email',
             'domicilio' => 'required|string|max:255',
             'tarifa' => 'required|in:mensual,trimestral,anual',
-            'metodo_pago' => 'required|string|max:50',
+            'metodo_pago' => 'required|in:visa,efectivo,transferencia',
             'password' => [
                 'required',
                 'string',
@@ -176,12 +175,19 @@ class AdminPanelController extends Controller
         ], [
             'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9.',
             'dni.regex' => 'El DNI debe tener 8 números y 1 letra (ej: 12345678Z).',
+            'metodo_pago.in' => 'Selecciona un método de pago válido.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
             'password.regex' => 'La contraseña debe incluir mayúscula, minúscula, número y símbolo.',
         ]);
 
-        $data['dni'] = strtoupper($data['dni']);
+        // Normaliza datos clave para que queden consistentes en base de datos.
+        $data['nombre'] = trim($data['nombre']);
+        $data['apellidos'] = trim($data['apellidos']);
+        $data['dni'] = strtoupper(trim($data['dni']));
+        $data['email'] = strtolower(trim($data['email']));
+        $data['telefono'] = trim($data['telefono']);
+        $data['domicilio'] = trim($data['domicilio']);
 
         $user = User::create([
             'nombre' => $data['nombre'],
@@ -230,7 +236,7 @@ class AdminPanelController extends Controller
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
             'domicilio' => 'required|string|max:255',
             'tarifa' => 'required|in:mensual,trimestral,anual,cancelada',
-            'metodo_pago' => 'required|string|max:50',
+            'metodo_pago' => 'required|in:visa,efectivo,transferencia,tarjeta,bizum,paypal,stripe',
             'payment_status' => 'required|in:al_dia,pendiente,impagado',
             'next_payment_at' => 'nullable|date',
             'password' => [
@@ -241,14 +247,23 @@ class AdminPanelController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/',
             ],
         ], [
+            'metodo_pago.in' => 'Selecciona un método de pago válido.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
             'password.regex' => 'Debe incluir mayúscula, minúscula, número y carácter especial.',
         ]);
 
+        // Limpia y normaliza campos antes de guardar.
+        $data['nombre'] = trim($data['nombre']);
+        $data['apellidos'] = trim($data['apellidos']);
+        $data['dni'] = strtoupper(trim($data['dni']));
+        $data['email'] = strtolower(trim($data['email']));
+        $data['telefono'] = trim($data['telefono']);
+        $data['domicilio'] = trim($data['domicilio']);
+
         if (!empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
-            $data['must_change_password'] = true; // opcional: forzar cambio al entrar
+            $data['must_change_password'] = true; // Opcional: forzar cambio al entrar.
         } else {
             unset($data['password']);
         }
@@ -312,27 +327,12 @@ class AdminPanelController extends Controller
         ]);
 
         $metodoLabel = $this->paymentMethodLabel($data['metodo_manual']);
-
-        try {
-            // Envia correo al socio para confirmar el pago aprobado.
-            Mail::send('emails.payment-approved', [
-                'nombre' => $user->nombre,
-                'metodo' => $metodoLabel,
-                'tarifa' => ucfirst((string) $user->tarifa),
-                'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha',
-                'origen' => 'Cobro manual registrado por administracion',
-            ], function ($message) use ($user) {
-                $message->to($user->email);
-                $message->subject('Pago aprobado - SeaFit');
-            });
-        } catch (\Throwable $e) {
-            Log::error('Error al enviar correo de pago aprobado (manualCharge).', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'error' => $e->getMessage(),
-            ]);
-        }
-
+        $this->sendPaymentApprovedEmail(
+            $user,
+            $metodoLabel,
+            'Cobro manual registrado por administración',
+            'manualCharge'
+        );
 
         return back()->with('success', 'Cobro manual registrado y pago al día.');
     }
@@ -357,25 +357,12 @@ class AdminPanelController extends Controller
                 ]);
 
                 $metodoLabel = $this->paymentMethodLabel($user->metodo_pago);
-                try {
-                    // Envia correo tambien al renovar desde el panel admin.
-                    Mail::send('emails.payment-approved', [
-                        'nombre' => $user->nombre,
-                        'metodo' => $metodoLabel,
-                        'tarifa' => ucfirst((string) $user->tarifa),
-                        'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha',
-                        'origen' => 'Suscripcion renovada por administracion',
-                    ], function ($message) use ($user) {
-                        $message->to($user->email);
-                        $message->subject('Pago aprobado - SeaFit');
-                    });
-                } catch (\Throwable $e) {
-                    Log::error('Error al enviar correo de pago aprobado (renewSubscription:fecha_vigente).', [
-                        'user_id' => $user->id,
-                        'email' => $user->email,
-                        'error' => $e->getMessage(),
-                    ]);
-                }
+                $this->sendPaymentApprovedEmail(
+                    $user,
+                    $metodoLabel,
+                    'Suscripción renovada por administración',
+                    'renewSubscription:fecha_vigente'
+                );
 
                 return back()->with('success', 'Pago regularizado. La fecha de renovación se mantiene.');
             }
@@ -387,25 +374,12 @@ class AdminPanelController extends Controller
         ]);
 
         $metodoLabel = $this->paymentMethodLabel($user->metodo_pago);
-        try {
-            // Envia correo cuando la renovacion genera una nueva fecha de cobro.
-            Mail::send('emails.payment-approved', [
-                'nombre' => $user->nombre,
-                'metodo' => $metodoLabel,
-                'tarifa' => ucfirst((string) $user->tarifa),
-                'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha',
-                'origen' => 'Suscripcion renovada por administracion',
-            ], function ($message) use ($user) {
-                $message->to($user->email);
-                $message->subject('Pago aprobado - SeaFit');
-            });
-        } catch (\Throwable $e) {
-            Log::error('Error al enviar correo de pago aprobado (renewSubscription:nueva_fecha).', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'error' => $e->getMessage(),
-            ]);
-        }
+        $this->sendPaymentApprovedEmail(
+            $user,
+            $metodoLabel,
+            'Suscripción renovada por administración',
+            'renewSubscription:nueva_fecha'
+        );
 
         return back()->with('success', 'Suscripción renovada.');
     }
@@ -631,12 +605,14 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Normaliza nombres de día para guardar siempre en formato ASCII.
+     * Normaliza nombres de día para guardar un formato único en la base de datos.
      */
     private function normalizeWeekday(string $dia): string
     {
         return match (trim($dia)) {
+            'Miércoles',
             'Miercoles' => 'Miercoles',
+            'Sábado',
             'Sabado' => 'Sabado',
             default => trim($dia),
         };
@@ -648,8 +624,8 @@ class AdminPanelController extends Controller
     private function weekdayVariants(string $dia): array
     {
         return match ($this->normalizeWeekday($dia)) {
-            'Miercoles' => ['Miercoles'],
-            'Sabado' => ['Sabado'],
+            'Miercoles' => ['Miercoles', 'Miércoles'],
+            'Sabado' => ['Sabado', 'Sábado'],
             default => [$this->normalizeWeekday($dia)],
         };
     }
@@ -671,26 +647,12 @@ class AdminPanelController extends Controller
             'last_manual_payment_at' => now(),
         ]);
 
-        try {
-            // Envia correo al socio para confirmar el pago aprobado.
-            Mail::send('emails.payment-approved', [
-                'nombre' => $user->nombre,
-                'metodo' => $metodoLabel,
-                'tarifa' => ucfirst((string) $user->tarifa),
-                'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha',
-                'origen' => 'Pago pendiente validado por administracion',
-            ], function ($message) use ($user) {
-                $message->to($user->email);
-                $message->subject('Pago aprobado - SeaFit');
-            });
-        } catch (\Throwable $e) {
-            Log::error('Error al enviar correo de pago aprobado (approveManualPayment).', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'error' => $e->getMessage(),
-            ]);
-        }
-
+        $this->sendPaymentApprovedEmail(
+            $user,
+            $metodoLabel,
+            'Pago pendiente validado por administración',
+            'approveManualPayment'
+        );
 
         return back()->with('success', "Pago recibido por {$metodoLabel}. Cuenta activada.");
     }
@@ -701,7 +663,7 @@ class AdminPanelController extends Controller
     private function paymentMethodLabel(?string $method): string
     {
         return match (strtolower((string) $method)) {
-            // Etiquetas legacy para mostrar datos antiguos y futura reactivación.
+            // Etiquetas anteriores para mostrar datos antiguos y futura reactivación.
             'bizum' => 'Bizum',
             'paypal' => 'PayPal',
             'transferencia' => 'Transferencia',
@@ -710,7 +672,29 @@ class AdminPanelController extends Controller
             default => 'Método manual',
         };
     }
+
+    /**
+     * Envía el correo de pago aprobado y registra errores sin romper el flujo.
+     */
+    private function sendPaymentApprovedEmail(User $user, string $metodo, string $origen, string $context): void
+    {
+        try {
+            Mail::send('emails.payment-approved', [
+                'nombre' => $user->nombre,
+                'metodo' => $metodo,
+                'tarifa' => ucfirst((string) $user->tarifa),
+                'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha',
+                'origen' => $origen,
+            ], function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('Pago aprobado - SeaFit');
+            });
+        } catch (\Throwable $e) {
+            Log::error("Error al enviar correo de pago aprobado ({$context}).", [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
 }
-
-
-

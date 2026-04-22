@@ -28,11 +28,11 @@
                     </div>
                 @endif
 
-                {{-- Seccion de clases colectivas con calendario visual --}}
+                {{-- Sección de clases colectivas con calendario visual --}}
                 <section id="clases"
                     class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-8 p-6 lg:p-10 rounded-[3rem] bg-white border border-gray-100 shadow-2xl transition-all">
 
-                    {{-- Bloque izquierdo: descripcion + leyenda --}}
+                    {{-- Bloque izquierdo: descripción + leyenda --}}
                     <div class="flex flex-col gap-6 justify-center">
                         <div class="w-14 h-14 rounded-full flex items-center justify-center bg-[#1A3878]/10">
                             <span class="material-symbols-outlined text-4xl text-[#1A3878]">groups</span>
@@ -88,7 +88,7 @@
                             @endforeach
                         </div>
 
-                        {{-- Rejilla: columna de horas + area de tarjetas --}}
+                        {{-- Rejilla: columna de horas + área de tarjetas --}}
                         <div class="flex-1 overflow-y-auto relative grid grid-cols-[80px_1fr] bg-white scroll-smooth"
                             id="calendar-body">
                             {{-- Columna de horas --}}
@@ -101,7 +101,7 @@
                                 @endfor
                             </div>
 
-                            {{-- area de clases con lineas de fondo cada hora --}}
+                            {{-- Área de clases con líneas de fondo cada hora --}}
                             <div
                                 class="relative min-h-[1400px] bg-[linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:100%_100px]">
                                 @forelse($clases as $clase)
@@ -148,7 +148,7 @@
                                             {{-- Acciones: reservar / cancelar / lleno --}}
                                             <div class="flex items-center justify-end shrink-0 min-w-[120px]">
                                                 @if($yaReservado)
-                                                    {{-- Si esta reservada, al pasar el raton permite cancelar --}}
+                                                    {{-- Si está reservada, al pasar el ratón permite cancelar --}}
                                                     <div class="flex items-center">
                                                         <div
                                                             class="group-hover:hidden bg-[#1A3878] text-white flex items-center gap-1.5 px-4 py-2 rounded-2xl text-[10px] font-black">
@@ -194,7 +194,7 @@
                     </div>
                 </section>
 
-                {{-- Seccion de entrenador personal --}}
+                {{-- Sección de entrenador personal --}}
                 <section id="entrenador"
                     class="grid grid-cols-1 lg:grid-cols-2 gap-12 p-8 lg:p-12 rounded-[2.5rem] bg-[#F4F4F4] border border-gray-200 shadow-lg">
                     <div class="rounded-[2rem] overflow-hidden shadow-2xl h-full min-h-[350px] bg-gray-300 relative group">
@@ -210,18 +210,18 @@
                         </div>
                         <h2 class="text-gray-900 text-4xl font-black italic tracking-tighter">Entrenador Personal</h2>
                         <p class="text-lg text-gray-600 leading-relaxed">
-                            Lleva tu fisico al siguiente nivel con planes 100% personalizados. Evaluacion mensual de grasa
+                            Lleva tu físico al siguiente nivel con planes 100% personalizados. Evaluación mensual de grasa
                             corporal,
                             masa muscular y rendimiento.
                         </p>
                         <button onclick="window.location.href='{{ route('valoracion') }}'"
                             class="flex w-fit min-w-[240px] items-center justify-center rounded-2xl h-14 px-8 bg-[#1A3878] text-white font-black text-lg hover:bg-[#0A1931] shadow-xl hover:shadow-[#1A3878]/40 transition-all uppercase tracking-widest">
-                            Solicitar Valoracion
+                            Solicitar Valoración
                         </button>
                     </div>
                 </section>
 
-                {{-- Seccion de membresia y beneficios --}}
+                {{-- Sección de membresía y beneficios --}}
                 <section id="membresia"
                     class="p-10 lg:p-16 rounded-[2.5rem] bg-white text-[#0A1931] shadow-[0_20px_50px_rgba(0,0,0,0.05)] text-center border border-gray-100 relative overflow-hidden">
 
@@ -232,7 +232,7 @@
                         <h2 class="text-4xl lg:text-5xl font-black tracking-tight text-[#0A1931]">Acceso Total (Membresía)
                         </h2>
                         <p class="text-lg text-gray-500 max-w-3xl mx-auto font-medium leading-relaxed">
-                            Tu llave a todas nuestras instalaciones. Elige la duracion de tu plan y disfruta sin
+                            Tu llave a todas nuestras instalaciones. Elige la duración de tu plan y disfruta sin
                             restricciones del
                             gimnasio, la piscina y las zonas de relax.
                         </p>

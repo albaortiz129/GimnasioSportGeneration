@@ -1,7 +1,7 @@
 ﻿<?php
 
 /**
- * Anade campos de facturacion y estado de pago en users.
+ * Añade campos de facturación y estado de pago en users.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**
-     * Agrega columnas de facturacion manual y estado.
+     * Agrega columnas de facturación manual y estado.
      */
     public function up(): void
     {
-        // Aplica cambios de esta migracion.
+        // Aplica los cambios de esta migración.
         Schema::table('users', function (Blueprint $table) {
             $table->boolean('must_change_password')->default(false)->after('is_admin');
             $table->string('payment_status')->default('pendiente')->after('metodo_pago'); // al_dia | pendiente | impagado
@@ -40,4 +40,5 @@ return new class extends Migration {
         });
     }
 };
+
 

@@ -1,11 +1,12 @@
 <?php
 
 /**
- * Modelo Eloquent de usuarios/socios con relaciones y capacidades de facturacion.
+ * Modelo Eloquent de usuarios/socios con relaciones y capacidades de facturación.
  */
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -49,7 +50,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Laravel convierte estos campos al tipo correcto automaticamente.
+     * Laravel convierte estos campos al tipo correcto automáticamente.
      */
     protected function casts(): array
     {
@@ -63,6 +64,30 @@ class User extends Authenticatable
             'last_manual_payment_at' => 'datetime',
             'manual_payment_methods' => 'array',
         ];
+    }
+
+    /**
+     * Normaliza el email al guardar y al leer:
+     * - Siempre en minúsculas para evitar duplicados visuales.
+     * - Sin espacios al principio/final.
+     */
+    protected function email(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => is_string($value) ? strtolower(trim($value)) : $value,
+            set: fn($value) => is_string($value) ? strtolower(trim($value)) : $value,
+        );
+    }
+
+    /**
+     * Normaliza el DNI para mantener formato consistente.
+     */
+    protected function dni(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => is_string($value) ? strtoupper(trim($value)) : $value,
+            set: fn($value) => is_string($value) ? strtoupper(trim($value)) : $value,
+        );
     }
 
     /**
@@ -83,7 +108,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Ultimo descuento aplicado por fecha de uso.
+     * Último descuento aplicado por fecha de uso.
      */
     public function latestDiscountRedemption(): HasOne
     {

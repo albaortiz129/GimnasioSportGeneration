@@ -1,4 +1,4 @@
-{{-- Vista de tarifas y comparativa visual de planes de membresia. --}}
+{{-- Vista de tarifas y comparativa visual de planes de membresía. --}}
 @extends ('layouts.app')
 
 @section('titulo', 'Membresía y Tarifas - SeaFit')

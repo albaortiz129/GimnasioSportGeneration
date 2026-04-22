@@ -1,4 +1,4 @@
-{{-- Vista de alta de clientes desde el panel de administracion. --}}
+{{-- Vista de alta de clientes desde el panel de administración. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Nuevo Cliente - Admin')

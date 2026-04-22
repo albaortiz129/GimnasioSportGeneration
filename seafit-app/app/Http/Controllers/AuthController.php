@@ -21,6 +21,9 @@ class AuthController extends Controller
             'password' => ['required', 'min:6'],
         ]);
 
+        // Normaliza el email para evitar fallos por mayúsculas/minúsculas.
+        $credentials['email'] = strtolower(trim((string) $credentials['email']));
+
         try {
             if (Auth::attempt($credentials)) {
                 // Seguridad de sesión tras login correcto.
@@ -67,7 +70,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Redireccion al login.
+        // Redirección al login.
         return redirect('/login');
     }
 }

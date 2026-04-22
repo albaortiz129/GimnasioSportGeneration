@@ -6,13 +6,13 @@
  */
 namespace App\Http\Controllers;
 
+use App\Models\DiscountCode;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\DiscountCode;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
@@ -51,7 +51,6 @@ class PaymentController extends Controller
             'metodosManuales'
         ));
     }
-
 
     /**
      * Cancela la renovación automática al final del período actual.
@@ -164,7 +163,7 @@ class PaymentController extends Controller
                 $cupon['model']->markUsed($user, 'reanudar_plan', $descuentoAplicado);
             }
 
-            // Envia correo para confirmar que el pago con tarjeta esta aprobado.
+            // Envía correo para confirmar que el pago con tarjeta está aprobado.
             $this->sendPaymentApprovedEmail(
                 $user,
                 'Tarjeta',
@@ -510,7 +509,7 @@ class PaymentController extends Controller
     {
         return match ($code) {
             'transferencia' => 'Transferencia',
-            // Etiquetas legacy por si se reactivan o existen datos antiguos.
+            // Etiquetas anteriores por si se reactivan o existen datos antiguos.
             'bizum' => 'Bizum',
             'paypal' => 'PayPal',
             'efectivo' => 'Efectivo',
@@ -611,7 +610,7 @@ class PaymentController extends Controller
                     $cupon['model']->markUsed($user, 'cambio_plan', $descuentoAplicado);
                 }
 
-                // Envia correo para confirmar que el pago con tarjeta esta aprobado.
+                // Envía correo para confirmar que el pago con tarjeta está aprobado.
                 $this->sendPaymentApprovedEmail(
                     $user,
                     'Tarjeta',
@@ -638,7 +637,6 @@ class PaymentController extends Controller
 
         return back()->with('success', 'Cambio solicitado. El admin debe validar el pago manual.');
     }
-
 
     /**
      * Calcula la fecha del próximo cobro según la tarifa.
@@ -708,9 +706,9 @@ class PaymentController extends Controller
     }
 
     /**
-     * Envia correo al socio cuando el pago queda aprobado.
+     * Envía correo al socio cuando el pago queda aprobado.
      */
-    private function sendPaymentApprovedEmail($user, string $metodo, string $origen): void
+    private function sendPaymentApprovedEmail(User $user, string $metodo, string $origen): void
     {
         try {
             Mail::send('emails.payment-approved', [

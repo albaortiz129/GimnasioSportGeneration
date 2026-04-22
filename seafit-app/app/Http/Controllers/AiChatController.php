@@ -27,7 +27,7 @@ class AiChatController extends Controller
         $mensaje = $this->normalizarTexto($mensajeOriginal);
         $emailSoporte = (string) config('services.ai_chat.support_email', 'soporte.seafit@gmail.com');
 
-        // 1) Respuesta local: rapida, estable y precisa para FAQ conocidas.
+        // 1) Respuesta local: rápida, estable y precisa para FAQ conocidas.
         $respuestaLocal = $this->answerFromTrainingRules($mensaje);
         if ($respuestaLocal !== null) {
             return response()->json([
@@ -41,7 +41,7 @@ class AiChatController extends Controller
         $apiKey = trim((string) config('services.openrouter.api_key'));
         if ($apiKey === '') {
             return response()->json([
-                'reply' => "No tengo esa informacion ahora. Puedes contactar en {$emailSoporte}.",
+                'reply' => "No tengo esa información ahora. Puedes contactar en {$emailSoporte}.",
                 'source' => 'fallback',
             ]);
         }
@@ -78,7 +78,7 @@ class AiChatController extends Controller
                 ]);
 
                 return response()->json([
-                    'reply' => "No tengo esa informacion ahora. Puedes contactar en {$emailSoporte}.",
+                    'reply' => "No tengo esa información ahora. Puedes contactar en {$emailSoporte}.",
                     'source' => 'fallback',
                 ]);
             }
@@ -86,7 +86,7 @@ class AiChatController extends Controller
             $reply = trim((string) data_get($response->json(), 'choices.0.message.content', ''));
             if ($reply === '') {
                 return response()->json([
-                    'reply' => "No tengo esa informacion ahora. Puedes contactar en {$emailSoporte}.",
+                    'reply' => "No tengo esa información ahora. Puedes contactar en {$emailSoporte}.",
                     'source' => 'fallback',
                 ]);
             }
@@ -101,7 +101,7 @@ class AiChatController extends Controller
             ]);
 
             return response()->json([
-                'reply' => "No tengo esa informacion ahora. Puedes contactar en {$emailSoporte}.",
+                'reply' => "No tengo esa información ahora. Puedes contactar en {$emailSoporte}.",
                 'source' => 'fallback',
             ]);
         }
@@ -109,7 +109,7 @@ class AiChatController extends Controller
 
     /**
      * Intenta responder desde reglas locales de entrenamiento.
-     * Devuelve la regla ganadora solo si supera el umbral minimo.
+     * Devuelve la regla ganadora solo si supera el umbral mínimo.
      *
      * @return array{intent:string,answer:string,score:int}|null
      */
@@ -131,7 +131,7 @@ class AiChatController extends Controller
     }
 
     /**
-     * Devuelve reglas ordenadas de mayor a menor precision para el mensaje.
+     * Devuelve reglas ordenadas de mayor a menor precisión para el mensaje.
      *
      * @return array<int, array{intent:string,answer:string,score:int,priority:int}>
      */
@@ -182,7 +182,7 @@ class AiChatController extends Controller
                 $tagTokens = $this->tokenize($tagNormalizado);
                 $numPalabras = count($tagTokens);
 
-                // Cuanto mas especifica sea la frase, mas peso tiene.
+                // Cuanto más específica sea la frase, más peso tiene.
                 if ($numPalabras >= 4) {
                     $score += 12;
                 } elseif ($numPalabras === 3) {
@@ -193,7 +193,7 @@ class AiChatController extends Controller
                     $score += 4;
                 }
 
-                // Coincidencia exacta de frase completa: maxima confianza.
+                // Coincidencia exacta de frase completa: máxima confianza.
                 if ($mensaje === $tagNormalizado) {
                     $score += 20;
                 }
@@ -226,7 +226,7 @@ class AiChatController extends Controller
 
     /**
      * Crea el prompt para OpenRouter usando reglas relevantes.
-     * Asi reducimos ruido y mantenemos respuestas mas precisas.
+     * Así reducimos ruido y mantenemos respuestas más precisas.
      */
     private function buildSystemPrompt(string $emailSoporte, string $mensaje): string
     {
@@ -234,7 +234,7 @@ class AiChatController extends Controller
         $rules = config('entrenar_IA.rules', []);
         $lineas = [];
 
-        // Si hay coincidencias parciales, pasamos solo las mas cercanas.
+        // Si hay coincidencias parciales, pasamos solo las más cercanas.
         if ($ranking !== []) {
             $intents = collect($ranking)
                 ->take(8)
@@ -252,7 +252,7 @@ class AiChatController extends Controller
             }
         }
 
-        // Si no hay ranking util, pasamos una base corta general.
+        // Si no hay ranking útil, pasamos una base corta general.
         if ($lineas === []) {
             foreach ((array) $rules as $rule) {
                 $answer = trim((string) ($rule['answer'] ?? ''));
@@ -269,18 +269,18 @@ class AiChatController extends Controller
 
         $knowledge = implode("\n", $lineas);
 
-        return "Eres el asistente de SeaFit. Responde en espanol, de forma breve y clara.
-Usa solo la informacion proporcionada.
-No inventes datos ni supongas politicas no indicadas.
-Si no tienes informacion suficiente, responde exactamente:
-No tengo esa informacion ahora. Puedes contactar en {$emailSoporte}.
+        return "Eres el asistente de SeaFit. Responde en español, de forma breve y clara.
+Usa solo la información proporcionada.
+No inventes datos ni supongas políticas no indicadas.
+Si no tienes información suficiente, responde exactamente:
+No tengo esa información ahora. Puedes contactar en {$emailSoporte}.
 
-Informacion validada de SeaFit:
+Información validada de SeaFit:
 {$knowledge}";
     }
 
     /**
-     * Comprueba que todos los terminos esten presentes.
+     * Comprueba que todos los términos estén presentes.
      */
     private function containsAllTerms(string $mensaje, array $tokensMensaje, array $terms): bool
     {
@@ -299,7 +299,7 @@ Informacion validada de SeaFit:
     }
 
     /**
-     * Comprueba si existe al menos un termino de una lista.
+     * Comprueba si existe al menos un término de una lista.
      */
     private function containsAnyTerm(string $mensaje, array $tokensMensaje, array $terms): bool
     {
@@ -319,8 +319,8 @@ Informacion validada de SeaFit:
 
     /**
      * Comprueba coincidencia de tag:
-     * - Si es frase: busqueda por subcadena o por tokens similares.
-     * - Si es una palabra: busqueda por token.
+     * - Si es frase: búsqueda por subcadena o por tokens similares.
+     * - Si es una palabra: búsqueda por token.
      */
     private function containsTag(string $mensaje, array $tokensMensaje, string $tagNormalizado): bool
     {
@@ -394,7 +394,7 @@ Informacion validada de SeaFit:
             return false;
         }
 
-        // Coincidencia por raiz aproximada para cubrir variantes comunes.
+        // Coincidencia por raíz aproximada para cubrir variantes comunes.
         return substr($a, 0, 5) === substr($b, 0, 5);
     }
 

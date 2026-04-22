@@ -7,6 +7,6 @@ namespace App\Http\Controllers;
 
 abstract class Controller
 {
-    // Punto comun para compartir logica entre controladores si se necesita.
+    // Punto común para compartir lógica entre controladores si se necesita.
 }
 

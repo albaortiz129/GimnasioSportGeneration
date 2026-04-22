@@ -1,4 +1,4 @@
-{{-- Vista de administracion de clases: crear, editar y gestionar apuntados. --}}
+{{-- Vista de administración de clases: crear, editar y gestionar apuntados. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Clases - Admin')
@@ -58,7 +58,7 @@
             @endforeach
         </div>
 
-        {{-- Listado de clases y gestion de inscritos. --}}
+        {{-- Listado de clases y gestión de inscritos. --}}
         <div class="space-y-6">
             @foreach($clases as $clase)
                 @php

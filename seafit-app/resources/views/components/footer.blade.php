@@ -17,7 +17,6 @@
         <div class="flex-1">
             <h3 class="text-[16px] font-bold uppercase mb-[25px] text-white leading-none">Soporte</h3>
             <ul class="list-none p-0 m-0">
-                {{-- Busca esta parte en tu footer actual --}}
                 <li class="mb-[10px]">
                     <a href="{{ route('faq') }}"
                         class="text-[#a0aec0] text-[14px] transition-colors duration-300 hover:text-white">
@@ -62,7 +61,7 @@
 
                 {{-- Iconos de Redes --}}
                 <div class="flex flex-row gap-[20px] items-center mt-[5px]">
-                    {{-- La clase 'group' nos permite animar la imagen cuando pasas el ratón por el enlace --}}
+                    {{-- La clase `group` permite animar la imagen al pasar el ratón por el enlace. --}}
                     <a href="https://www.instagram.com" target="_blank" class="group">
                         <img src="{{ asset('imagenes/instagram-logo.png') }}" alt="Instagram"
                             class="w-[24px] h-[24px] brightness-0 invert transition-all duration-300 group-hover:scale-125 group-hover:opacity-80">

@@ -57,8 +57,8 @@ class ServiceController extends Controller
     }
 
     /**
-     * Calcula posicion y columnas de cada clase para pintar solapes sin sobreescritura.
-     * Se asume duracion de 1 hora por clase.
+     * Calcula posición y columnas de cada clase para pintar solapes sin sobreescritura.
+     * Se asume duración de 1 hora por clase.
      */
     private function applyCalendarLayout($clases)
     {

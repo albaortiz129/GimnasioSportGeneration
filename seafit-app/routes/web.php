@@ -126,7 +126,12 @@ Route::middleware(['auth'])->group(function () {
                 'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9.',
             ]);
 
-            $data['dni'] = strtoupper($data['dni']);
+            // Normalización para mantener formato coherente en perfil.
+            $data['nombre'] = trim($data['nombre']);
+            $data['email'] = strtolower(trim($data['email']));
+            $data['dni'] = strtoupper(trim($data['dni']));
+            $data['telefono'] = trim($data['telefono']);
+            $data['domicilio'] = trim($data['domicilio']);
 
             // Guarda cambios de la ficha de socio.
             $user->update($data);

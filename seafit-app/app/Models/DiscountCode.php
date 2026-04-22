@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Modelo Eloquent de códigos de descuento.
+ * Define reglas de validez, uso y cálculo de descuentos.
+ */
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;

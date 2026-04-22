@@ -1,7 +1,7 @@
 ﻿<?php
 
 /**
- * Migracion de tabla clases para la agenda deportiva.
+ * Migración de tabla clases para la agenda deportiva.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,7 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Aplica cambios de esta migracion.
+        // Aplica los cambios de esta migración.
         Schema::create('clases', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
@@ -37,4 +37,5 @@ return new class extends Migration {
         Schema::dropIfExists('clases');
     }
 };
+
 

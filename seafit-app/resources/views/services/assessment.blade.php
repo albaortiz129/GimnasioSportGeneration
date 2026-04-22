@@ -1,4 +1,4 @@
-{{-- Vista de solicitud de valoracion para entrenador personal. --}}
+{{-- Vista de solicitud de valoración para entrenador personal. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Solicita tu Sesión de Valoración - SeaFit')

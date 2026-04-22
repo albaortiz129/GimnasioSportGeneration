@@ -1,7 +1,7 @@
-{{-- Chat lateral basico de IA para soporte rapido del usuario. --}}
+{{-- Chat lateral básico de IA para soporte rápido del usuario. --}}
 @if(config('services.ai_chat.enabled'))
     <div id="ai-chat-wrapper" class="fixed right-5 bottom-5 z-[140]">
-        {{-- Boton flotante para abrir/cerrar el chat. --}}
+        {{-- Botón flotante para abrir/cerrar el chat. --}}
         <button id="ai-chat-toggle"
             class="bg-[#0A1931] text-white rounded-full px-4 py-3 font-bold shadow-lg hover:bg-[#1A3878] transition-colors">
             Chat IA
@@ -12,12 +12,12 @@
             class="hidden mt-3 w-[340px] max-w-[92vw] bg-white border border-gray-200 rounded-2xl shadow-2xl">
             <div class="p-4 border-b">
                 <h3 class="font-black text-[#0A1931]">Asistente SeaFit</h3>
-                <p class="text-xs text-gray-500">Respuestas basicas sobre la web y servicios.</p>
+                <p class="text-xs text-gray-500">Respuestas básicas sobre la web y servicios.</p>
             </div>
 
             <div id="ai-chat-messages" class="h-[320px] overflow-y-auto p-3 space-y-2 bg-[#f8fafc]">
                 <div class="text-sm bg-white border rounded-xl p-2">
-                    Hola, soy el asistente de SeaFit. Preguntame algo.
+                    Hola, soy el asistente de SeaFit. Pregúntame algo.
                 </div>
             </div>
 
@@ -85,10 +85,10 @@
                     });
 
                     const data = await res.json();
-                    const reply = data?.reply || 'No tengo esa informacion ahora. Puedes contactar en soporte.seafit@gmail.com.';
+                    const reply = data?.reply || 'No tengo esa información ahora. Puedes contactar en soporte.seafit@gmail.com.';
                     addMessage(reply, 'bot');
                 } catch (error) {
-                    addMessage('No tengo esa informacion ahora. Puedes contactar en soporte.seafit@gmail.com.', 'bot');
+                    addMessage('No tengo esa información ahora. Puedes contactar en soporte.seafit@gmail.com.', 'bot');
                 } finally {
                     input.disabled = false;
                     input.focus();

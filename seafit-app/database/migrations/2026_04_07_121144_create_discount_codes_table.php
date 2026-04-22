@@ -1,7 +1,7 @@
 ﻿<?php
 
 /**
- * Crea la tabla de codigos de descuento gestionados por admin.
+ * Crea la tabla de códigos de descuento gestionados por admin.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,7 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Si la tabla ya existe, no falla y marca migracion como ejecutada.
+        // Si la tabla ya existe, no falla y marca migración como ejecutada.
         if (Schema::hasTable('discount_codes')) {
             return;
         }
@@ -26,10 +26,10 @@ return new class extends Migration {
             $table->boolean('is_active')->default(true);
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('ends_at')->nullable();
-            $table->unsignedInteger('max_uses')->nullable(); // null = sin limite
+            $table->unsignedInteger('max_uses')->nullable(); // null = sin límite
             $table->unsignedInteger('used_count')->default(0);
             $table->boolean('one_use_per_user')->default(true);
-            $table->string('stripe_coupon_id')->nullable(); // Cupon real de Stripe
+            $table->string('stripe_coupon_id')->nullable(); // Cupón real de Stripe
             $table->text('notes')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
@@ -37,7 +37,7 @@ return new class extends Migration {
     }
 
     /**
-     * Elimina la tabla de codigos.
+     * Elimina la tabla de códigos.
      */
     public function down(): void
     {
@@ -46,4 +46,5 @@ return new class extends Migration {
         }
     }
 };
+
 

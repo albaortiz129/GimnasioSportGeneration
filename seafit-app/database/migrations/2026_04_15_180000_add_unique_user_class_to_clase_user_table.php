@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Asegura que un usuario no pueda reservar dos veces la misma clase.
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**
-     * Agrega indice unico en tabla pivote clase_user.
+     * Agrega índice único en tabla pivote clase_user.
      */
     public function up(): void
     {
@@ -19,7 +19,7 @@ return new class extends Migration {
             return;
         }
 
-        // Limpia duplicados historicos conservando el primer registro (compatible con MySQL/SQLite).
+        // Limpia duplicados históricos conservando el primer registro (compatible con MySQL/SQLite).
         $idsDuplicados = DB::table('clase_user as nuevo')
             ->join('clase_user as viejo', function ($join) {
                 $join->on('nuevo.user_id', '=', 'viejo.user_id')
@@ -43,7 +43,7 @@ return new class extends Migration {
                 $table->unique(['user_id', 'clase_id'], $indexName);
             });
         } catch (QueryException $e) {
-            // Si el indice ya existe en esta base de datos, no interrumpimos el despliegue.
+            // Si el índice ya existe en esta base de datos, no interrumpimos el despliegue.
             if (str_contains(strtolower($e->getMessage()), 'already exists')
                 || str_contains(strtolower($e->getMessage()), 'duplicate')
                 || str_contains(strtolower($e->getMessage()), 'duplicate key name')) {
@@ -55,7 +55,7 @@ return new class extends Migration {
     }
 
     /**
-     * Elimina indice unico agregado.
+     * Elimina índice único agregado.
      */
     public function down(): void
     {
@@ -69,7 +69,7 @@ return new class extends Migration {
                 $table->dropUnique($indexName);
             });
         } catch (QueryException $e) {
-            // Si el indice no existe, ignoramos para permitir rollback seguro.
+            // Si el índice no existe, ignoramos para permitir rollback seguro.
             if (str_contains(strtolower($e->getMessage()), 'no such index')
                 || str_contains(strtolower($e->getMessage()), 'cannot drop')
                 || str_contains(strtolower($e->getMessage()), 'doesn\'t exist')
@@ -81,3 +81,4 @@ return new class extends Migration {
         }
     }
 };
+

@@ -48,7 +48,7 @@
                     revisar tu progreso.</p>
             </header>
 
-            {{-- Tarjeta resumen de la membresia actual --}}
+            {{-- Tarjeta resumen de la membresía actual --}}
             <section
                 class="bg-[#0A1931] text-white p-6 md:p-8 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10 shadow-lg relative overflow-hidden">
                 <div

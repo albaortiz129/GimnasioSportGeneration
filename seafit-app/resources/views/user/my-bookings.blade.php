@@ -1,4 +1,4 @@
-{{-- Vista de reservas del socio con opcion de cancelacion. --}}
+{{-- Vista de reservas del socio con opción de cancelación. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Mis Reservas - SeaFit')

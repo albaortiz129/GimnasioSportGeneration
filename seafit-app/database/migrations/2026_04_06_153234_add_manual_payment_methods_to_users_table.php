@@ -1,7 +1,7 @@
 ﻿<?php
 
 /**
- * Anade columna JSON para metodos de pago manuales.
+ * Añade columna JSON para métodos de pago manuales.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,7 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Aplica cambios de esta migracion.
+        // Aplica los cambios de esta migración.
         Schema::table('users', function (Blueprint $table) {
             $table->json('manual_payment_methods')->nullable()->after('metodo_pago');
         });
@@ -30,4 +30,5 @@ return new class extends Migration {
         });
     }
 };
+
 

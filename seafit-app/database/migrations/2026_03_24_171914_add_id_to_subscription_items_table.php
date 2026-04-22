@@ -1,7 +1,7 @@
 ﻿<?php
 
 /**
- * Migracion que agrega meter_id a subscription_items.
+ * Migración que agrega meter_id a subscription_items.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**
-     * Run the migrations.
+     * Ejecuta la migración.
      */
     public function up(): void
     {
-        // Aplica cambios de esta migracion.
+        // Aplica los cambios de esta migración.
         if (!Schema::hasTable('subscription_items')) {
             return;
         }
@@ -26,7 +26,7 @@ return new class extends Migration {
     }
 
     /**
-     * Reverse the migrations.
+     * Revierte la migración.
      */
     public function down(): void
     {
@@ -42,5 +42,6 @@ return new class extends Migration {
         }
     }
 };
+
 
 

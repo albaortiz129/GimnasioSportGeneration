@@ -1,7 +1,7 @@
 ﻿<?php
 
 /**
- * Migracion de la tabla pivote clase_user para reservas.
+ * Migración de la tabla pivote clase_user para reservas.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,7 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Aplica cambios de esta migracion.
+        // Aplica los cambios de esta migración.
         Schema::create('clase_user', function (Blueprint $table) {
             $table->id();
 
@@ -23,7 +23,7 @@ return new class extends Migration {
             // Si se borra la clase, se borran sus reservas.
             $table->foreignId('clase_id')->constrained()->onDelete('cascade');
 
-            // Fecha de creacion y actualizacion de la reserva.
+            // Fecha de creación y actualización de la reserva.
             $table->timestamps();
         });
     }
@@ -37,4 +37,5 @@ return new class extends Migration {
         Schema::dropIfExists('clase_user');
     }
 };
+
 

@@ -1,7 +1,7 @@
 ﻿<?php
 
 /**
- * Crea la tabla historica de usos de descuentos.
+ * Crea la tabla histórica de usos de descuentos.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,7 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Si la tabla ya existe, no falla y marca migracion como ejecutada.
+        // Si la tabla ya existe, no falla y marca migración como ejecutada.
         if (Schema::hasTable('discount_redemptions')) {
             return;
         }
@@ -41,4 +41,5 @@ return new class extends Migration {
         }
     }
 };
+
 

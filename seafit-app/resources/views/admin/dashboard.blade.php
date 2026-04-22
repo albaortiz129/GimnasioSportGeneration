@@ -1,4 +1,4 @@
-{{-- Vista principal del panel admin: gestion de clientes, cobros y planes. --}}
+{{-- Vista principal del panel admin: gestión de clientes, cobros y planes. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Panel de Administracion - SeaFit')

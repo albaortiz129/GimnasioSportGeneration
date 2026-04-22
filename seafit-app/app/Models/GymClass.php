@@ -2,7 +2,7 @@
 
 /**
  * Modelo de clases del gimnasio.
- * Solo guarda datos de clase y su relacion con usuarios.
+ * Solo guarda datos de clase y su relación con usuarios.
  */
 namespace App\Models;
 

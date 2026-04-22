@@ -1,4 +1,4 @@
-{{-- Vista de empleo para candidaturas y captacion de talento. --}}
+{{-- Vista de empleo para candidaturas y captación de talento. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Trabaja con Nosotros - SeaFit')

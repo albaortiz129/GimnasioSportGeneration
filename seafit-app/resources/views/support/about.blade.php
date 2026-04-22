@@ -1,4 +1,4 @@
-{{-- Vista corporativa sobre historia, valores y proyeccion de SeaFit. --}}
+{{-- Vista corporativa sobre historia, valores y proyección de SeaFit. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Nuestra Historia - SeaFit')
