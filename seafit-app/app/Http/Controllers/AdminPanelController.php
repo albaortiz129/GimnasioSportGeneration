@@ -356,6 +356,27 @@ class AdminPanelController extends Controller
                     'next_payment_at' => $fechaActual->toDateString(),
                 ]);
 
+                $metodoLabel = $this->paymentMethodLabel($user->metodo_pago);
+                try {
+                    // Envia correo tambien al renovar desde el panel admin.
+                    Mail::send('emails.payment-approved', [
+                        'nombre' => $user->nombre,
+                        'metodo' => $metodoLabel,
+                        'tarifa' => ucfirst((string) $user->tarifa),
+                        'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha',
+                        'origen' => 'Suscripcion renovada por administracion',
+                    ], function ($message) use ($user) {
+                        $message->to($user->email);
+                        $message->subject('Pago aprobado - SeaFit');
+                    });
+                } catch (\Throwable $e) {
+                    Log::error('Error al enviar correo de pago aprobado (renewSubscription:fecha_vigente).', [
+                        'user_id' => $user->id,
+                        'email' => $user->email,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+
                 return back()->with('success', 'Pago regularizado. La fecha de renovación se mantiene.');
             }
         }
@@ -364,6 +385,27 @@ class AdminPanelController extends Controller
             'payment_status' => 'al_dia',
             'next_payment_at' => $this->nextChargeDate($user->tarifa, now()),
         ]);
+
+        $metodoLabel = $this->paymentMethodLabel($user->metodo_pago);
+        try {
+            // Envia correo cuando la renovacion genera una nueva fecha de cobro.
+            Mail::send('emails.payment-approved', [
+                'nombre' => $user->nombre,
+                'metodo' => $metodoLabel,
+                'tarifa' => ucfirst((string) $user->tarifa),
+                'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha',
+                'origen' => 'Suscripcion renovada por administracion',
+            ], function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('Pago aprobado - SeaFit');
+            });
+        } catch (\Throwable $e) {
+            Log::error('Error al enviar correo de pago aprobado (renewSubscription:nueva_fecha).', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return back()->with('success', 'Suscripción renovada.');
     }
