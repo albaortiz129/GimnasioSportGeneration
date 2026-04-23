@@ -6,16 +6,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Symfony\Component\Process\Process;
 
 /**
- * Controlador del chat IA de SeaFit.
- * Prioriza respuestas locales definidas en config/entrenar_IA.php
- * y solo usa OpenRouter cuando no hay coincidencias claras.
+ * Controlador del chat IA.
+ *
+ * Flujo de respuesta (de mas controlado a mas abierto):
+ * 1) Motor Python local (scikit-learn).
+ * 2) Reglas locales en PHP.
+ * 3) OpenRouter.
+ * 4) Mensaje final de soporte.
  */
 class AiChatController extends Controller
 {
     /**
-     * Endpoint principal del chat.
+     * Endpoint del chat.
+     * Recibe el mensaje y devuelve un JSON con la respuesta.
      */
     public function ask(Request $request)
     {
@@ -27,8 +33,22 @@ class AiChatController extends Controller
         $mensaje = $this->normalizarTexto($mensajeOriginal);
         $emailSoporte = (string) config('services.ai_chat.support_email', 'soporte.seafit@gmail.com');
 
-        // 1) Respuesta local: rápida, estable y precisa para FAQ conocidas.
-        $respuestaLocal = $this->answerFromTrainingRules($mensaje);
+        $rules = config('entrenar_IA.rules', []);
+        $rules = is_array($rules) ? $rules : [];
+
+        // 1) Intento con Python (ML local).
+        $respuestaPython = $this->answerFromPythonModel($mensajeOriginal, $rules);
+        if ($respuestaPython !== null) {
+            return response()->json([
+                'reply' => $respuestaPython['answer'],
+                'source' => 'python_ml',
+                'intent' => $respuestaPython['intent'],
+                'confidence' => $respuestaPython['confidence'],
+            ]);
+        }
+
+        // 2) Si Python no responde, se prueban reglas locales.
+        $respuestaLocal = $this->answerFromTrainingRules($mensaje, $rules);
         if ($respuestaLocal !== null) {
             return response()->json([
                 'reply' => $respuestaLocal['answer'],
@@ -37,20 +57,20 @@ class AiChatController extends Controller
             ]);
         }
 
-        // 2) Si no hay API key, se devuelve respuesta de soporte.
+        // 3) Si no hay API key de OpenRouter, se da fallback directo.
         $apiKey = trim((string) config('services.openrouter.api_key'));
         if ($apiKey === '') {
             return response()->json([
-                'reply' => "No tengo esa información ahora. Puedes contactar en {$emailSoporte}.",
+                'reply' => $this->supportFallbackText($emailSoporte),
                 'source' => 'fallback',
             ]);
         }
 
-        // 3) Preguntas fuera de reglas locales: se consulta OpenRouter.
+        // 4) OpenRouter como ultima capa de respuesta.
         try {
             $baseUrl = rtrim((string) config('services.openrouter.base_url', 'https://openrouter.ai/api/v1'), '/');
             $model = (string) config('services.openrouter.model', 'openrouter/auto');
-            $systemPrompt = $this->buildSystemPrompt($emailSoporte, $mensaje);
+            $systemPrompt = $this->buildSystemPrompt($emailSoporte, $mensaje, $rules);
 
             $response = Http::timeout(20)
                 ->withHeaders([
@@ -65,7 +85,7 @@ class AiChatController extends Controller
                         ['role' => 'system', 'content' => $systemPrompt],
                         ['role' => 'user', 'content' => $mensajeOriginal],
                     ],
-                    // Temperatura baja para minimizar invenciones.
+                    // Parametros conservadores para evitar respuestas inventadas.
                     'temperature' => 0.0,
                     'top_p' => 0.2,
                     'max_tokens' => 220,
@@ -78,7 +98,7 @@ class AiChatController extends Controller
                 ]);
 
                 return response()->json([
-                    'reply' => "No tengo esa información ahora. Puedes contactar en {$emailSoporte}.",
+                    'reply' => $this->supportFallbackText($emailSoporte),
                     'source' => 'fallback',
                 ]);
             }
@@ -86,7 +106,7 @@ class AiChatController extends Controller
             $reply = trim((string) data_get($response->json(), 'choices.0.message.content', ''));
             if ($reply === '') {
                 return response()->json([
-                    'reply' => "No tengo esa información ahora. Puedes contactar en {$emailSoporte}.",
+                    'reply' => $this->supportFallbackText($emailSoporte),
                     'source' => 'fallback',
                 ]);
             }
@@ -101,21 +121,88 @@ class AiChatController extends Controller
             ]);
 
             return response()->json([
-                'reply' => "No tengo esa información ahora. Puedes contactar en {$emailSoporte}.",
+                'reply' => $this->supportFallbackText($emailSoporte),
                 'source' => 'fallback',
             ]);
         }
     }
 
     /**
-     * Intenta responder desde reglas locales de entrenamiento.
-     * Devuelve la regla ganadora solo si supera el umbral mínimo.
+     * Ejecuta el script Python y lee su salida JSON.
+     * Si algo falla, devuelve null para que siga el flujo normal.
      *
+     * @param  array<int, array<string, mixed>>  $rules
+     * @return array{intent:string,answer:string,confidence:float}|null
+     */
+    private function answerFromPythonModel(string $mensajeOriginal, array $rules): ?array
+    {
+        if (!((bool) config('services.ai_chat.python_enabled', true))) {
+            return null;
+        }
+
+        $pythonBin = trim((string) config('services.ai_chat.python_bin', 'python'));
+        $scriptRelative = trim((string) config('services.ai_chat.python_script', 'ai_python/chat_infer.py'));
+        $scriptPath = base_path($scriptRelative);
+        $timeout = max((int) config('services.ai_chat.python_timeout', 8), 3);
+        $minConfidence = (float) config('services.ai_chat.python_min_confidence', 0.58);
+
+        if ($pythonBin === '' || !is_file($scriptPath)) {
+            return null;
+        }
+
+        // Laravel manda al script el mensaje y reglas en un JSON.
+        $payload = json_encode([
+            'message' => $mensajeOriginal,
+            'rules' => $rules,
+            'min_confidence' => $minConfidence,
+        ], JSON_UNESCAPED_UNICODE);
+
+        if (!is_string($payload) || $payload === '') {
+            return null;
+        }
+
+        try {
+            $process = new Process([$pythonBin, $scriptPath], base_path(), null, $payload, $timeout);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+
+            $output = json_decode($process->getOutput(), true);
+            if (!is_array($output) || !((bool) ($output['ok'] ?? false))) {
+                return null;
+            }
+
+            if (!((bool) ($output['matched'] ?? false))) {
+                return null;
+            }
+
+            $answer = trim((string) ($output['answer'] ?? ''));
+            if ($answer === '') {
+                return null;
+            }
+
+            return [
+                'intent' => trim((string) ($output['intent'] ?? 'python_ml')),
+                'answer' => $answer,
+                'confidence' => (float) ($output['confidence'] ?? 0.0),
+            ];
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Respuesta por reglas PHP.
+     * Solo acepta la mejor regla si supera el umbral minimo.
+     *
+     * @param  array<int, array<string, mixed>>  $rules
      * @return array{intent:string,answer:string,score:int}|null
      */
-    private function answerFromTrainingRules(string $mensaje): ?array
+    private function answerFromTrainingRules(string $mensaje, array $rules): ?array
     {
-        $ranking = $this->rankTrainingRules($mensaje);
+        $ranking = $this->rankTrainingRules($mensaje, $rules);
         if ($ranking === []) {
             return null;
         }
@@ -131,14 +218,15 @@ class AiChatController extends Controller
     }
 
     /**
-     * Devuelve reglas ordenadas de mayor a menor precisión para el mensaje.
+     * Calcula ranking de reglas de mayor a menor.
+     * Puntuacion basada en coincidencia de tags y prioridad.
      *
+     * @param  array<int, array<string, mixed>>  $rules
      * @return array<int, array{intent:string,answer:string,score:int,priority:int}>
      */
-    private function rankTrainingRules(string $mensaje): array
+    private function rankTrainingRules(string $mensaje, array $rules): array
     {
-        $rules = config('entrenar_IA.rules', []);
-        if (!is_array($rules) || $rules === []) {
+        if ($rules === []) {
             return [];
         }
 
@@ -182,7 +270,6 @@ class AiChatController extends Controller
                 $tagTokens = $this->tokenize($tagNormalizado);
                 $numPalabras = count($tagTokens);
 
-                // Cuanto más específica sea la frase, más peso tiene.
                 if ($numPalabras >= 4) {
                     $score += 12;
                 } elseif ($numPalabras === 3) {
@@ -193,7 +280,6 @@ class AiChatController extends Controller
                     $score += 4;
                 }
 
-                // Coincidencia exacta de frase completa: máxima confianza.
                 if ($mensaje === $tagNormalizado) {
                     $score += 20;
                 }
@@ -225,23 +311,22 @@ class AiChatController extends Controller
     }
 
     /**
-     * Crea el prompt para OpenRouter usando reglas relevantes.
-     * Así reducimos ruido y mantenemos respuestas más precisas.
+     * Crea el prompt de OpenRouter usando solo reglas relevantes.
+     *
+     * @param  array<int, array<string, mixed>>  $rules
      */
-    private function buildSystemPrompt(string $emailSoporte, string $mensaje): string
+    private function buildSystemPrompt(string $emailSoporte, string $mensaje, array $rules): string
     {
-        $ranking = $this->rankTrainingRules($mensaje);
-        $rules = config('entrenar_IA.rules', []);
+        $ranking = $this->rankTrainingRules($mensaje, $rules);
         $lineas = [];
 
-        // Si hay coincidencias parciales, pasamos solo las más cercanas.
         if ($ranking !== []) {
             $intents = collect($ranking)
                 ->take(8)
                 ->pluck('intent')
                 ->all();
 
-            foreach ((array) $rules as $rule) {
+            foreach ($rules as $rule) {
                 $intent = trim((string) ($rule['intent'] ?? ''));
                 $answer = trim((string) ($rule['answer'] ?? ''));
                 if ($intent === '' || $answer === '' || !in_array($intent, $intents, true)) {
@@ -252,9 +337,8 @@ class AiChatController extends Controller
             }
         }
 
-        // Si no hay ranking útil, pasamos una base corta general.
         if ($lineas === []) {
-            foreach ((array) $rules as $rule) {
+            foreach ($rules as $rule) {
                 $answer = trim((string) ($rule['answer'] ?? ''));
                 if ($answer === '') {
                     continue;
@@ -269,18 +353,18 @@ class AiChatController extends Controller
 
         $knowledge = implode("\n", $lineas);
 
-        return "Eres el asistente de SeaFit. Responde en español, de forma breve y clara.
-Usa solo la información proporcionada.
-No inventes datos ni supongas políticas no indicadas.
-Si no tienes información suficiente, responde exactamente:
-No tengo esa información ahora. Puedes contactar en {$emailSoporte}.
+        return "Eres el asistente de SeaFit. Responde en espanol, de forma breve y clara.
+Usa solo la informacion proporcionada.
+No inventes datos ni supongas politicas no indicadas.
+Si no tienes informacion suficiente, responde exactamente:
+No tengo esa informacion ahora. Puedes contactar en {$emailSoporte}.
 
-Información validada de SeaFit:
+Informacion validada de SeaFit:
 {$knowledge}";
     }
 
     /**
-     * Comprueba que todos los términos estén presentes.
+     * Devuelve true si todos los terminos de la lista estan presentes.
      */
     private function containsAllTerms(string $mensaje, array $tokensMensaje, array $terms): bool
     {
@@ -299,7 +383,7 @@ Información validada de SeaFit:
     }
 
     /**
-     * Comprueba si existe al menos un término de una lista.
+     * Devuelve true si aparece al menos un termino de la lista.
      */
     private function containsAnyTerm(string $mensaje, array $tokensMensaje, array $terms): bool
     {
@@ -318,9 +402,9 @@ Información validada de SeaFit:
     }
 
     /**
-     * Comprueba coincidencia de tag:
-     * - Si es frase: búsqueda por subcadena o por tokens similares.
-     * - Si es una palabra: búsqueda por token.
+     * Comprueba si un tag coincide con el mensaje.
+     * - Tag de 1 palabra: compara tokens.
+     * - Tag de varias palabras: busca frase o coincidencia alta por tokens.
      */
     private function containsTag(string $mensaje, array $tokensMensaje, string $tagNormalizado): bool
     {
@@ -358,13 +442,12 @@ Información validada de SeaFit:
             }
         }
 
-        // Requiere coincidencia total o casi total para evitar falsos positivos.
         $ratio = $matched / max(count($tagTokens), 1);
         return $matched === count($tagTokens) || ($matched >= 2 && $ratio >= 0.8);
     }
 
     /**
-     * Tokeniza texto normalizado para comparar palabras completas.
+     * Separa texto en tokens alfanumericos.
      *
      * @return string[]
      */
@@ -379,7 +462,7 @@ Información validada de SeaFit:
     }
 
     /**
-     * Compara dos tokens permitiendo ligeras variaciones.
+     * Compara dos tokens permitiendo una similitud basica por raiz.
      */
     private function tokensMatch(string $a, string $b): bool
     {
@@ -394,12 +477,11 @@ Información validada de SeaFit:
             return false;
         }
 
-        // Coincidencia por raíz aproximada para cubrir variantes comunes.
         return substr($a, 0, 5) === substr($b, 0, 5);
     }
 
     /**
-     * Filtra palabras poco informativas para mejorar el matching por frases.
+     * Quita palabras poco utiles para mejorar coincidencia por frases.
      *
      * @param  string[]  $tokens
      * @return string[]
@@ -417,7 +499,7 @@ Información validada de SeaFit:
     }
 
     /**
-     * Normaliza texto para comparaciones robustas.
+     * Normaliza texto para comparar sin problemas de formato.
      */
     private function normalizarTexto(string $text): string
     {
@@ -425,5 +507,13 @@ Información validada de SeaFit:
             ->ascii()
             ->lower()
             ->squish();
+    }
+
+    /**
+     * Mensaje estandar cuando no hay respuesta fiable.
+     */
+    private function supportFallbackText(string $emailSoporte): string
+    {
+        return "No tengo esa informacion ahora. Puedes contactar en {$emailSoporte}.";
     }
 }

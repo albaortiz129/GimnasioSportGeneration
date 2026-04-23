@@ -12,7 +12,6 @@
             class="hidden mt-3 w-[340px] max-w-[92vw] bg-white border border-gray-200 rounded-2xl shadow-2xl">
             <div class="p-4 border-b">
                 <h3 class="font-black text-[#0A1931]">Asistente SeaFit</h3>
-                <p class="text-xs text-gray-500">Respuestas básicas sobre la web y servicios.</p>
             </div>
 
             <div id="ai-chat-messages" class="h-[320px] overflow-y-auto p-3 space-y-2 bg-[#f8fafc]">
