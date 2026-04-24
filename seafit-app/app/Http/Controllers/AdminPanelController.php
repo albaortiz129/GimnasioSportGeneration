@@ -466,7 +466,6 @@ class AdminPanelController extends Controller
      */
     public function classStore(Request $request)
     {
-        // Reglas básicas de alta para evitar datos incompletos.
         $data = $request->validate([
             'nombre' => 'required|string|max:255',
             'instructor' => 'required|string|max:255',
@@ -490,7 +489,6 @@ class AdminPanelController extends Controller
      */
     public function classUpdate(Request $request, GymClass $clase)
     {
-        // Se aplican las mismas reglas que en el alta.
         $data = $request->validate([
             'nombre' => 'required|string|max:255',
             'instructor' => 'required|string|max:255',

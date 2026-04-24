@@ -192,7 +192,6 @@ const FormularioRegistro = () => {
 
             return true;
         } catch (error) {
-            // Si falla la comprobación, no bloqueamos al usuario aquí.
             return true;
         }
     };

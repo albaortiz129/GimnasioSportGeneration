@@ -69,8 +69,6 @@ class RegistrationController extends Controller
                 ],
                 'domicilio' => 'required|string|max:255',
                 'tarifa' => 'required|in:mensual,trimestral,anual',
-                // Bizum y PayPal están desactivados en el registro.
-                // Si se quieren recuperar en el futuro, añádelos de nuevo aquí.
                 'metodo_pago' => 'required|in:visa,efectivo',
                 'cupon' => 'nullable|string|max:100',
                 'stripeCodigo' => 'nullable|string',

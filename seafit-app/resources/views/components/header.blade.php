@@ -1,4 +1,4 @@
-{{-- Cabecera principal: logo, menú y acceso de sesión. --}}
+﻿{{-- Cabecera principal: logo, menú y acceso de sesión. --}}
 <header class="w-full bg-white shadow-sm">
     <div class="flex justify-between items-center max-w-[1200px] mx-auto py-[10px] px-5">
 
@@ -45,12 +45,7 @@
                             Panel Admin
                         </a>
                     @else
-                        {{-- Botón pequeño del QR al lado de "Mi Perfil". --}}
-                        <button type="button" id="abrirQrHeader"
-                            class="inline-flex items-center justify-center w-9 h-9 rounded-full border border-[#1A3878]/30 text-[#1A3878] hover:bg-[#1A3878]/10 transition-colors shrink-0"
-                            title="Mostrar QR">
-                            <span class="material-symbols-outlined text-[18px]">qr_code_2</span>
-                        </button>
+                        {{-- Acceso directo al perfil (restaurado como estaba antes). --}}
                         <a href="{{ url('/perfil') }}"
                             class="inline-flex items-center gap-1.5 text-[#0A1931] font-semibold text-base hover:text-[#1A3878] transition-colors whitespace-nowrap leading-none shrink-0">
                             <span class="material-symbols-outlined text-[22px] leading-none">account_circle</span>
@@ -73,8 +68,8 @@
 </header>
 
 @auth
-    @if(!auth()->user()->is_admin)
-        {{-- Modal QR para socios --}}
+    @if(!auth()->user()->is_admin && auth()->user()->isPlanActive())
+        {{-- Modal QR para socios con cuenta activa. --}}
         <div id="modalQrHeader"
             class="fixed inset-0 bg-black/70 backdrop-blur-md z-[120] hidden flex items-center justify-center p-4">
             <div class="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl text-center">
@@ -93,8 +88,7 @@
 
         <script>
             (() => {
-                // Elementos del botón, modal e imagen QR.
-                const abrirBtn = document.getElementById('abrirQrHeader');
+                // Elementos del modal e imagen QR.
                 const cerrarBtn = document.getElementById('cerrarQrHeader');
                 const modal = document.getElementById('modalQrHeader');
                 const qrImg = document.getElementById('qrImgHeader');
@@ -133,8 +127,10 @@
                     intervaloQr = null;
                 }
 
-                // Eventos de abrir y cerrar.
-                abrirBtn?.addEventListener('click', abrirModal);
+                // Exponemos apertura global para usar el QR desde el botón del inicio.
+                window.openGymQrModal = abrirModal;
+
+                // Evento de cerrar.
                 cerrarBtn?.addEventListener('click', cerrarModal);
 
                 // Cierra también si haces clic fuera del cuadro.

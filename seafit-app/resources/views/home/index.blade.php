@@ -1,17 +1,26 @@
-{{-- Vista pública principal (home) con acceso a servicios y planes. --}}
+﻿{{-- Vista pública principal (home) con acceso a servicios y planes. --}}
 @extends('layouts.app')
 
 @section('titulo', 'SeaFit - Tu gimnasio online')
 
 @section('contenido')
     @php
+        $ctaMode = 'link';
+
         if (auth()->check()) {
             if (auth()->user()->is_admin) {
                 $ctaUrl = route('admin.dashboard');
                 $ctaText = 'Ir al panel admin';
             } else {
-                $ctaUrl = route('perfil');
-                $ctaText = 'Ir a mi perfil';
+                // Si el socio está activo, en inicio mostramos acceso directo al QR.
+                if (auth()->user()->isPlanActive()) {
+                    $ctaUrl = null;
+                    $ctaText = 'Entrar al gimnasio';
+                    $ctaMode = 'qr';
+                } else {
+                    $ctaUrl = route('perfil');
+                    $ctaText = 'Ir a mi perfil';
+                }
             }
         } else {
             $ctaUrl = route('registro');
@@ -28,10 +37,18 @@
                 <h1 class="text-white text-3xl md:text-[42px] font-extrabold leading-[1.2] drop-shadow-md m-0">
                     Olvídate de colas y llamadas. Accede a todo nuestro catálogo al instante.
                 </h1>
-                <a href="{{ $ctaUrl }}"
-                    class="inline-block mt-8 bg-[#1A3878] text-white py-3 px-8 rounded-xl font-bold text-[16px] transition-transform duration-300 hover:scale-105 shadow-lg">
-                    {{ $ctaText }}
-                </a>
+
+                @if($ctaMode === 'qr')
+                    <button type="button" id="abrirQrHome"
+                        class="inline-block mt-8 bg-[#1A3878] text-white py-3 px-8 rounded-xl font-bold text-[16px] transition-transform duration-300 hover:scale-105 shadow-lg">
+                        {{ $ctaText }}
+                    </button>
+                @else
+                    <a href="{{ $ctaUrl }}"
+                        class="inline-block mt-8 bg-[#1A3878] text-white py-3 px-8 rounded-xl font-bold text-[16px] transition-transform duration-300 hover:scale-105 shadow-lg">
+                        {{ $ctaText }}
+                    </a>
+                @endif
 
             </div>
         </section>
@@ -113,4 +130,19 @@
 
         </section>
     </div>
+
+    @if($ctaMode === 'qr')
+        <script>
+            (() => {
+                // El botón del inicio abre el modal QR global.
+                const botonInicio = document.getElementById('abrirQrHome');
+
+                botonInicio?.addEventListener('click', () => {
+                    if (typeof window.openGymQrModal === 'function') {
+                        window.openGymQrModal();
+                    }
+                });
+            })();
+        </script>
+    @endif
 @endsection

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Motor de IA local para el chat de SeaFit (version sencilla).
+Motor de IA para el chat.
 
-Idea general:
 1) Laravel le pasa un mensaje y las reglas (preguntas/respuestas).
 2) Este script entrena un modelo pequeno en memoria.
 3) Devuelve la mejor respuesta SOLO si la confianza es suficiente.
