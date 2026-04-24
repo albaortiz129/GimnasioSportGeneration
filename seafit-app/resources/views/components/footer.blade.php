@@ -2,11 +2,11 @@
 <footer class="bg-[#051221] text-white py-[60px] shrink-0">
     {{-- Contenedor principal: columna en móvil, fila en PC --}}
     <div
-        class="flex flex-col md:flex-row justify-between items-start max-w-[1200px] mx-auto px-10 gap-10 md:gap-[30px]">
+        class="flex flex-col md:flex-row justify-between items-start max-w-[1200px] mx-auto px-5 sm:px-10 gap-10 md:gap-[30px]">
 
         {{-- Logo y Texto --}}
-        <div class="flex-[1.5] min-w-[200px]">
-            <img src="{{ asset('imagenes/Logo transparente.png') }}" class="w-[250px] h-auto block -mt-[15px] mb-5"
+        <div class="flex-[1.5] min-w-[200px] w-full md:w-auto">
+            <img src="{{ asset('imagenes/Logo transparente.png') }}" class="w-[210px] sm:w-[250px] h-auto block -mt-[15px] mb-5"
                 alt="Sea Fit Logo">
             <p class="text-[14px] text-[#a0aec0] leading-[1.6] m-0">
                 Tu centro deportivo de confianza. Encuentra tu pasión y supérate cada día con nosotros.

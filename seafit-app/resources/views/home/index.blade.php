@@ -18,8 +18,9 @@
                     $ctaText = 'Entrar al gimnasio';
                     $ctaMode = 'qr';
                 } else {
-                    $ctaUrl = route('perfil');
-                    $ctaText = 'Ir a mi perfil';
+                    $ctaUrl = null;
+                    $ctaText = 'Debes ponerte en contacto con el Administrador del gimnasio.';
+                    $ctaMode = 'blocked';
                 }
             }
         } else {
@@ -31,21 +32,26 @@
     <div class="w-full">
         {{-- Banner Principal (Hero) --}}
 
-        <section class="h-[450px] bg-cover bg-center flex items-center justify-center text-center px-5 md:px-[15%]"
+        <section class="min-h-[360px] sm:h-[450px] bg-cover bg-center flex items-center justify-center text-center px-4 sm:px-5 md:px-[15%]"
             style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ asset('imagenes/banner.jpg') }}');">
             <div class="max-w-[900px]">
-                <h1 class="text-white text-3xl md:text-[42px] font-extrabold leading-[1.2] drop-shadow-md m-0">
+                <h1 class="text-white text-2xl sm:text-3xl md:text-[42px] font-extrabold leading-[1.2] drop-shadow-md m-0">
                     Olvídate de colas y llamadas. Accede a todo nuestro catálogo al instante.
                 </h1>
 
                 @if($ctaMode === 'qr')
                     <button type="button" id="abrirQrHome"
-                        class="inline-block mt-8 bg-[#1A3878] text-white py-3 px-8 rounded-xl font-bold text-[16px] transition-transform duration-300 hover:scale-105 shadow-lg">
+                        class="inline-block w-full sm:w-auto mt-8 bg-[#1A3878] text-white py-3 px-8 rounded-xl font-bold text-[15px] sm:text-[16px] transition-transform duration-300 hover:scale-105 shadow-lg">
                         {{ $ctaText }}
                     </button>
+                @elseif($ctaMode === 'blocked')
+                    <div
+                        class="inline-block w-full sm:w-auto mt-8 bg-amber-50 text-amber-900 border border-amber-300 py-3 px-6 rounded-xl font-bold text-[14px] sm:text-[15px] shadow-lg">
+                        {{ $ctaText }}
+                    </div>
                 @else
                     <a href="{{ $ctaUrl }}"
-                        class="inline-block mt-8 bg-[#1A3878] text-white py-3 px-8 rounded-xl font-bold text-[16px] transition-transform duration-300 hover:scale-105 shadow-lg">
+                        class="inline-block w-full sm:w-auto mt-8 bg-[#1A3878] text-white py-3 px-8 rounded-xl font-bold text-[15px] sm:text-[16px] transition-transform duration-300 hover:scale-105 shadow-lg">
                         {{ $ctaText }}
                     </a>
                 @endif
@@ -54,17 +60,17 @@
         </section>
 
         {{-- Título de Introducción --}}
-        <section class="text-center pt-[60px] pb-5 px-5">
-            <h2 class="text-[32px] text-[#051221] mb-2.5 font-bold m-0">¿Listo?</h2>
-            <p class="text-gray-600 text-lg m-0">Todo lo que necesitas para empezar</p>
+        <section class="text-center pt-12 sm:pt-[60px] pb-5 px-4 sm:px-5">
+            <h2 class="text-[28px] sm:text-[32px] text-[#051221] mb-2.5 font-bold m-0">¿Listo?</h2>
+            <p class="text-gray-600 text-base sm:text-lg m-0">Todo lo que necesitas para empezar</p>
         </section>
 
         {{-- 3. Cuadrícula de Servicios --}}
-        <section class="px-5 py-12 max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        <section class="px-4 sm:px-5 py-10 sm:py-12 max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
 
             {{-- Tarjeta: Clases Colectivas --}}
             <div
-                class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-start text-left transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                class="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-start text-left transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                 <div class="mb-6 bg-[#1A3878] p-4 rounded-xl flex items-center justify-center w-16 h-16">
                     <img src="{{ asset('imagenes/clases-logo.png') }}" alt="Clases Colectivas"
                         class="w-full h-full object-contain">
@@ -81,7 +87,7 @@
 
             {{-- Tarjeta: Entrenador Personal --}}
             <div
-                class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-start text-left transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                class="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-start text-left transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                 <div class="mb-6 bg-[#1A3878] p-4 rounded-xl flex items-center justify-center w-16 h-16">
                     <img src="{{ asset('imagenes/gimnasio-cardio-logo.png') }}" alt="Entrenador Personal"
                         class="w-full h-full object-contain">
@@ -113,7 +119,7 @@
 
             {{-- Tarjeta: Membresía --}}
             <div
-                class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-start text-left transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                class="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-start text-left transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                 <div class="mb-6 bg-[#1A3878] p-4 rounded-xl flex items-center justify-center w-16 h-16">
                     <img src="{{ asset('imagenes/piscina-logo.png') }}" alt="Membresía"
                         class="w-full h-full object-contain">

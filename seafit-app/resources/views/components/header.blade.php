@@ -1,17 +1,17 @@
 ﻿{{-- Cabecera principal: logo, menú y acceso de sesión. --}}
 <header class="w-full bg-white shadow-sm">
-    <div class="flex justify-between items-center max-w-[1200px] mx-auto py-[10px] px-5">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 max-w-[1200px] mx-auto py-3 md:py-[10px] px-4 sm:px-5">
 
         {{-- Logo --}}
-        <div class="flex-1">
+        <div class="w-full md:flex-1 flex justify-center md:justify-start">
             <a href="{{ url('/') }}" class="block">
-                <img src="{{ asset('imagenes/Logo transparente.png') }}" alt="Sea Fit" class="h-[55px] block">
+                <img src="{{ asset('imagenes/Logo transparente.png') }}" alt="Sea Fit" class="h-[46px] sm:h-[55px] block">
             </a>
         </div>
 
         {{-- Menú central --}}
-        <div class="flex justify-center flex-[2]">
-            <nav class="flex gap-[25px]">
+        <div class="w-full md:flex-[2] flex justify-center">
+            <nav class="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:gap-[25px] text-sm sm:text-base">
                 <a href="{{ url('/') }}"
                     class="{{ Request::is('/') ? 'text-[#1A3878] font-bold' : 'text-gray-600 font-medium hover:text-[#1A3878] transition-colors duration-300' }}">Inicio</a>
                 <a href="{{ url('/servicios') }}"
@@ -22,32 +22,32 @@
         </div>
 
         {{-- Zona derecha: auth/admin --}}
-        <div class="flex items-center justify-end flex-1">
+        <div class="w-full md:flex-1 flex items-center justify-center md:justify-end">
             @guest
                 <div class="flex">
                     <a href="{{ url('/registro') }}"
-                        class="bg-[#1A3878] text-white py-2 px-5 border-2 border-[#1A3878] rounded-l-xl font-bold text-sm">
+                        class="bg-[#1A3878] text-white py-2 px-4 sm:px-5 border-2 border-[#1A3878] rounded-l-xl font-bold text-xs sm:text-sm">
                         Regístrate
                     </a>
                     <a href="{{ url('/login') }}"
-                        class="bg-transparent text-[#1A3878] py-2 px-5 border-2 border-[#1A3878] border-l-0 rounded-r-xl font-bold text-sm transition-colors duration-300 hover:bg-gray-50">
+                        class="bg-transparent text-[#1A3878] py-2 px-4 sm:px-5 border-2 border-[#1A3878] border-l-0 rounded-r-xl font-bold text-xs sm:text-sm transition-colors duration-300 hover:bg-gray-50">
                         Iniciar sesión
                     </a>
                 </div>
             @endguest
 
             @auth
-                <div class="flex items-center gap-3 sm:gap-5">
+                <div class="flex flex-wrap items-center justify-center md:justify-end gap-2 sm:gap-4">
                     @if(auth()->user()->is_admin)
                         <a href="{{ route('admin.dashboard') }}"
-                            class="flex items-center gap-1 text-red-600 font-bold text-base hover:text-red-800 transition-colors bg-red-50 px-3 py-1 rounded-lg border border-red-200">
+                            class="flex items-center gap-1 text-red-600 font-bold text-sm sm:text-base hover:text-red-800 transition-colors bg-red-50 px-3 py-1 rounded-lg border border-red-200">
                             <span class="material-symbols-outlined">admin_panel_settings</span>
                             Panel Admin
                         </a>
                     @else
                         {{-- Acceso directo al perfil (restaurado como estaba antes). --}}
                         <a href="{{ url('/perfil') }}"
-                            class="inline-flex items-center gap-1.5 text-[#0A1931] font-semibold text-base hover:text-[#1A3878] transition-colors whitespace-nowrap leading-none shrink-0">
+                            class="inline-flex items-center gap-1.5 text-[#0A1931] font-semibold text-sm sm:text-base hover:text-[#1A3878] transition-colors whitespace-nowrap leading-none shrink-0">
                             <span class="material-symbols-outlined text-[22px] leading-none">account_circle</span>
                             Mi Perfil
                         </a>
@@ -56,7 +56,7 @@
                     <form action="{{ route('logout') }}" method="POST" class="m-0">
                         @csrf
                         <button type="submit"
-                            class="bg-[#0A1931] text-white py-2 px-[18px] rounded-full font-bold text-sm transition-colors hover:bg-[#1A3878]">
+                            class="bg-[#0A1931] text-white py-2 px-4 sm:px-[18px] rounded-full font-bold text-xs sm:text-sm transition-colors hover:bg-[#1A3878]">
                             Cerrar sesión
                         </button>
                     </form>
