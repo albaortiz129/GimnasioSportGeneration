@@ -8,12 +8,26 @@ body {
     margin: 0;
 }
 
+/* Evita huecos superiores inyectados por barras de traducción del navegador. */
+html {
+    margin-top: 0 !important;
+}
+
 body {
     font-family: 'Montserrat', sans-serif;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    position: static !important;
+    top: 0 !important;
+    margin-top: 0 !important;
     /* Ocupa el alto total de la pantalla */
+}
+
+/* Oculta barra superior de Google Translate si el navegador la inyecta. */
+.goog-te-banner-frame.skiptranslate,
+iframe.skiptranslate {
+    display: none !important;
 }
 
 main {

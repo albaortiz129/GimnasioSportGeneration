@@ -1,16 +1,16 @@
 ﻿{{-- Cabecera principal: logo, menú y acceso de sesión. --}}
 <header class="w-full bg-white shadow-sm">
-    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 max-w-[1200px] mx-auto py-3 md:py-[10px] px-4 sm:px-5">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 max-w-[1200px] mx-auto py-2 md:py-2 px-4 sm:px-5">
 
         {{-- Logo --}}
         <div class="w-full md:flex-1 flex justify-center md:justify-start">
             <a href="{{ url('/') }}" class="block">
-                <img src="{{ asset('imagenes/Logo transparente.png') }}" alt="Sea Fit" class="h-[46px] sm:h-[55px] block">
+                <img src="{{ asset('imagenes/logo-header.png') }}" alt="Sea Fit" class="h-[40px] sm:h-[44px] block object-contain">
             </a>
         </div>
 
         {{-- Menú central --}}
-        <div class="w-full md:flex-[2] flex justify-center">
+        <div class="w-full md:flex-1 flex justify-center">
             <nav class="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:gap-[25px] text-sm sm:text-base">
                 <a href="{{ url('/') }}"
                     class="{{ Request::is('/') ? 'text-[#1A3878] font-bold' : 'text-gray-600 font-medium hover:text-[#1A3878] transition-colors duration-300' }}">Inicio</a>
@@ -22,7 +22,7 @@
         </div>
 
         {{-- Zona derecha: auth/admin --}}
-        <div class="w-full md:flex-1 flex items-center justify-center md:justify-end">
+        <div class="w-full md:flex-[1.2] flex items-center justify-center md:justify-end">
             @guest
                 <div class="flex">
                     <a href="{{ url('/registro') }}"
@@ -37,10 +37,10 @@
             @endguest
 
             @auth
-                <div class="flex flex-wrap items-center justify-center md:justify-end gap-2 sm:gap-4">
+                <div class="flex flex-wrap md:flex-nowrap items-center justify-center md:justify-end gap-2 sm:gap-3 whitespace-nowrap">
                     @if(auth()->user()->is_admin)
                         <a href="{{ route('admin.dashboard') }}"
-                            class="flex items-center gap-1 text-red-600 font-bold text-sm sm:text-base hover:text-red-800 transition-colors bg-red-50 px-3 py-1 rounded-lg border border-red-200">
+                            class="inline-flex items-center gap-1 text-red-600 font-bold text-xs sm:text-sm hover:text-red-800 transition-colors bg-red-50 px-3 py-2 rounded-full border border-red-200">
                             <span class="material-symbols-outlined">admin_panel_settings</span>
                             Panel Admin
                         </a>
