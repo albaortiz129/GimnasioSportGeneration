@@ -1,12 +1,11 @@
-{{-- Vista de reservas del socio con opción de cancelación. --}}
+{{-- Vista "Mis Reservas": aquí el socio puede cancelar y añadir nuevas clases. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Mis Reservas - SeaFit')
 
 @section('contenido')
     <div class="flex flex-col md:flex-row min-h-screen bg-[#f8fafc] font-sans">
-
-        {{-- BARRA LATERAL --}}
+        {{-- Barra lateral del panel de socio. --}}
         <aside
             class="w-full md:w-[280px] md:min-w-[280px] bg-white p-6 md:p-8 border-b md:border-b-0 md:border-r border-gray-200">
             <h2 class="text-xl font-extrabold text-[#0A1931] mb-8">Panel de Socio</h2>
@@ -30,10 +29,8 @@
             </nav>
         </aside>
 
-        {{-- CONTENIDO PRINCIPAL --}}
+        {{-- Contenido principal de reservas. --}}
         <main class="flex-1 p-6 md:p-10 lg:p-12 max-w-[1000px]">
-
-            {{-- Bloque de Alertas de Éxito --}}
             @if(session('success'))
                 <div
                     class="bg-green-100 text-green-800 p-4 rounded-xl mb-6 border border-green-200 font-medium flex items-center gap-3">
@@ -43,12 +40,17 @@
             @endif
 
             <header class="mb-8">
-                <h1 class="text-3xl md:text-4xl font-black text-[#0A1931] mb-2">Mis Reservas</h1>
-                <p class="text-gray-500 text-[15px]">Aquí puedes ver y gestionar tus próximas clases y sesiones reservadas.
-                </p>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h1 class="text-3xl md:text-4xl font-black text-[#0A1931] mb-2">Mis Reservas</h1>
+                        <p class="text-gray-500 text-[15px]">
+                            Aquí puedes gestionar tus clases reservadas, cancelar plaza o añadir nuevas clases.
+                        </p>
+                    </div>
+                </div>
             </header>
 
-            {{-- PRÓXIMAS CLASES --}}
+            {{-- Listado de reservas actuales del socio. --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
                     <h3 class="text-xl font-bold text-[#0A1931]">Próximas Clases ({{ $user->classes->count() }})</h3>
@@ -58,7 +60,6 @@
                     @forelse($user->classes as $clase)
                         <div
                             class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 bg-white border border-gray-200 rounded-xl gap-4 shadow-sm hover:shadow-md transition-shadow">
-
                             <div>
                                 <h4 class="m-0 font-bold text-[#0A1931] text-lg">{{ $clase->nombre }} ({{ $clase->sala }})</h4>
                                 <p class="m-0 mt-1 text-sm text-gray-500 font-medium">
@@ -70,7 +71,7 @@
                                 class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-gray-100 pt-4 sm:pt-0 mt-2 sm:mt-0">
                                 <span
                                     class="bg-green-100 text-green-800 px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
-                                    ✓ Confirmada
+                                    Confirmada
                                 </span>
 
                                 <form action="{{ route('clase.cancelar', $clase->id) }}" method="POST"
@@ -90,11 +91,20 @@
                             <p class="text-gray-500 mb-4">No tienes clases reservadas actualmente.</p>
                             <a href="{{ route('agenda') }}"
                                 class="inline-block bg-[#1A3878] text-white py-2.5 px-6 rounded-lg font-bold transition-transform hover:scale-105 shadow-md">
-                                Ir a la Agenda
+                                Ir a la agenda
                             </a>
                         </div>
                     @endforelse
                 </div>
+
+                @if($user->classes->count() > 0)
+                    <div class="mt-6">
+                        <a href="{{ route('agenda') }}"
+                            class="inline-flex items-center justify-center gap-2 bg-[#1A3878] text-white py-2.5 px-5 rounded-xl font-bold hover:bg-[#0A1931] transition-colors">
+                            <span class="material-symbols-outlined">add_circle</span> Añadir más clases
+                        </a>
+                    </div>
+                @endif
             </section>
         </main>
     </div>

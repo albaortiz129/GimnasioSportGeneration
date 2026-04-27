@@ -109,37 +109,6 @@
 
             </section>
 
-            @if($puedeCancelar || $enPeriodoCancelacion || $cancelacionManualProgramada)
-                <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
-                    @if($enPeriodoCancelacion || $cancelacionManualProgramada)
-                        <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
-                            <p class="font-bold text-amber-800">Cancelación ya programada</p>
-                            <p class="text-sm text-amber-700 mt-1">
-                                Tu suscripción se cancelará al final del período actual. Mantendrás acceso hasta
-                                {{ $fechaCobro }} y no se realizarán más cobros.
-                            </p>
-                        </div>
-                    @else
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div>
-                                <p class="font-bold text-[#0A1931]">Cancelar suscripción al final del período</p>
-                                <p class="text-sm text-gray-500 mt-1">
-                                    Mantendrás acceso hasta {{ $fechaCobro }} y después no se te cobrará de nuevo.
-                                </p>
-                            </div>
-                            <form action="{{ route('plan.cancelar') }}" method="POST"
-                                onsubmit="return confirm('Se cancelará al final del período actual. ¿Continuar?')">
-                                @csrf
-                                <button type="submit"
-                                    class="bg-red-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-red-700 transition-colors">
-                                    Cancelar suscripción
-                                </button>
-                            </form>
-                        </div>
-                    @endif
-                </section>
-            @endif
-
             {{-- MÉTODOS DE PAGO GUARDADOS --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
@@ -250,14 +219,15 @@
                 @endif
 
                 {{-- Alta/edición de un método manual activo (Transferencia o Efectivo).
-                     Bizum/PayPal quedan desactivados por ahora para nuevas altas. --}}
+                Bizum/PayPal quedan desactivados por ahora para nuevas altas. --}}
                 <form action="{{ route('pago.guardar_manual') }}" method="POST"
                     class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3" id="form-metodo-manual">
                     @csrf
                     <div>
                         <select name="metodo_manual" id="metodo_manual" class="border rounded p-3 w-full" required>
                             <option value="">Guardar método manual...</option>
-                            <option value="transferencia" {{ old('metodo_manual') === 'transferencia' ? 'selected' : '' }}>Transferencia</option>
+                            <option value="transferencia" {{ old('metodo_manual') === 'transferencia' ? 'selected' : '' }}>
+                                Transferencia</option>
                             <option value="efectivo" {{ old('metodo_manual') === 'efectivo' ? 'selected' : '' }}>Efectivo
                             </option>
                         </select>

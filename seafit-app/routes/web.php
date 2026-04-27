@@ -100,6 +100,7 @@ Route::middleware(['auth'])->group(function () {
             // Mismas reglas de validación que en registro/admin.
             $data = $request->validate([
                 'nombre' => 'required|string|max:255',
+                'apellidos' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,
                 'dni' => [
                     'required',
@@ -119,6 +120,7 @@ Route::middleware(['auth'])->group(function () {
                         }
                     },
                 ],
+                'fecha_nacimiento' => 'required|date',
                 'telefono' => ['required', 'regex:/^[6789]\d{8}$/'],
                 'domicilio' => 'required|string|max:255',
             ], [
@@ -128,6 +130,7 @@ Route::middleware(['auth'])->group(function () {
 
             // Normalización para mantener formato coherente en perfil.
             $data['nombre'] = trim($data['nombre']);
+            $data['apellidos'] = trim($data['apellidos']);
             $data['email'] = strtolower(trim($data['email']));
             $data['dni'] = strtoupper(trim($data['dni']));
             $data['telefono'] = trim($data['telefono']);
