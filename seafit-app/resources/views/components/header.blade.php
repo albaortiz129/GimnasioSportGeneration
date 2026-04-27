@@ -1,11 +1,13 @@
 ﻿{{-- Cabecera principal: logo, menú y acceso de sesión. --}}
 <header class="w-full bg-white shadow-sm">
-    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 max-w-[1200px] mx-auto py-2 md:py-2 px-4 sm:px-5">
+    <div
+        class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 max-w-[1200px] mx-auto py-2 md:py-2 px-4 sm:px-5">
 
         {{-- Logo --}}
         <div class="w-full md:flex-1 flex justify-center md:justify-start">
             <a href="{{ url('/') }}" class="block">
-                <img src="{{ asset('imagenes/logo-header.png') }}" alt="Sea Fit" class="h-[40px] sm:h-[44px] block object-contain">
+                <img src="{{ asset('imagenes/logo-header.png') }}" alt="Sea Fit"
+                    class="h-[40px] sm:h-[44px] block object-contain">
             </a>
         </div>
 
@@ -37,7 +39,8 @@
             @endguest
 
             @auth
-                <div class="flex flex-wrap md:flex-nowrap items-center justify-center md:justify-end gap-2 sm:gap-3 whitespace-nowrap">
+                <div
+                    class="flex flex-wrap md:flex-nowrap items-center justify-center md:justify-end gap-2 sm:gap-3 whitespace-nowrap">
                     @if(auth()->user()->is_admin)
                         <a href="{{ route('admin.dashboard') }}"
                             class="inline-flex items-center gap-1 text-red-600 font-bold text-xs sm:text-sm hover:text-red-800 transition-colors bg-red-50 px-3 py-2 rounded-full border border-red-200">

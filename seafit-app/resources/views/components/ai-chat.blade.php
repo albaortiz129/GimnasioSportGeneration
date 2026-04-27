@@ -4,7 +4,7 @@
         {{-- Botón flotante para abrir/cerrar el chat. --}}
         <button id="ai-chat-toggle"
             class="bg-[#0A1931] text-white rounded-full px-4 py-3 font-bold shadow-lg hover:bg-[#1A3878] transition-colors">
-            Chat IA
+            Chat
         </button>
 
         {{-- Panel lateral del chat. --}}
