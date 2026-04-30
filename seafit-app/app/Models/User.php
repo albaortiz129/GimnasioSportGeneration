@@ -50,7 +50,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Laravel convierte estos campos al tipo correcto automáticamente.
+     * Define la conversión de tipos para los atributos del modelo
      */
     protected function casts(): array
     {
@@ -95,7 +95,6 @@ class User extends Authenticatable
      */
     public function classes(): BelongsToMany
     {
-        // Se indican claves del pivote manualmente para evitar que Laravel use gym_class_id.
         return $this->belongsToMany(GymClass::class, 'clase_user', 'user_id', 'clase_id');
     }
 
@@ -155,7 +154,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Texto corto del estado del plan para mostrar en vistas.
+     * Texto corto del estado del plan (activo, pendiente, impagado, inactivo) para mostrar en vistas.
      */
     public function planStatusText(): string
     {

@@ -1,4 +1,4 @@
-﻿{{-- Vista pública principal (home) con acceso a servicios y planes. --}}
+{{-- Vista pública principal (home) con acceso a servicios y planes. --}}
 @extends('layouts.app')
 
 @section('titulo', 'SeaFit - Tu gimnasio online')

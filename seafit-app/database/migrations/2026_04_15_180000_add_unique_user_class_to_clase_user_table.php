@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Asegura que un usuario no pueda reservar dos veces la misma clase.

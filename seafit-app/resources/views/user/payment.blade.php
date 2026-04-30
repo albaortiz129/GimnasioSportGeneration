@@ -56,12 +56,6 @@
                 // Variables auxiliares para estado de cuenta.
                 $planActivo = $user->isPlanActive();
                 $fechaCobro = optional($user->next_payment_at)->format('d/m/Y') ?? 'Pendiente';
-                $suscripcion = $user->subscription('default');
-                $enPeriodoCancelacion = $suscripcion ? $suscripcion->onGracePeriod() : false;
-                $cancelacionManualProgramada = !$suscripcion && $user->tarifa === 'cancelada' && $planActivo;
-                $puedeCancelar = $suscripcion
-                    ? !$suscripcion->canceled()
-                    : ($planActivo && $user->tarifa !== 'cancelada');
             @endphp
 
 
@@ -116,8 +110,7 @@
                 </div>
                 @php
                     // Si el principal es manual, no se marca ninguna tarjeta como principal.
-                    // Bizum/PayPal se mantienen en esta comprobación para datos anteriores.
-                    $principalEsManual = in_array($user->metodo_pago, ['transferencia', 'efectivo', 'bizum', 'paypal'], true);
+                    $principalEsManual = in_array($user->metodo_pago, ['efectivo'], true);
                 @endphp
 
                 {{-- Tarjetas guardadas en Stripe. --}}
@@ -218,16 +211,13 @@
                     <p class="text-gray-500 text-sm">No tienes métodos guardados todavía.</p>
                 @endif
 
-                {{-- Alta/edición de un método manual activo (Transferencia o Efectivo).
-                Bizum/PayPal quedan desactivados por ahora para nuevas altas. --}}
+                {{-- Alta sencilla del método manual (solo Efectivo). --}}
                 <form action="{{ route('pago.guardar_manual') }}" method="POST"
-                    class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3" id="form-metodo-manual">
+                    class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3" id="form-metodo-manual">
                     @csrf
                     <div>
                         <select name="metodo_manual" id="metodo_manual" class="border rounded p-3 w-full" required>
                             <option value="">Guardar método manual...</option>
-                            <option value="transferencia" {{ old('metodo_manual') === 'transferencia' ? 'selected' : '' }}>
-                                Transferencia</option>
                             <option value="efectivo" {{ old('metodo_manual') === 'efectivo' ? 'selected' : '' }}>Efectivo
                             </option>
                         </select>
@@ -236,69 +226,10 @@
                         @enderror
                     </div>
 
-                    <div>
-                        <input type="text" name="dato_manual" id="dato_manual" value="{{ old('dato_manual') }}"
-                            class="border rounded p-3 w-full" placeholder="Dato del método">
-                        <p id="ayuda_dato_manual" class="text-xs text-gray-500 mt-1"></p>
-                        @error('dato_manual')
-                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
                     <button type="submit" class="bg-[#0A1931] text-white rounded p-3 font-bold h-fit">
                         Guardar método
                     </button>
                 </form>
-
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        // Referencias del formulario manual.
-                        const metodoInput = document.getElementById('metodo_manual');
-                        const datoInput = document.getElementById('dato_manual');
-                        const ayuda = document.getElementById('ayuda_dato_manual');
-
-                        if (!metodoInput || !datoInput || !ayuda) {
-                            return;
-                        }
-
-                        // Cambia input y ayuda según método seleccionado.
-                        const actualizarCampoDato = () => {
-                            const metodo = metodoInput.value;
-
-                            if (metodo === 'transferencia') {
-                                datoInput.type = 'text';
-                                datoInput.placeholder = 'IBAN o referencia de transferencia';
-                                datoInput.removeAttribute('inputmode');
-                                datoInput.removeAttribute('pattern');
-                                datoInput.required = true;
-                                ayuda.textContent = 'Guarda una referencia para identificar la transferencia.';
-                                return;
-                            }
-
-                            if (metodo === 'efectivo') {
-                                datoInput.type = 'text';
-                                datoInput.placeholder = 'Sin dato adicional';
-                                datoInput.value = '';
-                                datoInput.required = false;
-                                datoInput.removeAttribute('inputmode');
-                                datoInput.removeAttribute('pattern');
-                                ayuda.textContent = 'El cobro en efectivo se confirma manualmente en recepción.';
-                                return;
-                            }
-
-                            datoInput.type = 'text';
-                            datoInput.placeholder = 'Dato del método';
-                            datoInput.required = true;
-                            datoInput.removeAttribute('inputmode');
-                            datoInput.removeAttribute('pattern');
-                            ayuda.textContent = '';
-                        };
-
-                        metodoInput.addEventListener('change', actualizarCampoDato);
-                        // Ajuste inicial al cargar la página.
-                        actualizarCampoDato();
-                    });
-                </script>
 
                 <a href="{{ route('pago.nuevo') }}"
                     class="inline-flex items-center gap-2 text-[#1A3878] font-bold text-sm transition-colors hover:text-[#0A1931] mt-4">
@@ -348,9 +279,9 @@
                             <option value="anual">Anual</option>
                         </select>
 
+                        {{-- En este selector solo se muestran los métodos activos. --}}
                         <select name="metodo_pago" class="border rounded p-3" required>
                             <option value="visa">Visa</option>
-                            <option value="transferencia">Transferencia</option>
                             <option value="efectivo">Efectivo</option>
                         </select>
 

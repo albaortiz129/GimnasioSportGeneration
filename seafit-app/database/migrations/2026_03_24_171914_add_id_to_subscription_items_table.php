@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Migración que agrega meter_id a subscription_items.

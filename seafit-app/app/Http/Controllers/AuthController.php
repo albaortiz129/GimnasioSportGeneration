@@ -39,17 +39,17 @@ class AuthController extends Controller
                 // Si tiene clave temporal, se fuerza cambio.
                 if ($user->must_change_password) {
                     return redirect()->route('password.force.form')
-                        ->with('warning', 'Debes cambiar tu contraseña temporal.');
+                        ->with('warning', 'Debes cambiar tu contraseña.');
                 }
 
                 return redirect()->intended('/perfil');
             }
         } catch (QueryException $exception) {
-            // Si no hay conexión con MySQL, evita error 500 en pantalla.
+            // Si no hay conexión con MySQL.
             report($exception);
 
             return back()->withErrors([
-                'email' => 'No hay conexión con la base de datos local. Inicia MySQL y vuelve a intentarlo.',
+                'email' => 'No hay conexión con la base de datos, inténtalo más tarde.',
             ])->onlyInput('email');
         }
 

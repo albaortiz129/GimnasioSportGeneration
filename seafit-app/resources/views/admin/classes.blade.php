@@ -79,7 +79,7 @@
                         <input type="time" name="hora_inicio" value="{{ substr($clase->hora_inicio, 0, 5) }}"
                             class="border rounded p-2" required>
 
-                        {{-- Se normaliza visualmente el día para soportar datos antiguos. --}}
+                        {{-- Se normaliza visualmente el día para mostrar los nombres con tilde. --}}
                         <select name="dia_semana" class="border rounded p-2" required>
                             @php $diaClase = $clase->dia_semana; @endphp
                             @foreach(['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'] as $diaItem)

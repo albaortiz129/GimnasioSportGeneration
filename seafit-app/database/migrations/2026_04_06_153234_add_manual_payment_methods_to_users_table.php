@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Añade columna JSON para métodos de pago manuales.

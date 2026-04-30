@@ -25,15 +25,15 @@ class AdminPanelController extends Controller
      */
     public function index(Request $request)
     {
-        // Texto del buscador del panel.
-        $buscar = trim((string) $request->query('q', ''));
+        // Buscador del panel.
+        $buscar = trim((string) $request->query('q', '')); // Elimina los espacios en blanco del texto del buscador.
 
-        $discountsTablesReady = Schema::hasTable('discount_redemptions')
-            && Schema::hasTable('discount_codes');
+        $discountsTablesReady = Schema::hasTable('discount_redemptions') // Verifica si existe la tabla de usos de descuentos.
+            && Schema::hasTable('discount_codes'); // Verifica si existe la tabla de códigos de descuentos.
 
-        $usuariosQuery = User::query()
-            ->where('is_admin', false)
-            ->when($buscar !== '', function ($query) use ($buscar) {
+        $usuariosBaseQuery = User::query() // Consulta base de usuarios.
+            ->where('is_admin', false) // Excluye a los administradores.
+            ->when($buscar !== '', function ($query) use ($buscar) { // Si el buscador no está vacío, filtra por nombre, apellidos, email o DNI.
                 $query->where(function ($sub) use ($buscar) {
                     $sub->where('nombre', 'like', "%{$buscar}%")
                         ->orWhere('apellidos', 'like', "%{$buscar}%")
@@ -44,49 +44,37 @@ class AdminPanelController extends Controller
             ->orderBy('nombre')
             ->orderBy('apellidos');
 
+        // Clona la consulta base para poder añadir información de los descuentos si las tablas están disponibles.
+        $usuariosQuery = clone $usuariosBaseQuery;
         if ($discountsTablesReady) {
-            $usuariosQuery->with(['latestDiscountRedemption.discountCode']);
+            $usuariosQuery->with(['latestDiscountRedemption.discountCode']); // Asocia los descuentos con los usuarios.
         }
 
         try {
-            $usuarios = $usuariosQuery->get();
+            $usuarios = $usuariosQuery->get(); // Ejecuta la consulta y obtiene los usuarios.
         } catch (QueryException $exception) {
-            // Si faltan tablas de descuentos, no rompemos el dashboard.
-            report($exception);
-            $discountsTablesReady = false;
-
-            $usuarios = User::query()
-                ->where('is_admin', false)
-                ->when($buscar !== '', function ($query) use ($buscar) {
-                    $query->where(function ($sub) use ($buscar) {
-                        $sub->where('nombre', 'like', "%{$buscar}%")
-                            ->orWhere('apellidos', 'like', "%{$buscar}%")
-                            ->orWhere('email', 'like', "%{$buscar}%")
-                            ->orWhere('dni', 'like', "%{$buscar}%");
-                    });
-                })
-                ->orderBy('nombre')
-                ->orderBy('apellidos')
-                ->get();
+            report($exception); // Registra la excepción.
+            $discountsTablesReady = false; // Desactiva la información de los descuentos.
+            $usuarios = (clone $usuariosBaseQuery)->get(); // Ejecuta la consulta sin los descuentos.
         }
 
-        $impagados = collect();
+        $impagados = collect(); // Crea una colección vacía de impagados.
         $billingColumnsReady = Schema::hasColumn('users', 'payment_status')
-            && Schema::hasColumn('users', 'next_payment_at');
+            && Schema::hasColumn('users', 'next_payment_at'); // Verifica si existen las columnas de pago.
 
         if ($billingColumnsReady) {
             try {
                 // Consulta de clientes con impago o con fecha de cobro vencida.
                 $impagadosQuery = User::query()
-                    ->where('is_admin', false)
-                    ->where(function ($query) {
-                        $query->where('payment_status', 'impagado')
-                            ->orWhere('payment_status', 'pendiente')
-                            ->orWhere(function ($sub) {
-                                $sub->where('payment_status', '!=', 'al_dia')
-                                    ->whereNotNull('next_payment_at')
-                                    ->whereDate('next_payment_at', '<', today());
-                            });
+                    ->where('is_admin', false) // Excluye a los administradores.
+                    ->where(function ($query) { // Si el buscador no está vacío, filtra por nombre, apellidos, email o DNI.
+                        $query->where('payment_status', 'impagado') // Si el estado de pago es impagado.
+                            ->orWhere('payment_status', 'pendiente') // O si el estado de pago es pendiente.
+                            ->orWhere(function ($sub) { // O si el estado de pago no es "al_dia" y la fecha de cobro está vencida.
+                            $sub->where('payment_status', '!=', 'al_dia')
+                                ->whereNotNull('next_payment_at')
+                                ->whereDate('next_payment_at', '<', today());
+                        });
                     })
                     ->orderByRaw("
                         CASE payment_status
@@ -95,20 +83,19 @@ class AdminPanelController extends Controller
                             WHEN 'al_dia' THEN 3
                             ELSE 4
                         END
-                    ")
-                    ->orderBy('next_payment_at');
+                    ") // Ordena los usuarios por estado de pago.
+                    ->orderBy('next_payment_at'); // Y por fecha de cobro.
 
                 if ($discountsTablesReady) {
-                    $impagadosQuery->with(['latestDiscountRedemption.discountCode']);
+                    $impagadosQuery->with(['latestDiscountRedemption.discountCode']); // Asocia los descuentos con los usuarios.
                 }
 
-                $impagados = $impagadosQuery->get();
+                $impagados = $impagadosQuery->get(); // Ejecuta la consulta y obtiene los usuarios.
 
             } catch (QueryException $exception) {
-                // Si la base de datos no está al día, no rompemos el panel.
-                report($exception);
-                $billingColumnsReady = false;
-                $impagados = collect();
+                report($exception); // Registra la excepción.
+                $billingColumnsReady = false; // Desactiva la información de los descuentos.
+                $impagados = collect(); // Crea una colección vacía de impagados.
             }
         }
 
@@ -122,13 +109,10 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Muestra el formulario para crear usuario desde admin sin guardar en la BBDD.
+     * Muestra el formulario para crear usuario.
      */
-    public function create(Request $request)
+    public function create()
     {
-        // Renueva el token para evitar 419 en formularios largos.
-        $request->session()->regenerateToken();
-
         return view('admin.create-user');
     }
 
@@ -155,7 +139,7 @@ class AdminPanelController extends Controller
                     $letraCorrecta = $letrasValidas[$numero % 23];
 
                     if ($letra !== $letraCorrecta) {
-                        $fail('El DNI no es válido (letra incorrecta).');
+                        $fail('El DNI no es válido.');
                     }
                 },
             ],
@@ -164,7 +148,7 @@ class AdminPanelController extends Controller
             'email' => 'required|email|unique:users,email',
             'domicilio' => 'required|string|max:255',
             'tarifa' => 'required|in:mensual,trimestral,anual',
-            'metodo_pago' => 'required|in:visa,efectivo,transferencia',
+            'metodo_pago' => 'required|in:visa,efectivo',
             'password' => [
                 'required',
                 'string',
@@ -173,15 +157,15 @@ class AdminPanelController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/',
             ],
         ], [
-            'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9.',
-            'dni.regex' => 'El DNI debe tener 8 números y 1 letra (ej: 12345678Z).',
+            'telefono.regex' => 'El teléfono es incorrecto.',
+            'dni.regex' => 'El DNI es incorrecto.',
             'metodo_pago.in' => 'Selecciona un método de pago válido.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
             'password.regex' => 'La contraseña debe incluir mayúscula, minúscula, número y símbolo.',
         ]);
 
-        // Normaliza datos clave para que queden consistentes en base de datos.
+        // Normaliza los datos
         $data['nombre'] = trim($data['nombre']);
         $data['apellidos'] = trim($data['apellidos']);
         $data['dni'] = strtoupper(trim($data['dni']));
@@ -189,7 +173,7 @@ class AdminPanelController extends Controller
         $data['telefono'] = trim($data['telefono']);
         $data['domicilio'] = trim($data['domicilio']);
 
-        $user = User::create([
+        $user = User::create([ // Crea el usuario en la base de datos
             'nombre' => $data['nombre'],
             'apellidos' => $data['apellidos'],
             'dni' => $data['dni'],
@@ -223,8 +207,12 @@ class AdminPanelController extends Controller
     public function update(Request $request, User $user)
     {
         if ($user->is_admin) {
-            return back()->with('error', 'No se editan datos de socio para administradores.');
+            return back()->with('error', 'No se permite actualizar los datos de los administradores.');
         }
+
+        $request->merge([
+            'metodo_pago' => strtolower(trim((string) $request->input('metodo_pago', ''))),
+        ]);
 
         // Campos editables del cliente desde el panel.
         $data = $request->validate([
@@ -236,7 +224,7 @@ class AdminPanelController extends Controller
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
             'domicilio' => 'required|string|max:255',
             'tarifa' => 'required|in:mensual,trimestral,anual,cancelada',
-            'metodo_pago' => 'required|in:visa,efectivo,transferencia,tarjeta,bizum,paypal,stripe',
+            'metodo_pago' => 'required|in:visa,efectivo',
             'payment_status' => 'required|in:al_dia,pendiente,impagado',
             'next_payment_at' => 'nullable|date',
             'password' => [
@@ -253,7 +241,7 @@ class AdminPanelController extends Controller
             'password.regex' => 'Debe incluir mayúscula, minúscula, número y carácter especial.',
         ]);
 
-        // Limpia y normaliza campos antes de guardar.
+        // Limpia y normaliza los datos
         $data['nombre'] = trim($data['nombre']);
         $data['apellidos'] = trim($data['apellidos']);
         $data['dni'] = strtoupper(trim($data['dni']));
@@ -263,14 +251,14 @@ class AdminPanelController extends Controller
 
         if (!empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
-            $data['must_change_password'] = true; // Opcional: forzar cambio al entrar.
+            $data['must_change_password'] = true; // Fuerza el cambio de contraseña al entrar por primera vez.
         } else {
-            unset($data['password']);
+            unset($data['password']); // Si no se introduce nueva contraseña, no se cambia la existente.
         }
 
         $user->update($data);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Usuario actualizado.');
+        return redirect()->route('admin.dashboard')->with('success', 'Usuario actualizado correctamente.');
     }
 
     /**
@@ -279,14 +267,14 @@ class AdminPanelController extends Controller
     public function changePlan(Request $request, User $user)
     {
         if ($user->is_admin) {
-            return back()->with('error', 'No aplica a administradores.');
+            return back()->with('error', 'No se permite cambiar el plan de los administradores.');
         }
 
         $data = $request->validate([
             'tarifa' => 'required|in:mensual,trimestral,anual,cancelada',
         ]);
 
-        // Calcula la siguiente fecha solo cuando hay plan activo.
+        // Calcula la siguiente fecha solo cuando hay un plan activo.
         $nextPayment = $data['tarifa'] === 'cancelada'
             ? null
             : $this->nextChargeDate($data['tarifa']);
@@ -306,14 +294,12 @@ class AdminPanelController extends Controller
     public function manualCharge(Request $request, User $user)
     {
         if ($user->is_admin) {
-            return back()->with('error', 'No aplica a administradores.');
+            return back()->with('error', 'No se permite registrar cobros a los administradores.');
         }
 
         $data = $request->validate([
             'tarifa' => 'required|in:mensual,trimestral,anual',
-            // Bizum/PayPal desactivados por ahora en el panel.
-            // Si se habilitan en el futuro, añadirlos de nuevo aquí.
-            'metodo_manual' => 'required|in:efectivo,transferencia,tarjeta',
+            'metodo_manual' => 'required|in:efectivo,visa',
             'nota' => 'nullable|string|max:255',
         ]);
 
@@ -326,15 +312,15 @@ class AdminPanelController extends Controller
             'manual_payment_note' => $data['nota'],
         ]);
 
-        $metodoLabel = $this->paymentMethodLabel($data['metodo_manual']);
+        $metodoLabel = $this->paymentMethodLabel($data['metodo_manual']); // Obtiene el nombre del método de pago.
         $this->sendPaymentApprovedEmail(
             $user,
             $metodoLabel,
-            'Cobro manual registrado por administración',
-            'manualCharge'
+            'Cobro manual registrado por administración', // Asunto del correo.
+            'manualCharge' // Nombre del template.
         );
 
-        return back()->with('success', 'Cobro manual registrado y pago al día.');
+        return back()->with('success', 'Cobro manual registrado, pago al día.');
     }
 
     /**
@@ -343,42 +329,42 @@ class AdminPanelController extends Controller
     public function renewSubscription(User $user)
     {
         if ($user->is_admin) {
-            return back()->with('error', 'No aplica a administradores.');
+            return back()->with('error', 'No se permite renovar la suscripción de los administradores.');
         }
 
         // Si ya existe una fecha futura, no se acumulan meses al pulsar varias veces.
         if ($user->next_payment_at) {
-            $fechaActual = Carbon::parse($user->next_payment_at);
+            $fechaActual = Carbon::parse($user->next_payment_at); // Convierte la fecha a Carbon (librería de PHP de fechas y horas).
 
-            if ($fechaActual->isToday() || $fechaActual->isFuture()) {
+            if ($fechaActual->isToday() || $fechaActual->isFuture()) { // Si la fecha es hoy o futura
                 $user->update([
                     'payment_status' => 'al_dia',
-                    'next_payment_at' => $fechaActual->toDateString(),
+                    'next_payment_at' => $fechaActual->toDateString(), // Actualiza la fecha.
                 ]);
 
-                $metodoLabel = $this->paymentMethodLabel($user->metodo_pago);
+                $metodoLabel = $this->paymentMethodLabel($user->metodo_pago); // Obtiene el nombre del método de pago.
                 $this->sendPaymentApprovedEmail(
                     $user,
                     $metodoLabel,
-                    'Suscripción renovada por administración',
-                    'renewSubscription:fecha_vigente'
+                    'Suscripción renovada por administración', // Asunto del correo.
+                    'renewSubscription:fecha_vigente' // Nombre del template.
                 );
 
-                return back()->with('success', 'Pago regularizado. La fecha de renovación se mantiene.');
+                return back()->with('success', 'Pago en curso. La fecha de renovación se mantiene.');
             }
         }
 
         $user->update([
             'payment_status' => 'al_dia',
-            'next_payment_at' => $this->nextChargeDate($user->tarifa, now()),
+            'next_payment_at' => $this->nextChargeDate($user->tarifa, now()), // Calcula la siguiente fecha de cobro.
         ]);
 
-        $metodoLabel = $this->paymentMethodLabel($user->metodo_pago);
+        $metodoLabel = $this->paymentMethodLabel($user->metodo_pago); // Obtiene el nombre del método de pago.
         $this->sendPaymentApprovedEmail(
             $user,
             $metodoLabel,
-            'Suscripción renovada por administración',
-            'renewSubscription:nueva_fecha'
+            'Suscripción renovada por administración', // Asunto del correo.
+            'renewSubscription:nueva_fecha' // Nombre del template.
         );
 
         return back()->with('success', 'Suscripción renovada.');
@@ -390,14 +376,14 @@ class AdminPanelController extends Controller
     public function markUnpaid(User $user)
     {
         if ($user->is_admin) {
-            return back()->with('error', 'No aplica a administradores.');
+            return back()->with('error', 'No se permite marcar como impagado a un administrador.');
         }
 
         $user->update([
-            'payment_status' => 'impagado',
+            'payment_status' => 'impagado', // Pasa a estado de impago.
         ]);
 
-        return back()->with('success', 'Cliente marcado como impagado.');
+        return back()->with('success', 'Cliente marcado como impagado.'); // Notifica al usuario.
     }
 
     /**
@@ -405,25 +391,25 @@ class AdminPanelController extends Controller
      */
     public function destroy(User $user)
     {
-        if ($user->id === auth()->id()) {
-            return back()->with('error', 'No puedes eliminarte a ti mismo.');
+        if ($user->id === auth()->id()) { // Comprueba si el usuario es el mismo que está intentando eliminar.
+            return back()->with('error', 'No puedes eliminarte a ti mismo porque eres el administrador.');
         }
 
-        if ($user->is_admin) {
-            return back()->with('error', 'No puedes eliminar otro administrador desde aquí.');
+        if ($user->is_admin) { // Comprueba si el usuario es administrador.
+            return back()->with('error', 'No puedes eliminar otro administrador.');
         }
 
-        $user->delete();
+        $user->delete(); // Elimina el usuario.
 
-        return redirect()->route('admin.dashboard')->with('success', 'Usuario eliminado.');
+        return redirect()->route('admin.dashboard')->with('success', 'Usuario eliminado correctamente.');
     }
 
     /**
-     * Pantalla de administración de clases con filtros.
+     * Pantalla de administración de clases.
      */
     public function classesIndex(Request $request)
     {
-        $dia = $request->query('dia');
+        $dia = $request->query('dia'); // Obtiene el día de la semana de la solicitud.
 
         $diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
 
@@ -440,29 +426,29 @@ class AdminPanelController extends Controller
             END
         ";
 
-        // Carga clases con usuarios asociados (solo socios, sin admins).
+        // Carga clases con usuarios asociados.
         $clases = GymClass::with([
             'users' => function ($query) {
-                $query->where('is_admin', false)
-                    ->orderBy('nombre')
-                    ->orderBy('apellidos');
+                $query->where('is_admin', false) // Obtiene solo los usuarios no administradores.
+                    ->orderBy('nombre') // Ordena por nombre.
+                    ->orderBy('apellidos'); // Ordena por apellidos.
             }
         ])
-            ->when($dia, fn($query) => $query->whereIn('dia_semana', $this->weekdayVariants($dia)))
-            ->orderByRaw($ordenDias)
-            ->orderBy('hora_inicio')
+            ->when($dia, fn($query) => $query->whereIn('dia_semana', $this->weekdayVariants($dia))) // Aplica el filtro por día.
+            ->orderByRaw($ordenDias) // Ordena por día de la semana.
+            ->orderBy('hora_inicio') // Ordena por hora de inicio.
             ->get();
 
-        $usuarios = User::where('is_admin', false)
-            ->orderBy('nombre')
-            ->orderBy('apellidos')
+        $usuarios = User::where('is_admin', false) // Obtiene solo los usuarios no administradores.
+            ->orderBy('nombre') // Ordena por nombre.
+            ->orderBy('apellidos') // Ordena por apellidos.
             ->get();
 
-        return view('admin.classes', compact('clases', 'usuarios', 'dia', 'diasSemana'));
+        return view('admin.classes', compact('clases', 'usuarios', 'dia', 'diasSemana')); // Muestra la vista de clases.
     }
 
     /**
-     * Crea una nueva clase desde admin.
+     * Crea una nueva clase
      */
     public function classStore(Request $request)
     {
@@ -477,11 +463,11 @@ class AdminPanelController extends Controller
             'imagen' => 'nullable|string|max:255',
         ]);
 
-        $data['dia_semana'] = $this->normalizeWeekday($data['dia_semana']);
+        $data['dia_semana'] = $this->normalizeWeekday($data['dia_semana']); // Normaliza el día de la semana.
 
-        GymClass::create($data);
+        GymClass::create($data); // Crea la clase.
 
-        return back()->with('success', 'Clase creada.');
+        return back()->with('success', 'Clase creada correctamente.'); // Notifica al usuario.
     }
 
     /**
@@ -500,11 +486,11 @@ class AdminPanelController extends Controller
             'imagen' => 'nullable|string|max:255',
         ]);
 
-        $data['dia_semana'] = $this->normalizeWeekday($data['dia_semana']);
+        $data['dia_semana'] = $this->normalizeWeekday($data['dia_semana']); // Normaliza el día de la semana.
 
-        $clase->update($data);
+        $clase->update($data); // Actualiza la clase.
 
-        return back()->with('success', 'Clase actualizada.');
+        return back()->with('success', 'Clase actualizada correctamente.'); // Notifica al usuario.
     }
 
     /**
@@ -512,9 +498,9 @@ class AdminPanelController extends Controller
      */
     public function classDestroy(GymClass $clase)
     {
-        $clase->delete();
+        $clase->delete(); // Elimina la clase.
 
-        return back()->with('success', 'Clase eliminada.');
+        return back()->with('success', 'Clase eliminada correctamente.'); // Notifica al usuario.
     }
 
     /**
@@ -526,32 +512,32 @@ class AdminPanelController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
-        $user = User::where('is_admin', false)->findOrFail($request->user_id);
+        $user = User::where('is_admin', false)->findOrFail($request->user_id); // Obtiene solo los usuarios no administradores.
 
         $resultado = DB::transaction(function () use ($clase, $user) {
             // Bloqueo de la clase para evitar sobrecupo por concurrencia.
             $claseBloqueada = GymClass::query()->lockForUpdate()->findOrFail($clase->id);
 
-            if ($claseBloqueada->users()->where('user_id', $user->id)->exists()) {
+            if ($claseBloqueada->users()->where('user_id', $user->id)->exists()) { // Comprueba si el usuario ya está apuntado.
                 return 'duplicate';
             }
 
-            if ($claseBloqueada->capacidad_max <= 0) {
+            if ($claseBloqueada->capacidad_max <= 0) { // Comprueba si la clase está llena.
                 return 'full';
             }
 
-            $claseBloqueada->users()->attach($user->id);
-            $claseBloqueada->decrement('capacidad_max');
+            $claseBloqueada->users()->attach($user->id); // Añade el usuario a la clase.
+            $claseBloqueada->decrement('capacidad_max'); // Descuenta una plaza.
 
             return 'ok';
         });
 
-        if ($resultado === 'duplicate') {
+        if ($resultado === 'duplicate') { // Si el usuario ya está apuntado se muestra mensaje.
             return back()->with('error', 'Ese usuario ya estaba apuntado.');
         }
 
-        if ($resultado === 'full') {
-            return back()->with('error', 'No quedan plazas libres en esa clase.');
+        if ($resultado === 'full') { // Si la clase está llena se muestra mensaje.
+            return back()->with('error', 'No quedan plazas libres en esta clase.');
         }
 
         return back()->with('success', 'Usuario añadido a la clase.');
@@ -563,29 +549,29 @@ class AdminPanelController extends Controller
     public function removeUserFromClass(GymClass $clase, User $user)
     {
         if ($user->is_admin) {
-            return back()->with('error', 'No se pueden gestionar administradores en clases.');
+            return back()->with('error', 'No se puede quitar a un administrador de una clase.');
         }
 
         $resultado = DB::transaction(function () use ($clase, $user) {
             // Mismo bloqueo para mantener capacidad consistente.
             $claseBloqueada = GymClass::query()->lockForUpdate()->findOrFail($clase->id);
-            $existia = $claseBloqueada->users()->where('user_id', $user->id)->exists();
+            $existia = $claseBloqueada->users()->where('user_id', $user->id)->exists(); // Comprueba si el usuario está apuntado.
 
-            if (!$existia) {
+            if (!$existia) { // Si el usuario no está apuntado se muestra mensaje.
                 return 'missing';
             }
 
-            $claseBloqueada->users()->detach($user->id);
-            $claseBloqueada->increment('capacidad_max');
+            $claseBloqueada->users()->detach($user->id); // Quita al usuario de la clase.
+            $claseBloqueada->increment('capacidad_max'); // Devuelve una plaza.
 
             return 'ok';
         });
 
         if ($resultado === 'missing') {
-            return back()->with('error', 'Ese usuario no estaba apuntado a esta clase.');
+            return back()->with('error', 'Este usuario no estaba apuntado a esta clase.');
         }
 
-        return back()->with('success', 'Usuario eliminado de la clase.');
+        return back()->with('success', 'Usuario eliminado de la clase correctamente.');
     }
 
     /**
@@ -593,17 +579,17 @@ class AdminPanelController extends Controller
      */
     private function nextChargeDate(string $tarifa, ?Carbon $base = null): string
     {
-        $fecha = ($base ?? now())->copy();
+        $fecha = ($base ?? now())->copy(); // Copia la fecha base o la fecha actual.
 
-        return match ($tarifa) {
-            'trimestral' => $fecha->addMonthsNoOverflow(3)->toDateString(),
-            'anual' => $fecha->addYearNoOverflow()->toDateString(),
-            default => $fecha->addMonthNoOverflow()->toDateString(),
+        return match ($tarifa) { // Devuelve la fecha siguiente según la tarifa.
+            'trimestral' => $fecha->addMonthsNoOverflow(3)->toDateString(), // Suma 3 meses a la fecha actual.
+            'anual' => $fecha->addYearNoOverflow()->toDateString(), // Suma 1 año a la fecha actual.
+            default => $fecha->addMonthNoOverflow()->toDateString(), // Suma 1 mes a la fecha actual.
         };
     }
 
     /**
-     * Normaliza nombres de día para guardar un formato único en la base de datos.
+     * Normaliza los nombres de día con o sin tildes para guardar un formato único en la base de datos.
      */
     private function normalizeWeekday(string $dia): string
     {
@@ -617,14 +603,14 @@ class AdminPanelController extends Controller
     }
 
     /**
-     * Devuelve variantes útiles para filtrar datos antiguos y nuevos.
+     * Devuelve variantes para filtrar días.
      */
     private function weekdayVariants(string $dia): array
     {
         return match ($this->normalizeWeekday($dia)) {
-            'Miercoles' => ['Miercoles', 'Miércoles'],
-            'Sabado' => ['Sabado', 'Sábado'],
-            default => [$this->normalizeWeekday($dia)],
+            'Miercoles' => ['Miercoles', 'Miércoles'], // Devuelve las variantes de miércoles.
+            'Sabado' => ['Sabado', 'Sábado'], // Devuelve las variantes de sábado.
+            default => [$this->normalizeWeekday($dia)], // Devuelve la variante normalizada.
         };
     }
 
@@ -634,65 +620,62 @@ class AdminPanelController extends Controller
     public function approveManualPayment(User $user)
     {
         if ($user->is_admin) {
-            return back()->with('error', 'No aplica a administradores.');
+            return back()->with('error', 'No se puede aprobar el pago de un administrador.');
         }
 
-        $metodoLabel = $this->paymentMethodLabel($user->metodo_pago);
+        $metodoLabel = $this->paymentMethodLabel($user->metodo_pago); // Obtiene el método de pago.
 
         $user->update([
-            'payment_status' => 'al_dia',
-            'next_payment_at' => $this->nextChargeDate($user->tarifa),
-            'last_manual_payment_at' => now(),
+            'payment_status' => 'al_dia', // Cambia el estado de pago a "al día".
+            'next_payment_at' => $this->nextChargeDate($user->tarifa), // Calcula la siguiente fecha de cobro.
+            'last_manual_payment_at' => now(), // Establece la fecha actual como la última fecha de pago manual.
         ]);
 
-        $this->sendPaymentApprovedEmail(
+        $this->sendPaymentApprovedEmail( // Envía el correo de pago aprobado.
             $user,
             $metodoLabel,
             'Pago pendiente validado por administración',
             'approveManualPayment'
         );
 
-        return back()->with('success', "Pago recibido por {$metodoLabel}. Cuenta activada.");
+        return back()->with('success', "Pago recibido por {$metodoLabel}. Cuenta activada."); // Notifica al usuario.
     }
 
     /**
-     * Devuelve nombre legible del método de pago.
+     * Devuelve el nombre legible del método de pago.
      */
     private function paymentMethodLabel(?string $method): string
     {
         return match (strtolower((string) $method)) {
-            // Etiquetas anteriores para mostrar datos antiguos y futura reactivación.
-            'bizum' => 'Bizum',
-            'paypal' => 'PayPal',
-            'transferencia' => 'Transferencia',
-            'tarjeta', 'stripe', 'visa' => 'Tarjeta',
+            'visa' => 'Tarjeta',
             'efectivo' => 'Efectivo',
             default => 'Método manual',
         };
     }
 
     /**
-     * Envía el correo de pago aprobado y registra errores sin romper el flujo.
+     * Envía el correo de pago aprobado y registra errores.
      */
     private function sendPaymentApprovedEmail(User $user, string $metodo, string $origen, string $context): void
     {
-        try {
+        try { // Intenta enviar el correo de pago aprobado.
             Mail::send('emails.payment-approved', [
                 'nombre' => $user->nombre,
                 'metodo' => $metodo,
-                'tarifa' => ucfirst((string) $user->tarifa),
-                'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha',
-                'origen' => $origen,
-            ], function ($message) use ($user) {
-                $message->to($user->email);
-                $message->subject('Pago aprobado - SeaFit');
+                'tarifa' => ucfirst((string) $user->tarifa), // Obtiene el método de pago.
+                'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha', // Calcula la siguiente fecha de cobro.
+                'origen' => $origen, // Obtiene el método de pago.
+            ], function ($message) use ($user) { // Envía el correo de pago aprobado.
+                $message->to($user->email); // Envía el correo al usuario.
+                $message->subject('Pago aprobado - SeaFit'); // Asigna el asunto del correo.
             });
-        } catch (\Throwable $e) {
+        } catch (\Throwable $e) { // Captura errores al enviar el correo de pago aprobado.
             Log::error("Error al enviar correo de pago aprobado ({$context}).", [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'error' => $e->getMessage(),
+                'user_id' => $user->id, // Obtiene el usuario.
+                'email' => $user->email, // Obtiene el correo del usuario.
+                'error' => $e->getMessage(), // Obtiene el error.
             ]);
         }
     }
 }
+

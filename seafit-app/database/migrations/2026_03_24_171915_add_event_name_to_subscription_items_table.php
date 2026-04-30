@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Migración que agrega meter_event_name a subscription_items.

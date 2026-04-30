@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Añade campos de facturación y estado de pago en users.

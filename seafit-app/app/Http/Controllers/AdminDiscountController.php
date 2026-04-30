@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Controlador de administración de descuentos.
+ * Controlador para administrar los descuentos.
  * Permite crear, editar y eliminar códigos de descuento.
  */
 
@@ -14,16 +14,17 @@ use Illuminate\Validation\Rule;
 class AdminDiscountController extends Controller
 {
     /**
-     * Lista los códigos de descuento creados.
+     * Muestra una lista de todos los códigos de descuento.
+     * Se utiliza compact para convertir la variable en un array asociativo compatible con el motor de plantillas Blade.
      */
     public function index()
     {
-        $codes = DiscountCode::orderByDesc('id')->paginate(20);
+        $codes = DiscountCode::orderByDesc('id')->paginate(20); // Ordena los códigos de descuento por ID de forma descendente y los muestra en grupos de 20.
         return view('admin.discounts.index', compact('codes'));
     }
 
     /**
-     * Formulario para crear un código.
+     * Muestra el formulario para crear un nuevo código de descuento.
      */
     public function create()
     {
@@ -31,21 +32,22 @@ class AdminDiscountController extends Controller
     }
 
     /**
-     * Guarda un nuevo código de descuento.
+     * Guarda el nuevo código de descuento.
      */
     public function store(Request $request)
     {
-        $data = $this->validateData($request);
+        $data = $this->validateData($request); // Valida los datos del formulario.
 
         DiscountCode::create($data + [
-            'created_by' => auth()->id(),
+            'created_by' => auth()->id(), // Asigna el ID del usuario que creó el código.
         ]);
 
         return redirect()->route('admin.discounts.index')->with('success', 'Código creado.');
     }
 
     /**
-     * Formulario para editar un código existente.
+     * Muestra el formulario para editar un código de descuento existente.
+     * 
      */
     public function edit(DiscountCode $discountCode)
     {
@@ -68,7 +70,7 @@ class AdminDiscountController extends Controller
      */
     public function destroy(DiscountCode $discountCode)
     {
-        if ($discountCode->redemptions()->exists()) {
+        if ($discountCode->redemptions()->exists()) { // Comprueba si el código de descuento ya tiene usos.
             return back()->with('error', 'No se puede borrar un código ya usado. Desactívalo.');
         }
 
@@ -78,18 +80,17 @@ class AdminDiscountController extends Controller
     }
 
     /**
-     * Reglas comunes de validación para crear y editar.
+     * Reglas de validación para crear y editar.
      */
     private function validateData(Request $request, ?int $ignoreId = null): array
     {
-        // Reglas comunes para alta y edición.
         $data = $request->validate([
             'code' => [
                 'required',
                 'string',
                 'max:30',
                 'regex:/^[A-Z0-9_-]{4,30}$/',
-                Rule::unique('discount_codes', 'code')->ignore($ignoreId),
+                Rule::unique('discount_codes', 'code')->ignore($ignoreId), // Verifica que el código sea único
             ],
             'type' => 'required|in:percent,fixed',
             'value' => 'required|numeric|min:0.01',
@@ -102,15 +103,15 @@ class AdminDiscountController extends Controller
             'notes' => 'nullable|string|max:1000',
         ]);
 
-        $data['code'] = strtoupper(trim($data['code']));
-        $data['is_active'] = $request->boolean('is_active');
-        $data['one_use_per_user'] = $request->boolean('one_use_per_user');
+        $data['code'] = strtoupper(trim($data['code'])); // Convierte el código a mayúsculas y elimina los espacios en blanco.
+        $data['is_active'] = $request->boolean('is_active'); // Convierte el estado a booleano.
+        $data['one_use_per_user'] = $request->boolean('one_use_per_user'); // Convierte el número máximo de usos por usuario a booleano.
 
-        // Porcentaje máximo permitido en descuentos de tipo percent.
-        if ($data['type'] === 'percent' && (float) $data['value'] > 100) {
-            abort(422, 'Si el tipo es porcentaje, el valor máximo es 100.');
+        // Porcentaje máximo permitido en descuentos de tipo porcentaje.
+        if ($data['type'] === 'percent' && (float) $data['value'] > 100) { // Si el tipo es porcentaje, el valor máximo es 100.
+            abort(422, 'El valor máximo es 100 al ser un número de tipo porcentaje.');
         }
 
-        return $data;
+        return $data; // Devuelve los datos validados.
     }
 }

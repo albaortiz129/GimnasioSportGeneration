@@ -1,4 +1,4 @@
-﻿{{-- Cabecera principal: logo, menú y acceso de sesión. --}}
+{{-- Cabecera principal: logo, menú y acceso de sesión. --}}
 <header class="w-full bg-white shadow-sm">
     <div
         class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 max-w-[1200px] mx-auto py-2 md:py-2 px-4 sm:px-5">

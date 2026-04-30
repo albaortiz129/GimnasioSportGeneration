@@ -1,4 +1,4 @@
-﻿{{-- Vista obligatoria para cambiar la contraseña temporal en el primer acceso. --}}
+{{-- Vista obligatoria para cambiar la contraseña temporal en el primer acceso. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Cambiar contraseña')

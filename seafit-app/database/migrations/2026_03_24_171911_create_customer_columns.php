@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Migración que añade columnas de cliente Stripe en users.

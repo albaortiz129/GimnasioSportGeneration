@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Middleware de autorización: restringe rutas administrativas a usuarios con rol admin.
+ * Middleware de autorización: Restringe las rutas administrativas a usuarios con rol de administrador.
  */
 namespace App\Http\Middleware;
 
@@ -16,12 +16,11 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Solo deja pasar si hay sesión y rol admin.
+        // Solo deja pasar si hay sesión y rol de administrador.
         if (auth()->check() && auth()->user()->is_admin) {
             return $next($request);
         }
-
-        // Si no cumple permisos, se devuelve al inicio con mensaje de error.
+        // Si no cumple permisos, se devuelve al inicio con un mensaje de error.    
         return redirect('/')->with('error', 'Acceso denegado. No eres administrador.');
     }
 }

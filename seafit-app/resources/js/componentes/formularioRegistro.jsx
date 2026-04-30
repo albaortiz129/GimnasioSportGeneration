@@ -35,8 +35,6 @@ const TARIFAS = [
 ];
 
 // Métodos de pago admitidos en registro.
-// Bizum y PayPal quedan desactivados por decisión de negocio.
-// Se pueden reactivar en el futuro añadiendo aquí sus opciones.
 const METODOS_PAGO = [
     { id: 'visa', nombre: 'Tarjeta de crédito', icono: 'credit_card' },
     { id: 'efectivo', nombre: 'Efectivo', icono: 'payments' },
@@ -417,9 +415,6 @@ const FormularioRegistro = () => {
                             </label>
                         ))}
                     </div>
-
-                    {/* Bloques Bizum/PayPal retirados por ahora.
-                        Si se activan en el futuro, volver a pintar aquí su UI de instrucciones. */}
 
                     {datos.metodo_pago === 'efectivo' && (
                         <div className="mb-8 p-5 border border-amber-200 rounded-xl bg-amber-50 shadow-sm">

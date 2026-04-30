@@ -1,4 +1,4 @@
-﻿{{-- Layout base compartido por las páginas de SeaFit. --}}
+{{-- Layout base compartido por las páginas de SeaFit. --}}
 <!DOCTYPE html>
 <html lang="es">
 

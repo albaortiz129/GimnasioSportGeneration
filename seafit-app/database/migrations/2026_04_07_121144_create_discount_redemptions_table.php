@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Crea la tabla histórica de usos de descuentos.

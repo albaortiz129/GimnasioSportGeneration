@@ -96,12 +96,9 @@
 
                         @if($u->payment_status === 'pendiente')
                             @php
-                                // Bizum/PayPal se mantienen en el mapeo solo para mostrar registros antiguos.
+                                // Mapeo de métodos activos.
                                 $metodoPendiente = match (strtolower((string) $u->metodo_pago)) {
-                                    'bizum' => 'Bizum',
-                                    'paypal' => 'PayPal',
-                                    'transferencia' => 'Transferencia',
-                                    'tarjeta', 'stripe', 'visa' => 'Tarjeta',
+                                    'visa' => 'Tarjeta',
                                     'efectivo' => 'Efectivo',
                                     default => 'pago manual',
                                 };
@@ -198,8 +195,7 @@
                             </select>
                             <select name="metodo_manual" class="w-full border rounded p-2 mb-2" required>
                                 <option value="efectivo">Efectivo</option>
-                                <option value="transferencia">Transferencia</option>
-                                <option value="tarjeta">Tarjeta</option>
+                                <option value="visa">Tarjeta</option>
                             </select>
                             <input type="text" name="nota" class="w-full border rounded p-2 mb-2" placeholder="Nota (opcional)">
                             <button class="w-full bg-[#0A1931] text-white py-2 rounded font-bold text-sm">Registrar

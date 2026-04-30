@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Migración de tabla clases para la agenda deportiva.

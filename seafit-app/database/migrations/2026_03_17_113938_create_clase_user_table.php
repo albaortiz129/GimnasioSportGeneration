@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Migración de la tabla pivote clase_user para reservas.

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Migración de suscripciónes de Cashier vinculadas a usuarios.

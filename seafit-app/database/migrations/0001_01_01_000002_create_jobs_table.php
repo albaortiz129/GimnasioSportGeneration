@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Migracion de colas: trabajos, lotes y trabajos fallidos.

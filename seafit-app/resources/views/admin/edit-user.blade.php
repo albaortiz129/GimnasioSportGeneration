@@ -89,8 +89,13 @@
 
             <div>
                 <label class="block font-bold">Método de pago</label>
-                <input type="text" name="metodo_pago" value="{{ old('metodo_pago', $user->metodo_pago) }}"
-                    class="w-full border rounded p-2" required>
+                @php
+                    $metodoPagoActual = strtolower((string) old('metodo_pago', $user->metodo_pago));
+                @endphp
+                <select name="metodo_pago" class="w-full border rounded p-2" required>
+                    <option value="visa" @selected($metodoPagoActual === 'visa')>Visa</option>
+                    <option value="efectivo" @selected($metodoPagoActual === 'efectivo')>Efectivo</option>
+                </select>
             </div>
 
             <div>

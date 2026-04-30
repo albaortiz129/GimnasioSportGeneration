@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Migración de items de suscripción de Cashier/Stripe.

@@ -44,31 +44,13 @@ return [
         'model' => env('OPENROUTER_MODEL', 'openrouter/free'),
     ],
 
-    // Configuracion del chat IA de SeaFit.
+    // Configuración del chat IA de SeaFit.
     'ai_chat' => [
         // Activa/desactiva el widget de chat.
         'enabled' => env('AI_CHAT_ENABLED', true),
 
         // Correo mostrado cuando no hay respuesta fiable.
         'support_email' => env('AI_SUPPORT_EMAIL', 'soporte.seafit@gmail.com'),
-
-        // Umbral minimo para aceptar respuestas por reglas PHP.
-        'min_local_score' => (int) env('AI_CHAT_MIN_LOCAL_SCORE', 5),
-
-        // Activa/desactiva la capa Python (scikit-learn).
-        'python_enabled' => env('AI_CHAT_PYTHON_ENABLED', true),
-
-        // Binario de Python: "python", "python3" o ruta completa.
-        'python_bin' => env('AI_CHAT_PYTHON_BIN', 'python'),
-
-        // Ruta del script Python dentro del proyecto.
-        'python_script' => env('AI_CHAT_PYTHON_SCRIPT', 'ai_python/chat_infer.py'),
-
-        // Maximo de segundos que esperamos al script Python.
-        'python_timeout' => (int) env('AI_CHAT_PYTHON_TIMEOUT', 8),
-
-        // Confianza minima para aceptar respuesta del modelo Python.
-        'python_min_confidence' => (float) env('AI_CHAT_PYTHON_MIN_CONFIDENCE', 0.58),
     ],
 
 ];

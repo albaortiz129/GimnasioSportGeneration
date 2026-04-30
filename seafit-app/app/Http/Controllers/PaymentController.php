@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Mail;
 class PaymentController extends Controller
 {
     /**
-     * Mapa de tarifa interna a su precio de Stripe.
+     * IDs de productos de Stripe asociados a los tipos de suscripción.
      */
     private const PRICE_IDS = [
         'mensual' => 'price_1TEXJALV86wly52BTx1BvxYJ',
@@ -30,15 +30,13 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
+        $user = Auth::user(); // Obtiene el usuario autenticado.
 
-        // Métodos guardados en Stripe.
+        // Obtiene los métodos de pago guardados en Stripe.
         $metodosPago = $user->paymentMethods();
         $metodoPrincipal = $user->defaultPaymentMethod();
 
-        // Métodos manuales guardados en la BD.
-        // Bizum/PayPal se conservan solo para compatibilidad con datos antiguos
-        // y por si se reactivan en el futuro.
+        // Obtiene los métodos manuales guardados en la base de datos.
         $metodosManuales = collect($user->manual_payment_methods ?? [])
             ->map(fn($metodo) => $this->normalizeManualMethod($metodo))
             ->filter()
@@ -57,50 +55,48 @@ class PaymentController extends Controller
      */
     public function cancelPlan()
     {
-        $user = Auth::user();
+        $user = Auth::user(); // Obtiene el usuario autenticado.
 
-        $suscripcion = $user->subscription('default');
+        $suscripcion = $user->subscription('default'); // Obtiene la suscripción.
 
-        // Flujo para suscripciones de Stripe (tarjeta).
+        // Verifica si existe una suscripción activa.
         if ($suscripcion && $user->subscribed('default')) {
-            if ($suscripcion->onGracePeriod()) {
+            if ($suscripcion->onGracePeriod()) { // Evita duplicar la solicitud si la suscripción ya está marcada para expirar.
                 return back()->with('success', 'Tu suscripción ya estaba programada para cancelarse al final del período.');
             }
 
-            // Se cancela en Stripe pero mantiene acceso hasta fin de ciclo.
-            $suscripcion->cancel();
+            $suscripcion->cancel(); // Se cancela en Stripe pero mantiene acceso hasta fin de ciclo.
 
-            return back()->with('success', 'Tu suscripción ha sido cancelada. Tendrás acceso hasta el final del período pagado.');
+            return back()->with('success', 'Tu suscripción ha sido cancelada. Tendrás acceso que se termine la suscripción actual.');
         }
 
-        // Flujo para pagos manuales (actualmente efectivo/transferencia).
-        // Bizum/PayPal quedan fuera, pero pueden recuperarse en el futuro.
-        if ($user->tarifa === 'cancelada') {
+        // Pagos manuales en efectivo.
+        if ($user->tarifa === 'cancelada') { // Evita duplicar la solicitud si la suscripción ya está marcada para expirar.
             return back()->with('success', 'Tu cancelación ya estaba programada para el final del período actual.');
         }
 
-        if (!$user->isPlanActive()) {
+        if (!$user->isPlanActive()) { // Si el plan no está activo, no hay suscripción para cancelar.
             return back()->with('error', 'No tienes una suscripción activa para cancelar.');
         }
 
-        $fechaFin = $user->next_payment_at
+        $fechaFin = $user->next_payment_at // Calcula la fecha de fin.
             ? Carbon::parse($user->next_payment_at)->toDateString()
             : $this->nextChargeFromPlan((string) $user->tarifa);
 
-        $user->update([
+        $user->update([ // Actualiza el estado de la suscripción.
             'tarifa' => 'cancelada',
             'payment_status' => 'al_dia',
             'next_payment_at' => $fechaFin,
         ]);
 
-        $fechaVisible = $fechaFin ? Carbon::parse($fechaFin)->format('d/m/Y') : 'fin del período actual';
+        $fechaVisible = $fechaFin ? Carbon::parse($fechaFin)->format('d/m/Y') : 'fin del período actual'; // Formatea la fecha de fin.
 
-        return back()->with('success', "Tu suscripción se cancelará al final del período actual ({$fechaVisible}).");
+        return back()->with('success', "Tu suscripción se cancelará al final del período actual ({$fechaVisible})."); // Devuelve un mensaje de éxito.
     }
 
     /**
      * Reanuda suscripción o crea una nueva.
-     * También permite cambiar de plan activo.
+     * También permite cambiar de plan.
      */
     public function resumePlan(Request $request)
     {
@@ -109,47 +105,45 @@ class PaymentController extends Controller
             'cupon' => 'nullable|string|max:100',
         ]);
 
-        $user = Auth::user();
-        $nuevaTarifa = $request->input('tarifa', 'mensual');
-        $codigoCupon = $request->input('cupon');
+        $user = Auth::user(); // Obtiene el usuario autenticado.
+        $nuevaTarifa = $request->input('tarifa', 'mensual'); // Obtiene la tarifa del plan.
+        $codigoCupon = $request->input('cupon'); // Obtiene el código del cupón de descuento.
 
-        // Valida cupón solo si el usuario ha escrito uno.
-        $cupon = $this->resolveStripeCoupon($codigoCupon, $user, 'reanudar_plan');
-        if ($cupon['error']) {
-            return back()->with('error', $cupon['error']);
+        // Valida el cupón de descuento solo si el usuario ha escrito uno.
+        $cupon = $this->resolveStripeCoupon($codigoCupon, $user, 'reanudar_plan'); // Obtiene el código descuento.
+        if ($cupon['error']) { // Si el cupón no es válido,
+            return back()->with('error', $cupon['error']); // Devuelve el error.
         }
 
-        $planId = $this->priceIdFromPlan($nuevaTarifa);
+        $planId = $this->priceIdFromPlan($nuevaTarifa); // Obtiene el ID del plan.
 
         try {
-            $subscription = $user->subscription('default');
+            $subscription = $user->subscription('default'); // Obtiene la suscripción.
 
-            if ($subscription) {
-                // Si ya existe suscripción, se reutiliza y se ajusta plan/cupón.
-                if ($user->tarifa !== $nuevaTarifa) {
+            if ($subscription) { // Si la suscripción existe, actualiza la tarifa del plan.
+                if ($user->tarifa !== $nuevaTarifa) { // Si la tarifa es diferente, cambia la suscripción.
                     $subscription->swap($planId);
                 }
 
-                if ($cupon['stripe_coupon_id']) {
+                if ($cupon['stripe_coupon_id']) { // Si el cupón es válido, aplica el cupón.
                     $subscription->applyCoupon($cupon['stripe_coupon_id']);
                 }
 
-                if ($subscription->onGracePeriod()) {
-                    $subscription->resume();
+                if ($subscription->onGracePeriod()) { // Si la suscripción está en período de gracia, reanuda la suscripción.
+                    $subscription->resume(); // Reanuda la suscripción.
                 }
-            } else {
-                // Si no existe, se crea desde cero con el método por defecto.
-                if (!$user->hasDefaultPaymentMethod()) {
+            } else { // Si no existe, se crea desde cero con el método por defecto.
+                if (!$user->hasDefaultPaymentMethod()) { // Si el usuario no tiene un método de pago por defecto, devuelve un error.
                     return back()->with('error', 'No tienes una tarjeta guardada.');
                 }
 
-                $newSubscription = $user->newSubscription('default', $planId);
+                $newSubscription = $user->newSubscription('default', $planId); // Crea una nueva suscripción.
 
-                if ($cupon['stripe_coupon_id']) {
+                if ($cupon['stripe_coupon_id']) { // Si el cupón es válido, se aplica.
                     $newSubscription->withCoupon($cupon['stripe_coupon_id']);
                 }
 
-                $newSubscription->create($user->defaultPaymentMethod()->id);
+                $newSubscription->create($user->defaultPaymentMethod()->id); // Crea la suscripción.
             }
 
             $user->update([
@@ -158,16 +152,16 @@ class PaymentController extends Controller
                 'next_payment_at' => $this->nextChargeFromPlan($nuevaTarifa),
             ]);
 
-            if ($cupon['model']) {
-                $descuentoAplicado = $cupon['model']->calculateDiscountAmount($this->planBaseAmount($nuevaTarifa));
-                $cupon['model']->markUsed($user, 'reanudar_plan', $descuentoAplicado);
+            if ($cupon['model']) { // Si el cupón es válido, se marca como usado.
+                $descuentoAplicado = $cupon['model']->calculateDiscountAmount($this->planBaseAmount($nuevaTarifa)); // Calcula el descuento aplicado.
+                $cupon['model']->markUsed($user, 'reanudar_plan', $descuentoAplicado); // Marca el cupón como usado.
             }
 
-            // Envía correo para confirmar que el pago con tarjeta está aprobado.
+            // Envía correo de confirmación.
             $this->sendPaymentApprovedEmail(
                 $user,
                 'Tarjeta',
-                'Pago con tarjeta confirmado al activar o reanudar el plan'
+                'Pago con tarjeta confirmado.'
             );
 
             return back()->with('success', 'Plan activado correctamente.');
@@ -190,12 +184,12 @@ class PaymentController extends Controller
         $paymentMethodId = $request->input('payment_method');
 
         try {
-            $user->updateDefaultPaymentMethod($paymentMethodId);
-            $metodoStripe = $user->findPaymentMethod($paymentMethodId);
-            $marca = strtolower((string) optional($metodoStripe->card ?? null)->brand);
+            $user->updateDefaultPaymentMethod($paymentMethodId); // Actualiza el método de pago por defecto.
+            $metodoStripe = $user->findPaymentMethod($paymentMethodId); // Busca el método de pago.
+            $marca = strtolower((string) optional($metodoStripe->card ?? null)->brand); // Obtiene la marca de la tarjeta.
 
             $user->update([
-                'metodo_pago' => $this->paymentMethodFromBrand($marca),
+                'metodo_pago' => $this->paymentMethodFromBrand($marca), // Actualiza el método de pago.
             ]);
 
             return back()->with('success', 'Método de pago principal actualizado correctamente.');
@@ -214,15 +208,15 @@ class PaymentController extends Controller
         ]);
 
         $user = Auth::user();
-        $paymentMethodId = $request->input('payment_method');
+        $paymentMethodId = $request->input('payment_method'); // Obtiene el ID del método de pago.
 
-        $paymentMethod = $user->findPaymentMethod($paymentMethodId);
+        $paymentMethod = $user->findPaymentMethod($paymentMethodId); // Busca el método de pago.
 
-        if (!$paymentMethod) {
+        if (!$paymentMethod) { // Si el método de pago no se encuentra, devuelve un error.
             return back()->with('error', 'No se pudo encontrar el método de pago.');
         }
 
-        $paymentMethod->delete();
+        $paymentMethod->delete(); // Elimina el método de pago.
 
         return back()->with('success', 'Tarjeta eliminada correctamente.');
     }
@@ -239,7 +233,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Pantalla para añadir una tarjeta usando Setup Intent.
+     * Pantalla para añadir una tarjeta.
      */
     public function newMethod()
     {
@@ -267,14 +261,14 @@ class PaymentController extends Controller
 
         $user = Auth::user();
 
-        if (!$user->stripe_id) {
+        if (!$user->stripe_id) { // Si el usuario no existe en Stripe, lo registra como cliente para poder asignarle tarjeta.
             $user->createAsStripeCustomer();
         }
 
         try {
-            $user->addPaymentMethod($request->payment_method);
+            $user->addPaymentMethod($request->payment_method); // Añade la nueva tarjeta al usuario.
 
-            if (!$user->hasDefaultPaymentMethod()) {
+            if (!$user->hasDefaultPaymentMethod()) { // Si el usuario no tiene un método de pago por defecto, se establece el nuevo como predeterminado.
                 $user->updateDefaultPaymentMethod($request->payment_method);
             }
 
@@ -285,60 +279,38 @@ class PaymentController extends Controller
     }
 
     /**
-     * Guarda o actualiza un método manual activo y su dato.
+     * Guarda o actualiza el método manual activo.
      */
     public function saveManualMethod(Request $request)
     {
         $data = $request->validate([
-            // Bizum/PayPal desactivados temporalmente.
-            'metodo_manual' => 'required|in:transferencia,efectivo',
-            'dato_manual' => 'nullable|string|max:120',
+            'metodo_manual' => 'required|in:efectivo', // Solo se permite efectivo como método manual.
         ], [
             'metodo_manual.required' => 'Selecciona un método manual.',
             'metodo_manual.in' => 'Método manual no válido.',
-            'dato_manual.max' => 'El dato es demasiado largo.',
         ]);
 
-        // Reglas extra por tipo de método.
-        if ($data['metodo_manual'] === 'transferencia') {
-            $request->validate([
-                'dato_manual' => 'required|string|min:6|max:120',
-            ], [
-                'dato_manual.required' => 'Indica un dato para la transferencia (por ejemplo IBAN o referencia).',
-                'dato_manual.min' => 'El dato de transferencia es demasiado corto.',
-            ]);
-        }
-
         $user = Auth::user();
-        $manuales = collect($user->manual_payment_methods ?? [])
-            ->map(fn($metodo) => $this->normalizeManualMethod($metodo))
-            ->filter()
-            ->values();
+        $manuales = collect($user->manual_payment_methods ?? []) // Recolecta los métodos de pago manuales del usuario.
+            ->map(fn($metodo) => $this->normalizeManualMethod($metodo)) // Normaliza los métodos de pago manuales.
+            ->filter() // Filtra los métodos de pago manuales.
+            ->keyBy('code'); // Asigna el código de método manual.
 
-        $datoManual = trim((string) ($data['dato_manual'] ?? ''));
+        $yaExistia = $manuales->has($data['metodo_manual']); // Comprueba si el método manual ya existía.
 
-        if ($data['metodo_manual'] === 'efectivo') {
-            $datoManual = null;
+        $manuales->put($data['metodo_manual'], [
+            'code' => $data['metodo_manual'], // Guarda el código de método manual.
+            'value' => null,
+        ]);
+
+        $user->manual_payment_methods = $manuales->values()->all(); // Actualiza los métodos de pago manuales del usuario.
+
+        // Si el usuario tenía tarjeta como principal, al guardar manual pasamos a efectivo.
+        if ($user->metodo_pago !== 'efectivo') {
+            $user->metodo_pago = $data['metodo_manual']; // Actualiza el método de pago del usuario.
         }
 
-        // Detecta si era alta nueva o una actualización del método.
-        $yaExistia = $manuales->contains(fn($metodo) => $metodo['code'] === $data['metodo_manual']);
-
-        $user->manual_payment_methods = $manuales
-            ->reject(fn($metodo) => $metodo['code'] === $data['metodo_manual'])
-            ->push([
-                'code' => $data['metodo_manual'],
-                'value' => $datoManual,
-            ])
-            ->values()
-            ->all();
-
-        // Si el principal actual no es manual, pasa a ser el recien guardado.
-        if (!in_array($user->metodo_pago, ['transferencia', 'efectivo', 'bizum', 'paypal'], true)) {
-            $user->metodo_pago = $data['metodo_manual'];
-        }
-
-        $user->save();
+        $user->save(); // Guarda los cambios en base de datos.
 
         return back()->with('success', $yaExistia ? 'Método manual actualizado.' : 'Método manual guardado.');
     }
@@ -349,22 +321,21 @@ class PaymentController extends Controller
     public function setPrimaryManualMethod(Request $request)
     {
         $data = $request->validate([
-            // Bizum/PayPal se mantienen aquí para poder gestionar datos antiguos.
-            'metodo_manual' => 'required|in:transferencia,efectivo,bizum,paypal',
+            'metodo_manual' => 'required|in:efectivo', // Solo se permite efectivo como método manual.
         ]);
 
         $user = Auth::user();
-        $manuales = collect($user->manual_payment_methods ?? [])
-            ->map(fn($metodo) => $this->normalizeManualMethod($metodo))
-            ->filter()
-            ->values();
+        $manuales = collect($user->manual_payment_methods ?? []) // Recolecta los métodos de pago manuales del usuario.
+            ->map(fn($metodo) => $this->normalizeManualMethod($metodo)) // Normaliza los métodos de pago manuales.
+            ->filter() // Filtra los métodos de pago manuales.
+            ->values(); // Obtiene los valores de los métodos de pago manuales.
 
-        if (!$manuales->contains(fn($metodo) => $metodo['code'] === $data['metodo_manual'])) {
-            return back()->with('error', 'Método no encontrado.');
+        if (!$manuales->contains(fn($metodo) => $metodo['code'] === $data['metodo_manual'])) { // Comprueba si el método manual existe.
+            return back()->with('error', 'Método no encontrado.'); // Si no existe, devuelve un error.
         }
 
         $user->update([
-            'metodo_pago' => $data['metodo_manual'],
+            'metodo_pago' => $data['metodo_manual'], // Actualiza el método de pago del usuario.
         ]);
 
         return back()->with('success', 'Método principal actualizado.');
@@ -376,8 +347,7 @@ class PaymentController extends Controller
     public function deleteManualMethod(Request $request)
     {
         $data = $request->validate([
-            // Bizum/PayPal se mantienen aquí para poder eliminar datos antiguos.
-            'metodo_manual' => 'required|in:transferencia,efectivo,bizum,paypal',
+            'metodo_manual' => 'required|in:efectivo',
         ]);
 
         $user = Auth::user();
@@ -395,13 +365,13 @@ class PaymentController extends Controller
             ->values()
             ->all();
 
-        // Si se borra el principal, se intenta seleccionar otro automáticamente.
+        // Si se borra el método principal, se intenta seleccionar otro automáticamente.
         if ($user->metodo_pago === $data['metodo_manual']) {
-            if ($manuales->isNotEmpty()) {
-                $user->metodo_pago = $manuales->first()['code'];
-            } elseif ($user->hasDefaultPaymentMethod()) {
-                $brand = strtolower((string) optional($user->defaultPaymentMethod()->card)->brand);
-                $user->metodo_pago = $brand ?: 'visa';
+            if ($manuales->isNotEmpty()) { // Si hay métodos manuales, se selecciona el primero.
+                $user->metodo_pago = $manuales->first()['code']; // Actualiza el método de pago del usuario.
+            } elseif ($user->hasDefaultPaymentMethod()) { // Si hay un método de pago por defecto, se selecciona.
+                $brand = strtolower((string) optional($user->defaultPaymentMethod()->card)->brand); // Obtiene la marca de la tarjeta.
+                $user->metodo_pago = $this->paymentMethodFromBrand($brand);
             }
         }
 
@@ -411,95 +381,42 @@ class PaymentController extends Controller
     }
 
     /**
-     * Convierte formatos antiguos y nuevos al mismo formato de salida.
+     * Normaliza el método manual
      */
     private function normalizeManualMethod(mixed $metodo): ?array
     {
-        if (is_string($metodo)) {
-            $code = strtolower(trim($metodo));
-
-            // Bizum/PayPal se aceptan solo para compatibilidad histórica.
-            if (!in_array($code, ['transferencia', 'efectivo', 'bizum', 'paypal'], true)) {
-                return null;
-            }
-
-            return [
-                'code' => $code,
-                'label' => $this->manualMethodName($code),
-                'value' => null,
-                'value_masked' => null,
-            ];
+        if (!is_array($metodo)) {
+            return null;
         }
 
-        if (is_array($metodo)) {
-            $code = strtolower(trim((string) ($metodo['code'] ?? '')));
+        $code = strtolower(trim((string) ($metodo['code'] ?? '')));
 
-            // Bizum/PayPal se aceptan solo para compatibilidad histórica.
-            if (!in_array($code, ['transferencia', 'efectivo', 'bizum', 'paypal'], true)) {
-                return null;
-            }
-
-            $value = trim((string) ($metodo['value'] ?? ''));
-            $value = $value === '' ? null : $value;
-
-            return [
-                'code' => $code,
-                'label' => $this->manualMethodName($code),
-                'value' => $value,
-                'value_masked' => $this->maskManualData($code, $value),
-            ];
+        if ($code !== 'efectivo') {
+            return null;
         }
 
-        return null;
+        $value = trim((string) ($metodo['value'] ?? ''));
+        $value = $value === '' ? null : $value;
+
+        return [
+            'code' => $code,
+            'label' => $this->manualMethodName($code),
+            'value' => $value,
+            'value_masked' => $this->maskManualData($value),
+        ];
     }
 
     /**
-     * Enmascara el dato manual para no mostrarlo completo.
+     * Devuelve el dato manual listo para mostrar.
+     * En efectivo no se guarda información sensible, así que no se enmascara.
      */
-    private function maskManualData(string $code, ?string $value): ?string
+    private function maskManualData(?string $value): ?string
     {
         if (!$value) {
             return null;
         }
 
-        return match ($code) {
-            'transferencia' => $value,
-            'bizum' => $this->maskPhone($value),
-            'paypal' => $this->maskEmail($value),
-            default => $value,
-        };
-    }
-
-    /**
-     * Cubre teléfono de Bizum.
-     */
-    private function maskPhone(string $telefono): string
-    {
-        $soloDigitos = preg_replace('/\D+/', '', $telefono);
-
-        if (strlen($soloDigitos) <= 3) {
-            return $soloDigitos;
-        }
-
-        return str_repeat('*', strlen($soloDigitos) - 3) . substr($soloDigitos, -3);
-    }
-
-    /**
-     * Cubre email de PayPal.
-     */
-    private function maskEmail(string $email): string
-    {
-        if (!str_contains($email, '@')) {
-            return $email;
-        }
-
-        [$usuario, $dominio] = explode('@', $email, 2);
-
-        if ($usuario === '') {
-            return '*@' . $dominio;
-        }
-
-        return substr($usuario, 0, 1) . str_repeat('*', max(strlen($usuario) - 1, 1)) . '@' . $dominio;
+        return $value;
     }
 
     /**
@@ -508,10 +425,6 @@ class PaymentController extends Controller
     private function manualMethodName(string $code): string
     {
         return match ($code) {
-            'transferencia' => 'Transferencia',
-            // Etiquetas anteriores por si se reactivan o existen datos antiguos.
-            'bizum' => 'Bizum',
-            'paypal' => 'PayPal',
             'efectivo' => 'Efectivo',
             default => ucfirst($code),
         };
@@ -522,10 +435,8 @@ class PaymentController extends Controller
      */
     private function paymentMethodFromBrand(?string $marca): string
     {
-        return match ($marca) {
-            'visa' => 'visa',
-            default => 'tarjeta',
-        };
+        // Para mantener el sistema sencillo, cualquier marca de tarjeta se guarda como "visa".
+        return 'visa';
     }
 
 
@@ -556,8 +467,8 @@ class PaymentController extends Controller
     {
         $request->validate([
             'tarifa' => 'required|in:mensual,trimestral,anual',
-            // Bizum/PayPal desactivados temporalmente.
-            'metodo_pago' => 'required|in:visa,transferencia,efectivo',
+            // Métodos permitidos: tarjeta y efectivo.
+            'metodo_pago' => 'required|in:visa,efectivo',
             'cupon' => 'nullable|string|max:100',
         ]);
 

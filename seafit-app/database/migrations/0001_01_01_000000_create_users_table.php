@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Migracion inicial de usuarios, tokens de recuperacion y sesiones.

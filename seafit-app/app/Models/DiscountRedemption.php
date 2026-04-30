@@ -31,8 +31,8 @@ class DiscountRedemption extends Model
     protected function casts(): array
     {
         return [
-            'applied_at' => 'datetime',
-            'discount_applied' => 'decimal:2',
+            'applied_at' => 'datetime', // Fecha y hora en que se usó el código.
+            'discount_applied' => 'decimal:2', // Descuento aplicado.
         ];
     }
 
@@ -41,7 +41,7 @@ class DiscountRedemption extends Model
      */
     public function discountCode(): BelongsTo
     {
-        return $this->belongsTo(DiscountCode::class);
+        return $this->belongsTo(DiscountCode::class); // Pertenece a un código de descuento.
     }
 
     /**
@@ -49,6 +49,6 @@ class DiscountRedemption extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class); // Pertenece a un usuario.
     }
 }

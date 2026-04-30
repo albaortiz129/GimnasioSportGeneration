@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Crea la tabla de códigos de descuento gestionados por admin.

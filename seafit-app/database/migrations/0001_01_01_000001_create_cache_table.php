@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Migracion de tablas de cache y bloqueos de cache.

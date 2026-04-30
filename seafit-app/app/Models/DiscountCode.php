@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Modelo de códigos de descuento administrables desde el panel.
+ * Modelo de códigos de descuento administrables desde el panel de administrador.
  */
 class DiscountCode extends Model
 {
@@ -66,7 +66,7 @@ class DiscountCode extends Model
     }
 
     /**
-     * Scope para buscar por código.
+     * Buscar por código.
      */
     public function scopeByCode(Builder $query, string $code): Builder
     {
@@ -104,22 +104,22 @@ class DiscountCode extends Model
     }
 
     /**
-     * Comprueba si un usuario puede usarlo en un contexto.
+     * Comprueba si un usuario puede usar este código.
      */
     public function canBeUsedBy(User $user, string $context = 'registro'): bool
     {
-        if (!$this->isActiveNow()) {
+        if (!$this->isActiveNow()) { // Verifica si el código está activo.
             return false;
         }
 
-        if (!$this->one_use_per_user) {
+        if (!$this->one_use_per_user) { // Verifica si es de un solo uso.
             return true;
         }
 
         return !$this->redemptions()
-            ->where('user_id', $user->id)
-            ->where('context', $context)
-            ->exists();
+            ->where('user_id', $user->id) // Busca el usuario.
+            ->where('context', $context) // Busca el contexto (registro, renovación, etc).
+            ->exists(); // Verifica si el usuario ya ha usado el código en este contexto.
     }
 
     /**
@@ -127,9 +127,9 @@ class DiscountCode extends Model
      */
     public function markUsed(User $user, string $context = 'registro', ?float $amount = null): void
     {
-        $this->increment('used_count');
+        $this->increment('used_count'); // Incrementa el contador de usos.
 
-        $this->redemptions()->create([
+        $this->redemptions()->create([ // Crea un registro.
             'user_id' => $user->id,
             'context' => $context,
             'discount_applied' => $amount,
@@ -142,12 +142,12 @@ class DiscountCode extends Model
      */
     public function calculateDiscountAmount(float $baseAmount): float
     {
-        $baseAmount = max($baseAmount, 0);
+        $baseAmount = max($baseAmount, 0); // Asegura que el importe base no sea negativo.
 
-        $discount = $this->type === 'percent'
+        $discount = $this->type === 'percent' // Si es porcentaje, calcula el descuento.
             ? ($baseAmount * ((float) $this->value / 100))
-            : (float) $this->value;
+            : (float) $this->value; // Si es fijo, usa el valor fijo.
 
-        return round(min($discount, $baseAmount), 2);
+        return round(min($discount, $baseAmount), 2); // Redondea a 2 decimales y asegura que no exceda el importe base.
     }
 }

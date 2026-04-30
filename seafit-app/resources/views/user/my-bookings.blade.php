@@ -44,7 +44,7 @@
                     <div>
                         <h1 class="text-3xl md:text-4xl font-black text-[#0A1931] mb-2">Mis Reservas</h1>
                         <p class="text-gray-500 text-[15px]">
-                            Aquí puedes gestionar tus clases reservadas, cancelar plaza o añadir nuevas clases.
+                            Aquí puedes gestionar tus clases reservadas y cancelar plaza cuando lo necesites.
                         </p>
                     </div>
                 </div>
@@ -97,14 +97,6 @@
                     @endforelse
                 </div>
 
-                @if($user->classes->count() > 0)
-                    <div class="mt-6">
-                        <a href="{{ route('agenda') }}"
-                            class="inline-flex items-center justify-center gap-2 bg-[#1A3878] text-white py-2.5 px-5 rounded-xl font-bold hover:bg-[#0A1931] transition-colors">
-                            <span class="material-symbols-outlined">add_circle</span> Añadir más clases
-                        </a>
-                    </div>
-                @endif
             </section>
         </main>
     </div>

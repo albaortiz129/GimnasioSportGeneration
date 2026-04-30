@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Migración de tokens personales para autenticacion API (Sanctum).

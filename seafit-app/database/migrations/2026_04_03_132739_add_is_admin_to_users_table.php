@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Migración que añade el rol booleano is_admin a users.
