@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Middleware de zona socio.
+ * Middleware de la zona de socio
  * Evita que un administrador entre en paginas de socio.
  */
 namespace App\Http\Middleware;

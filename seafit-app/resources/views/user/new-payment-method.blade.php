@@ -1,11 +1,11 @@
-{{-- Vista para guardar una nueva tarjeta con Stripe. --}}
+{{-- Añadir nueva tarjeta con Stripe --}}
 @extends('layouts.app')
 
 @section('contenido')
     <div class="max-w-md mx-auto my-10 p-8 bg-white rounded-3xl shadow-lg border">
         <h2 class="text-2xl font-bold mb-6 text-[#0A1931]">Añadir nueva tarjeta</h2>
-
-        @if(!$stripeKey)
+        @if (!$stripeKey)
+            {{-- Mensaje de error si falta la clave de Stripe --}}
             <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
                 Falta STRIPE_KEY en .env
             </div>

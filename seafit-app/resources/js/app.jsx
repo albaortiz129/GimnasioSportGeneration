@@ -1,4 +1,4 @@
-// Punto de entrada JS: monta el formulario de registro en React.
+// Se monta el formulario de registro en React.
 import './bootstrap';
 import ReactDOM from 'react-dom/client';
 import { loadStripe } from '@stripe/stripe-js';

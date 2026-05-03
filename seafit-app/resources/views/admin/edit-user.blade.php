@@ -1,4 +1,4 @@
-{{-- Vista de edición de datos de un usuario desde el panel admin. --}}
+{{-- Edición de datos de un usuario desde el panel de administrador. --}}
 @extends('layouts.app')
 
 @section('contenido')
@@ -14,7 +14,7 @@
             </div>
         @endif
 
-        {{-- Formulario de edición completa de la ficha del cliente. --}}
+        {{-- Formulario de edición de la ficha del cliente. --}}
         <form action="{{ route('admin.user.update', $user->id) }}" method="POST"
             class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white border rounded-2xl p-6">
             @csrf
@@ -116,7 +116,7 @@
                     class="w-full border rounded p-2">
             </div>
 
-            {{-- Acciones finales del formulario. --}}
+            {{-- Botones de acción. --}}
             <div class="flex gap-4 md:col-span-2 pt-2">
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Guardar Cambios</button>
                 <a href="{{ route('admin.dashboard') }}" class="text-gray-600 py-2">Cancelar</a>

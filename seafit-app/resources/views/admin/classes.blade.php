@@ -1,7 +1,7 @@
-{{-- Vista de administración de clases: crear, editar y gestionar apuntados. --}}
+﻿{{--Administración de clases: crear, editar y gestionar. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Clases - Admin')
+@section('titulo', 'Clases')
 
 @section('contenido')
     <div class="max-w-7xl mx-auto py-8 px-4">
@@ -37,7 +37,7 @@
             <textarea name="descripcion" placeholder="Descripción" class="border rounded p-2 md:col-span-4"></textarea>
         </form>
 
-        {{-- Filtro rápido por día de la semana. --}}
+        {{-- Filtro por día de la semana. --}}
         <div class="flex gap-2 overflow-x-auto mb-6">
             <a href="{{ route('admin.classes.index') }}"
                 class="px-4 py-2 rounded-full text-sm font-bold {{ empty($dia) ? 'bg-[#1A3878] text-white' : 'bg-gray-100 text-gray-600' }}">
@@ -46,7 +46,7 @@
             @foreach($diasSemana as $d)
                 @php
                     $diaVisible = match ($d) {
-                        'Miercoles' => 'Miércoles',
+                        'Miercoles' => 'Miércoles', // Se normaliza el día para mostrar los nombres con tilde.
                         'Sabado' => 'Sábado',
                         default => $d,
                     };
@@ -58,7 +58,7 @@
             @endforeach
         </div>
 
-        {{-- Listado de clases y gestión de inscritos. --}}
+        {{-- Listado de clases y gestión de socios inscritos. --}}
         <div class="space-y-6">
             @foreach($clases as $clase)
                 @php
@@ -68,7 +68,7 @@
                 @endphp
 
                 <div class="bg-white border rounded-2xl p-4">
-                    {{-- Formulario de edición rápida de la clase actual. --}}
+                    {{-- Formulario de edición de la clase actual. --}}
                     <form action="{{ route('admin.classes.update', $clase) }}" method="POST"
                         class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-4">
                         @csrf
@@ -79,7 +79,6 @@
                         <input type="time" name="hora_inicio" value="{{ substr($clase->hora_inicio, 0, 5) }}"
                             class="border rounded p-2" required>
 
-                        {{-- Se normaliza visualmente el día para mostrar los nombres con tilde. --}}
                         <select name="dia_semana" class="border rounded p-2" required>
                             @php $diaClase = $clase->dia_semana; @endphp
                             @foreach(['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'] as $diaItem)
@@ -127,25 +126,17 @@
                             <form action="{{ route('admin.classes.usuarios.store', $clase) }}" method="POST" class="space-y-2">
                                 @csrf
 
-                                <input
-                                    type="text"
-                                    class="class-user-filter border rounded p-2 w-full"
-                                    data-target="user-select-{{ $clase->id }}"
-                                    placeholder="Buscar alumno para esta clase...">
+                                <input type="text" class="class-user-filter border rounded p-2 w-full"
+                                    data-target="user-select-{{ $clase->id }}" placeholder="Buscar alumno para esta clase...">
 
                                 <div class="flex gap-2">
-                                    <select
-                                        id="user-select-{{ $clase->id }}"
-                                        name="user_id"
-                                        class="border rounded p-2 w-full"
-                                        @disabled($usuariosDisponibles->isEmpty())
-                                        required>
+                                    <select id="user-select-{{ $clase->id }}" name="user_id" class="border rounded p-2 w-full"
+                                        @disabled($usuariosDisponibles->isEmpty()) required>
                                         @if($usuariosDisponibles->isEmpty())
                                             <option value="">No hay alumnos disponibles</option>
                                         @else
                                             @foreach($usuariosDisponibles as $u)
-                                                <option
-                                                    value="{{ $u->id }}"
+                                                <option value="{{ $u->id }}"
                                                     data-search="{{ strtolower($u->nombre . ' ' . $u->apellidos . ' ' . $u->dni) }}">
                                                     {{ $u->nombre }} {{ $u->apellidos }} ({{ $u->dni }})
                                                 </option>
@@ -153,13 +144,14 @@
                                         @endif
                                     </select>
 
-                                    <button class="bg-[#0A1931] text-white px-4 rounded" @disabled($usuariosDisponibles->isEmpty())>
+                                    <button class="bg-[#0A1931] text-white px-4 rounded"
+                                        @disabled($usuariosDisponibles->isEmpty())>
                                         Añadir
                                     </button>
                                 </div>
                             </form>
 
-                            {{-- Borrado completo de la clase. --}}
+                            {{-- Borrado de la clase. --}}
                             <form action="{{ route('admin.classes.destroy', $clase) }}" method="POST" class="mt-4"
                                 onsubmit="return confirm('¿Eliminar clase?')">
                                 @csrf
@@ -175,37 +167,46 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Cada filtro solo afecta al desplegable de su propia clase.
+            // Recorre todos los buscadores de "Añadir usuario" del panel.
             document.querySelectorAll('.class-user-filter').forEach(function (input) {
+                // Cada buscador apunta a su propio <select> mediante data-target.
                 const selectId = input.getAttribute('data-target');
                 const select = document.getElementById(selectId);
-                if (!select) return;
+                if (!select) return; // Si no existe el select, se ignora este bloque.
 
+                // Guarda una copia limpia de las opciones originales del select, así podemos filtrar muchas veces sin perder datos.
                 const opcionesOriginales = Array.from(select.options)
                     .filter(function (option) {
-                        return option.value !== '';
+                        return option.value !== ''; // Quita la opción vacía de "Selecciona...".
                     })
                     .map(function (option) {
                         return {
-                            value: option.value,
-                            text: option.text,
-                            search: (option.dataset.search || option.text || '').toLowerCase(),
+                            value: option.value, // ID del usuario.
+                            text: option.text, // Texto que ve el administrador.
+                            search: (option.dataset.search || option.text || '').toLowerCase(), // Texto para buscar por nombre o DNI.
                         };
                     });
 
+                // Si no hay usuarios disponibles, desactiva el buscador.
                 if (opcionesOriginales.length === 0) {
                     input.disabled = true;
                     return;
                 }
 
+                // Vuelve a pintar el select según lo que se escriba en el buscador.
                 const renderOpciones = function () {
+                    // Normaliza el texto: sin espacios laterales y en minúsculas.
                     const texto = (input.value || '').trim().toLowerCase();
+
+                    // Deja solo las opciones que coinciden con el texto escrito.
                     const filtradas = opcionesOriginales.filter(function (opcion) {
                         return texto === '' || opcion.search.includes(texto);
                     });
 
+                    // Limpia el contenido actual del select antes de volver a llenarlo.
                     select.innerHTML = '';
 
+                    // Si no hay coincidencias, muestra "Sin resultados".
                     if (filtradas.length === 0) {
                         const vacia = document.createElement('option');
                         vacia.value = '';
@@ -216,6 +217,7 @@
                         return;
                     }
 
+                    // Añade al select solo las opciones que han pasado el filtro.
                     filtradas.forEach(function (opcion) {
                         const item = document.createElement('option');
                         item.value = opcion.value;
@@ -225,6 +227,7 @@
                     });
                 };
 
+                // Ejecuta el filtro cada vez que el administrador escribe en el input.
                 input.addEventListener('input', renderOpciones);
             });
         });

@@ -1,8 +1,6 @@
-{{-- Plantilla base de notificaciones por correo de Laravel (personalizada para SeaFit). --}}
+{{-- Plantilla base de notificaciones por correo de Laravel. --}}
 <x-mail::message>
-    {{-- Titulo del correo.
-    Si el sistema trae un saludo personalizado, se usa ese.
-    Si no, se muestra uno por defecto (normal o de error).--}}
+    {{-- Titulo del correo.--}}
     @if (!empty($greeting))
         # {{ $greeting }}
     @else
@@ -13,38 +11,32 @@
         @endif
     @endif
 
-    {{-- Texto principal del correo.
-    Aqui se pintan los mensajes iniciales (una o varias lineas).--}}
+    {{-- Texto principal del correo. --}}
     @foreach ($introLines as $line)
         {{ $line }}
 
     @endforeach
 
-    {{-- Boton de accion .
-    Solo aparece cuando la notificacion trae texto de accion.
-    El color cambia segun el tipo de mensaje. --}}
+    {{-- Boton de accion. --}}
     @isset($actionText)
         <?php
         $color = match ($level) {
             'success', 'error' => $level,
             default => 'primary',
         };
-                        ?>
+                                                        ?>
         <x-mail::button :url="$actionUrl" :color="$color">
             {{ $actionText }}
         </x-mail::button>
     @endisset
 
-    {{-- Texto final del correo.
-    Aqui se pintan las lineas de cierre antes de la firma.--}}
+    {{-- Texto final del correo. --}}
     @foreach ($outroLines as $line)
         {{ $line }}
 
     @endforeach
 
-    {{-- Firma.
-    Si llega una firma personalizada, se usa.
-    Si no, se usa la firma por defecto con el nombre de la app.--}}
+    {{-- Firma. --}}
     @if (!empty($salutation))
         {{ $salutation }}
     @else
@@ -52,8 +44,7 @@
         {{ config('app.name') }}
     @endif
 
-    {{-- Enlace en texto plano (opcional).
-    Se muestra como apoyo por si el boton no funciona en el cliente de correo.--}}
+    {{-- Enlace en texto plano (opcional). --}}
     @isset($actionText)
         <x-slot:subcopy>
             @lang(

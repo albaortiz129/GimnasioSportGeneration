@@ -13,7 +13,6 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Aplica los cambios de esta migración.
         Schema::create('clases', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');

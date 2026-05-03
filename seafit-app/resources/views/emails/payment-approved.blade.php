@@ -3,13 +3,14 @@
 <html lang="es">
 
 <head>
+    {{-- Título. --}}
     <meta charset="UTF-8">
     <title>Pago aprobado - SeaFit</title>
 </head>
 
 <body style="font-family: Arial, sans-serif; padding: 20px; color: #0A1931;">
+    {{-- Cuerpo. --}}
     <h2>Hola, {{ $nombre }}</h2>
-
     <p>Tu pago ha sido aprobado correctamente en SeaFit.</p>
 
     <p><strong>Método de pago:</strong> {{ $metodo }}</p>
@@ -20,7 +21,8 @@
         <p><strong>Detalle:</strong> {{ $origen }}</p>
     @endif
 
-    <p style="margin-top: 24px;">Gracias por confiar en SeaFit.</p>
+    {{-- Cierre. --}}
+    <p>Si no has solicitado esta acción, por favor, contacta con el equipo de SeaFit.</p>
     <p>Un saludo,<br>El equipo de SeaFit</p>
 </body>
 

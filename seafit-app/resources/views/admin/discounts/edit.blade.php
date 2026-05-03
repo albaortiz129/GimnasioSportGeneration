@@ -1,13 +1,13 @@
-{{-- Vista de admin para editar un código de descuento. --}}
+{{-- Editar un código de descuento desde admin. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Editar descuento - Admin')
+@section('titulo', 'Editar descuento')
 
 @section('contenido')
     <div class="max-w-4xl mx-auto px-4 py-8">
         <h1 class="text-2xl font-black text-[#0A1931] mb-6">Editar código: {{ $discountCode->code }}</h1>
 
-        {{-- Error general de validación devuelto por backend. --}}
+        {{-- Error general si el backend detecta algún problema de validación. --}}
         @if($errors->any())
             <div class="mb-4 p-3 rounded bg-red-100 text-red-800 border border-red-200">
                 Revisa los campos marcados.
@@ -49,7 +49,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {{-- Rango opcional de fechas de activación/caducidad. --}}
+                {{-- Ventana de validez temporal del código. (opcional) --}}
                 <div>
                     <label class="block text-sm font-bold mb-1">Inicio (opcional)</label>
                     <input type="datetime-local" name="starts_at"
@@ -68,7 +68,7 @@
             </div>
 
             <div>
-                {{-- Límite global de usos (si se quiere restringir). --}}
+                {{-- Límite de usos del cupón. --}}
                 <label class="block text-sm font-bold mb-1">Máximo de usos (opcional)</label>
                 <input type="number" min="1" name="max_uses" value="{{ old('max_uses', $discountCode->max_uses) }}"
                     class="w-full border rounded p-3 @error('max_uses') border-red-500 @enderror">
@@ -76,7 +76,7 @@
             </div>
 
             <div>
-                {{-- Vinculación opcional con cupón de Stripe. --}}
+                {{-- ID del cupón creado en Stripe. --}}
                 <label class="block text-sm font-bold mb-1">Stripe coupon id (opcional)</label>
                 <input type="text" name="stripe_coupon_id"
                     value="{{ old('stripe_coupon_id', $discountCode->stripe_coupon_id) }}"
@@ -85,7 +85,7 @@
             </div>
 
             <div>
-                {{-- Notas internas para administración. --}}
+                {{-- Notas internas del cupón para los administradores. --}}
                 <label class="block text-sm font-bold mb-1">Notas (opcional)</label>
                 <textarea name="notes" rows="3"
                     class="w-full border rounded p-3 @error('notes') border-red-500 @enderror">{{ old('notes', $discountCode->notes) }}</textarea>
@@ -93,7 +93,7 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-6">
-                {{-- Opciones de estado y límite por usuario. --}}
+                {{-- Configuración rápida del cupón. --}}
                 <label class="inline-flex items-center gap-2">
                     <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $discountCode->is_active))>
                     <span class="text-sm font-medium">Activo</span>

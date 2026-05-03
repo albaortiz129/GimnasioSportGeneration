@@ -15,7 +15,7 @@ class GymClassSeeder extends Seeder
      */
     public function run(): void
     {
-        // Datos base de clases semanales para entornos nuevos.
+        // Datos de clases como ejemplos.
         $clases = [
             [
                 'nombre' => 'Yoga Flow',

@@ -1,7 +1,7 @@
-{{-- Vista de alta de clientes desde el panel de administración. --}}
+{{-- Alta de clientes desde el panel de administración. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Nuevo Cliente - Admin')
+@section('titulo', 'Nuevo cliente')
 
 @section('contenido')
     <div class="max-w-3xl mx-auto py-10 px-4">
@@ -23,7 +23,7 @@
             class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-6 rounded-2xl border">
             @csrf
 
-            {{-- Datos personales basicos del cliente. --}}
+            {{-- Datos personales del socio. --}}
             <div>
                 <input id="nombre" name="nombre" placeholder="Nombre" value="{{ old('nombre') }}"
                     class="border rounded p-3 w-full @error('nombre') border-red-500 bg-red-50 @enderror" required>
@@ -130,7 +130,6 @@
                 <select id="metodo_pago" name="metodo_pago"
                     class="border rounded p-3 w-full @error('metodo_pago') border-red-500 bg-red-50 @enderror" required>
                     <option value="">Selecciona método de pago</option>
-                    {{-- Métodos activos en alta: tarjeta y efectivo. --}}
                     <option value="visa" @selected(old('metodo_pago') === 'visa')>Visa</option>
                     <option value="efectivo" @selected(old('metodo_pago') === 'efectivo')>Efectivo</option>
                 </select>
@@ -298,7 +297,7 @@
                 return setError(metodoPagoInput, metodoPagoError, '');
             }
 
-            // Validación en vivo para mostrar errores antes del submit.
+            // Validación de campos del formulario para mostrar errores antes del submit.
             nombreInput.addEventListener('input', validarNombreCampo);
             nombreInput.addEventListener('blur', validarNombreCampo);
             apellidosInput.addEventListener('input', validarApellidosCampo);

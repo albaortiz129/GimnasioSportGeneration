@@ -1,4 +1,4 @@
-{{-- Layout base compartido por las páginas de SeaFit. --}}
+{{-- Layout base compartido por las páginas. --}}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -25,8 +25,7 @@
     <script>
         (() => {
             /**
-             * Corrige el hueco superior que algunas extensiones/traductores
-             * pueden inyectar. No modifica tamaños de logo ni botones.
+             * Corrige el hueco superior que algunas extensiones pueden crear.
              */
             function fixTopGap() {
                 const header = document.querySelector('body > header');
@@ -54,7 +53,7 @@
 </head>
 
 <body class="flex flex-col min-h-screen">
-    {{-- Header --}}
+    {{-- Cabecera --}}
     @include('components.header')
 
     {{-- Contenido --}}
@@ -62,7 +61,7 @@
         @yield('contenido')
     </main>
 
-    {{-- Footer --}}
+    {{-- Pie de página --}}
     @include('components.footer')
 
     {{-- Chat IA --}}

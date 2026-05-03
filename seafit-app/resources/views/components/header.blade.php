@@ -1,4 +1,4 @@
-{{-- Cabecera principal: logo, menú y acceso de sesión. --}}
+{{-- Cabecera. --}}
 <header class="w-full bg-white shadow-sm">
     <div
         class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 max-w-[1200px] mx-auto py-2 md:py-2 px-4 sm:px-5">
@@ -23,7 +23,7 @@
             </nav>
         </div>
 
-        {{-- Zona derecha: auth/admin --}}
+        {{-- Botones de autenticación --}}
         <div class="w-full md:flex-[1.2] flex items-center justify-center md:justify-end">
             @guest
                 <div class="flex">
@@ -38,9 +38,11 @@
                 </div>
             @endguest
 
+            {{-- Acceso del usuario --}}
             @auth
                 <div
                     class="flex flex-wrap md:flex-nowrap items-center justify-center md:justify-end gap-2 sm:gap-3 whitespace-nowrap">
+                    {{-- Panel de administrador --}}
                     @if(auth()->user()->is_admin)
                         <a href="{{ route('admin.dashboard') }}"
                             class="inline-flex items-center gap-1 text-red-600 font-bold text-xs sm:text-sm hover:text-red-800 transition-colors bg-red-50 px-3 py-2 rounded-full border border-red-200">
@@ -48,11 +50,11 @@
                             Panel Admin
                         </a>
                     @else
-                        {{-- Acceso directo al perfil (restaurado como estaba antes). --}}
+                        {{-- Perfil del usuario. --}}
                         <a href="{{ url('/perfil') }}"
                             class="inline-flex items-center gap-1.5 text-[#0A1931] font-semibold text-sm sm:text-base hover:text-[#1A3878] transition-colors whitespace-nowrap leading-none shrink-0">
                             <span class="material-symbols-outlined text-[22px] leading-none">account_circle</span>
-                            Mi Perfil
+                            Mi perfil
                         </a>
                     @endif
 
@@ -72,7 +74,7 @@
 
 @auth
     @if(!auth()->user()->is_admin && auth()->user()->isPlanActive())
-        {{-- Modal QR para socios con cuenta activa. --}}
+        {{-- QR para socios con cuenta activa. --}}
         <div id="modalQrHeader"
             class="fixed inset-0 bg-black/70 backdrop-blur-md z-[120] hidden flex items-center justify-center p-4">
             <div class="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl text-center">
@@ -122,7 +124,7 @@
                     intervaloQr = setInterval(actualizarQr, 20000);
                 }
 
-                // Cierra el modal y para el refresco automático.
+                // Cierra el modal.
                 function cerrarModal() {
                     if (!modal) return;
                     modal.classList.add('hidden');
@@ -130,7 +132,7 @@
                     intervaloQr = null;
                 }
 
-                // Exponemos apertura global para usar el QR desde el botón del inicio.
+                // Apertura para usar el QR desde el botón del inicio.
                 window.openGymQrModal = abrirModal;
 
                 // Evento de cerrar.

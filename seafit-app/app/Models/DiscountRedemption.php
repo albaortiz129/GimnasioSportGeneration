@@ -1,7 +1,6 @@
 <?php
 
 /**
- * Modelo Eloquent del historial de uso de descuentos.
  * Guarda qué usuario aplicó cada código y en qué contexto.
  */
 namespace App\Models;

@@ -1,26 +1,26 @@
-{{-- Panel "Mi Perfil": solo lectura de cuenta, membresía y resumen de reservas. --}}
+{{-- Mi perfil. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Mi Perfil - SeaFit')
+@section('titulo', 'Mi perfil')
 
 @section('contenido')
     <div class="flex flex-col md:flex-row min-h-screen bg-[#f8fafc] font-sans">
-        {{-- Barra lateral del panel de socio. --}}
+        {{-- Barra lateral del panel de usuario. --}}
         <aside
             class="w-full md:w-[280px] md:min-w-[280px] bg-white p-6 md:p-8 border-b md:border-b-0 md:border-r border-gray-200">
-            <h2 class="text-xl font-extrabold text-[#0A1931] mb-8">Panel de Socio</h2>
+            <h2 class="text-xl font-extrabold text-[#0A1931] mb-8">Panel de usuario</h2>
             <nav class="flex flex-col gap-2">
                 <a href="{{ route('perfil') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors bg-[#e6f3ff] text-[#1A3878]">
-                    <span class="material-symbols-outlined">person</span> Mi Perfil
+                    <span class="material-symbols-outlined">person</span> Mi perfil
                 </a>
                 <a href="{{ route('mis.reservas') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
-                    <span class="material-symbols-outlined">calendar_month</span> Mis Reservas
+                    <span class="material-symbols-outlined">calendar_month</span> Mis reservas
                 </a>
                 <a href="{{ route('pago.gestion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
-                    <span class="material-symbols-outlined">payments</span> Gestión de Pago
+                    <span class="material-symbols-outlined">payments</span> Gestión de pago
                 </a>
                 <a href="{{ route('configuracion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
@@ -29,7 +29,7 @@
             </nav>
         </aside>
 
-        {{-- Contenido principal del perfil. --}}
+        {{-- Contenido. --}}
         <main class="flex-1 p-6 md:p-10 lg:p-12 max-w-[1000px]">
             @if(session('success'))
                 <div class="bg-green-100 text-green-800 p-4 rounded-xl mb-6 border border-green-200 font-medium">
@@ -43,7 +43,7 @@
             @endif
 
             <header class="mb-8">
-                <h1 class="text-3xl md:text-4xl font-black text-[#0A1931] mb-2">Mi Perfil</h1>
+                <h1 class="text-3xl md:text-4xl font-black text-[#0A1931] mb-2">Mi perfil</h1>
                 <p class="text-gray-500 text-[15px]">
                     Aquí puedes consultar tus datos de cuenta, tus reservas y el estado de tu membresía actual.
                 </p>
@@ -58,7 +58,7 @@
                 $cancelada = $user->tarifa === 'cancelada' || ($suscripcion ? $suscripcion->canceled() : false);
             @endphp
 
-            {{-- Tarjeta de membresía en modo solo lectura. --}}
+            {{-- Tarjeta de membresía. --}}
             <section
                 class="bg-[#0A1931] text-white p-6 md:p-8 rounded-2xl flex flex-col gap-2 mb-8 shadow-lg border border-white/10">
                 <p class="text-xs uppercase tracking-widest text-gray-400 font-bold">Membresía actual</p>
@@ -85,10 +85,10 @@
                 </p>
             </section>
 
-            {{-- Datos de cuenta en modo solo lectura. --}}
+            {{-- Datos de cuenta. --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <h3 class="text-xl font-bold text-[#0A1931] mb-6 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-gray-400">badge</span> Datos de Cuenta
+                    <span class="material-symbols-outlined text-gray-400">badge</span> Datos de cuenta
                 </h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
@@ -124,9 +124,9 @@
                 </div>
             </section>
 
-            {{-- Resumen de reservas sin acciones de edición/cancelación en esta vista. --}}
+            {{-- Resumen de reservas. --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
-                <h3 class="text-xl font-bold text-[#0A1931] mb-6">Mis Reservas ({{ $user->classes->count() }})</h3>
+                <h3 class="text-xl font-bold text-[#0A1931] mb-6">Mis reservas ({{ $user->classes->count() }})</h3>
                 <div class="flex flex-col gap-3">
                     @forelse($user->classes as $clase)
                         <div class="p-4 bg-[#f8fafc] border border-gray-200 rounded-xl">

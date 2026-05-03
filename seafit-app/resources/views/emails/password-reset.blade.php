@@ -3,12 +3,12 @@
 <html>
 
 <head>
-    {{-- Título del correo para cliente de email. --}}
-    <title>Recuperar contraseña</title>
+    {{-- Título del correo. --}}
+    <title>Recuperar contraseña - SeaFit</title>
 </head>
 
 <body style="font-family: Arial, sans-serif; padding: 20px; color: #0A1931;">
-    {{-- Mensaje introductorio del email. --}}
+    {{-- Cuerpo. --}}
     <h2>Hola,</h2>
     <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en SeaFit.</p>
     <p>Haz clic en el siguiente enlace para crear una nueva contraseña:</p>
@@ -21,7 +21,7 @@
         </a>
     </p>
 
-    {{-- Mensaje de cierre y firma. --}}
+    {{-- Cierre. --}}
     <p>Si no has solicitado este cambio, ignora este correo.</p>
     <p>Un saludo,<br>El equipo de SeaFit</p>
 </body>

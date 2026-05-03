@@ -1,17 +1,15 @@
-{{-- Vista de servicios con calendario interactivo y resumen de ofertas. --}}
+{{-- Servicios. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Servicios Detallados - SeaFit')
+@section('titulo', 'Servicios')
 
 @section('contenido')
     <div class="bg-white font-display text-[#4B5563]">
         <main class="flex flex-1 flex-col items-center flex-grow">
-
-
-            {{-- Cabecera principal de la página --}}
+            {{-- Cabecera --}}
             <div class="w-full text-center py-16 bg-[#F8F8F8] border-b border-gray-200">
                 <h1 class="text-gray-900 text-4xl lg:text-5xl font-black leading-tight tracking-tighter">
-                    Descubre la Oferta Completa de SeaFit
+                    Descubre la oferta completa de SeaFit
                 </h1>
                 <p class="text-lg mt-3 max-w-3xl mx-auto px-4">
                     Selecciona el camino que mejor se adapta a tus objetivos: entrenamientos grupales, soporte personal o
@@ -20,7 +18,7 @@
             </div>
 
             <div class="layout-content-container flex flex-col w-full max-w-7xl flex-1 gap-16 px-4 py-16 lg:py-24">
-                {{-- Mensaje de éxito tras una reserva/cancelación --}}
+                {{-- Mensaje de éxito tras una reserva/cancelación. --}}
                 @if(session('success'))
                     <div
                         class="bg-green-100 text-green-800 p-4 rounded-2xl border border-green-200 font-bold text-center animate-bounce">
@@ -28,16 +26,16 @@
                     </div>
                 @endif
 
-                {{-- Sección de clases colectivas con calendario visual --}}
+                {{-- Sección de clases en el calendario. --}}
                 <section id="clases"
                     class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-8 p-6 lg:p-10 rounded-[3rem] bg-white border border-gray-100 shadow-2xl transition-all">
 
-                    {{-- Bloque izquierdo: descripción + leyenda --}}
+                    {{-- Bloque izquierdo. --}}
                     <div class="flex flex-col gap-6 justify-center">
                         <div class="w-14 h-14 rounded-full flex items-center justify-center bg-[#1A3878]/10">
                             <span class="material-symbols-outlined text-4xl text-[#1A3878]">groups</span>
                         </div>
-                        <h2 class="text-gray-900 text-4xl font-black tracking-tight italic">Clases Colectivas</h2>
+                        <h2 class="text-gray-900 text-4xl font-black tracking-tight italic">Clases colectivas</h2>
                         <p class="text-gray-600 text-lg leading-relaxed">
                             Reserva tu plaza de forma visual en nuestro calendario interactivo. Cambia de día para ver toda
                             la oferta semanal.
@@ -49,20 +47,20 @@
                                 <span class="w-4 h-4 rounded-full bg-[#a3e635] shadow-sm"></span> Disponible
                             </div>
                             <div class="flex items-center gap-3 text-sm font-bold text-gray-500">
-                                <span class="w-4 h-4 rounded-full bg-[#1A3878] shadow-sm"></span> Tu Reserva
+                                <span class="w-4 h-4 rounded-full bg-[#1A3878] shadow-sm"></span> Tu reserva
                             </div>
                             <div class="flex items-center gap-3 text-sm font-bold text-gray-500">
-                                <span class="w-4 h-4 rounded-full bg-gray-200 shadow-sm"></span> Clase Llena
+                                <span class="w-4 h-4 rounded-full bg-gray-200 shadow-sm"></span> Clase llena
                             </div>
                         </div>
 
                         <button onclick="window.location.href='{{ route('agenda') }}'"
                             class="flex w-fit items-center justify-center rounded-2xl h-14 px-8 bg-[#1A3878] text-white text-lg font-bold hover:bg-[#0A1931] transition-all shadow-lg mt-4 uppercase tracking-tighter">
-                            Ver Agenda Completa
+                            Ver agenda completa
                         </button>
                     </div>
 
-                    {{-- Bloque derecho: calendario de clases por horas --}}
+                    {{-- Bloque derecho. --}}
                     <div
                         class="bg-[#F8F9FA] rounded-[2.5rem] border border-gray-200 shadow-inner overflow-hidden flex flex-col h-[750px]">
                         {{-- Selector horizontal de días --}}
@@ -82,13 +80,13 @@
                             @foreach($diasSemana as $diaItem)
                                 <a href="{{ route('servicios', ['dia' => $diaItem['value']]) }}#clases"
                                     class="flex-shrink-0 text-xs font-black px-6 py-2.5 rounded-full transition-all uppercase tracking-widest
-                                                                                                                                    {{ $diaActivo == $diaItem['value'] ? 'bg-[#1A3878] text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-400 hover:bg-gray-200' }}">
+                                                                                                                                                                                                                                                                                            {{ $diaActivo == $diaItem['value'] ? 'bg-[#1A3878] text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-400 hover:bg-gray-200' }}">
                                     {{ $diaItem['label'] }}
                                 </a>
                             @endforeach
                         </div>
 
-                        {{-- Rejilla: columna de horas + área de tarjetas --}}
+                        {{-- Rejilla.--}}
                         <div class="flex-1 overflow-y-auto relative grid grid-cols-[80px_1fr] bg-white scroll-smooth"
                             id="calendar-body">
                             {{-- Columna de horas --}}
@@ -101,7 +99,7 @@
                                 @endfor
                             </div>
 
-                            {{-- Área de clases con líneas de fondo cada hora --}}
+                            {{-- Área de clases. --}}
                             <div
                                 class="relative min-h-[1400px] bg-[linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:100%_100px]">
                                 @forelse($clases as $clase)
@@ -110,7 +108,7 @@
                                         $estaCompleto = $clase->capacidad_max <= 0;
                                         $columnasTotales = max((int) ($clase->layout_cols ?? 1), 1);
                                         $columnaActual = max((int) ($clase->layout_col ?? 0), 0);
-                                        $separacion = 2.0; // porcentaje entre columnas
+                                        $separacion = 2.0;
                                         $ancho = (100 - (($columnasTotales - 1) * $separacion)) / $columnasTotales;
                                         $izquierda = $columnaActual * ($ancho + $separacion);
                                         $top = (int) ($clase->layout_top ?? 0);
@@ -145,7 +143,7 @@
                                                 </p>
                                             </div>
 
-                                            {{-- Acciones: reservar / cancelar / lleno --}}
+                                            {{-- Acciones --}}
                                             <div class="flex items-center justify-end shrink-0 min-w-[120px]">
                                                 @if($yaReservado)
                                                     {{-- Si está reservada, al pasar el ratón permite cancelar --}}
@@ -208,20 +206,19 @@
                             class="w-16 h-16 rounded-3xl flex items-center justify-center bg-[#1A3878] text-white rotate-3">
                             <span class="material-symbols-outlined text-4xl">fitness_center</span>
                         </div>
-                        <h2 class="text-gray-900 text-4xl font-black italic tracking-tighter">Entrenador Personal</h2>
+                        <h2 class="text-gray-900 text-4xl font-black italic tracking-tighter">Entrenador personal</h2>
                         <p class="text-lg text-gray-600 leading-relaxed">
                             Lleva tu físico al siguiente nivel con planes 100% personalizados. Evaluación mensual de grasa
-                            corporal,
-                            masa muscular y rendimiento.
+                            corporal, masa muscular y rendimiento.
                         </p>
                         <button onclick="window.location.href='{{ route('valoracion') }}'"
                             class="flex w-fit min-w-[240px] items-center justify-center rounded-2xl h-14 px-8 bg-[#1A3878] text-white font-black text-lg hover:bg-[#0A1931] shadow-xl hover:shadow-[#1A3878]/40 transition-all uppercase tracking-widest">
-                            Solicitar Valoración
+                            Solicitar valoración
                         </button>
                     </div>
                 </section>
 
-                {{-- Sección de membresía y beneficios --}}
+                {{-- Sección de membresía --}}
                 <section id="membresia"
                     class="p-10 lg:p-16 rounded-[2.5rem] bg-white text-[#0A1931] shadow-[0_20px_50px_rgba(0,0,0,0.05)] text-center border border-gray-100 relative overflow-hidden">
 
@@ -229,12 +226,11 @@
                         <div class="w-14 h-14 rounded-full flex items-center justify-center bg-[#1A3878]/10 mb-2">
                             <span class="material-symbols-outlined text-3xl text-[#1A3878]">pool</span>
                         </div>
-                        <h2 class="text-4xl lg:text-5xl font-black tracking-tight text-[#0A1931]">Acceso Total (Membresía)
+                        <h2 class="text-4xl lg:text-5xl font-black tracking-tight text-[#0A1931]">Acceso total (Membresía)
                         </h2>
                         <p class="text-lg text-gray-500 max-w-3xl mx-auto font-medium leading-relaxed">
                             Tu llave a todas nuestras instalaciones. Elige la duración de tu plan y disfruta sin
-                            restricciones del
-                            gimnasio, la piscina y las zonas de relax.
+                            restricciones del gimnasio, la piscina y las zonas de relax.
                         </p>
                     </div>
 
@@ -243,7 +239,7 @@
                             class="p-10 rounded-2xl bg-[#F8FAFC] border border-gray-100 hover:border-blue-200 hover:bg-white transition-all duration-300 group shadow-sm hover:shadow-md">
                             <span
                                 class="material-symbols-outlined text-4xl text-[#1A3878] group-hover:scale-110 transition-transform">fitness_center</span>
-                            <h4 class="font-black text-lg mt-5 text-[#0A1931]">Gimnasio y Cardio</h4>
+                            <h4 class="font-black text-lg mt-5 text-[#0A1931]">Gimnasio y cardio</h4>
                             <p class="text-sm text-gray-400 mt-1 font-medium italic">Maquinaria de última generación.</p>
                         </div>
 
@@ -251,15 +247,15 @@
                             class="p-10 rounded-2xl bg-[#F8FAFC] border border-gray-100 hover:border-blue-200 hover:bg-white transition-all duration-300 group shadow-sm hover:shadow-md">
                             <span
                                 class="material-symbols-outlined text-4xl text-[#1A3878] group-hover:scale-110 transition-transform">pool</span>
-                            <h4 class="font-black text-lg mt-5 text-[#0A1931]">Piscina Climatizada</h4>
-                            <p class="text-sm text-gray-400 mt-1 font-medium italic">Acceso a nado libre y clases.</p>
+                            <h4 class="font-black text-lg mt-5 text-[#0A1931]">Piscina climatizada</h4>
+                            <p class="text-sm text-gray-400 mt-1 font-medium italic">Acceso libre y clases.</p>
                         </div>
 
                         <div
                             class="p-10 rounded-2xl bg-[#F8FAFC] border border-gray-100 hover:border-blue-200 hover:bg-white transition-all duration-300 group shadow-sm hover:shadow-md">
                             <span
                                 class="material-symbols-outlined text-4xl text-[#1A3878] group-hover:scale-110 transition-transform">hot_tub</span>
-                            <h4 class="font-black text-lg mt-5 text-[#0A1931]">Zonas Wellness</h4>
+                            <h4 class="font-black text-lg mt-5 text-[#0A1931]">Zonas wellness</h4>
                             <p class="text-sm text-gray-400 mt-1 font-medium italic">Sauna, baño turco y vestuarios.</p>
                         </div>
                     </div>
@@ -268,7 +264,7 @@
                         @if(!auth()->user()->is_admin && auth()->user()->isPlanActive())
                             <button type="button" onclick="window.location.href='{{ route('valoracion') }}'"
                                 class="mt-10 inline-flex items-center justify-center rounded-2xl h-14 px-8 bg-[#1A3878] text-white font-black text-lg hover:bg-[#0A1931] shadow-xl transition-all uppercase tracking-widest">
-                                Contratar Entrenador Personal
+                                Contratar entrenador personal
                             </button>
                         @elseif(!auth()->user()->is_admin)
                             <button type="button" onclick="window.location.href='{{ route('pago.gestion') }}'"
@@ -279,11 +275,9 @@
                     @else
                         <button type="button" onclick="window.location.href='{{ url('/tarifas') }}'"
                             class="mt-10 inline-flex items-center justify-center rounded-2xl h-14 px-8 bg-[#1A3878] text-white font-black text-lg hover:bg-[#0A1931] shadow-xl transition-all uppercase tracking-widest">
-                            Ver Planes y Precios de Membresía
+                            Ver planes y precios de membresía
                         </button>
                     @endauth
-
-
                 </section>
             </div>
         </main>

@@ -1,7 +1,7 @@
-{{-- Vista de inicio de sesión de usuarios registrados. --}}
+{{-- Inicio de sesión. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Inicia Sesión - SeaFit')
+@section('titulo', 'Inicia sesión')
 
 @section('contenido')
     {{-- Contenedor de autenticación --}}
@@ -11,7 +11,7 @@
         <div
             class="bg-white w-full max-w-[450px] p-10 sm:p-12 rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.03)] text-center">
 
-            <h1 class="text-[#004b7a] text-[32px] font-extrabold mb-1">Inicia Sesión</h1>
+            <h1 class="text-[#004b7a] text-[32px] font-extrabold mb-1">Inicia sesión</h1>
             <p class="text-gray-500 mb-8 text-[15px]">Accede a tu cuenta SeaFit.</p>
 
             {{-- Alertas de error si el login falla --}}
@@ -27,21 +27,19 @@
             <form action="{{ url('/login') }}" method="POST" class="text-left">
                 @csrf
 
-                {{-- Grupo Email --}}
                 <div class="mb-6">
                     <label class="block font-semibold mb-2.5 text-[14px] text-gray-800">Email</label>
                     <input type="email" name="email" placeholder="tu@email.com" value="{{ old('email') }}" required
                         class="w-full p-4 border border-gray-200 rounded-xl bg-[#fdfdfd] text-[14px] outline-none focus:border-[#004b7a] focus:ring-1 focus:ring-[#004b7a] transition-all">
                 </div>
 
-                {{-- Grupo Contraseña --}}
                 <div class="mb-6">
                     <label class="block font-semibold mb-2.5 text-[14px] text-gray-800">Contraseña</label>
                     <div class="relative flex items-center">
                         <input type="password" name="password" id="passInput" placeholder="••••••" required
                             class="w-full p-4 pr-10 border border-gray-200 rounded-xl bg-[#fdfdfd] text-[14px] outline-none focus:border-[#004b7a] focus:ring-1 focus:ring-[#004b7a] transition-all">
 
-                        {{-- El icono del ojo, ahora posicionado con Tailwind absoluto --}}
+                        {{-- Icono del ojo --}}
                         <span onclick="togglePass()"
                             class="absolute right-4 cursor-pointer text-gray-400 hover:text-gray-600 transition-colors">
                             <span class="material-symbols-outlined text-[20px]">visibility</span>

@@ -1,7 +1,7 @@
-{{-- Vista de admin para crear un código de descuento. --}}
+{{-- Crear un código de descuento desde admin. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Nuevo descuento - Admin')
+@section('titulo', 'Nuevo descuento')
 
 @section('contenido')
     <div class="max-w-4xl mx-auto px-4 py-8">
@@ -18,7 +18,7 @@
         <form action="{{ route('admin.discounts.store') }}" method="POST" class="bg-white border rounded-2xl p-6 space-y-4">
             @csrf
 
-            {{-- Código visible que escribirá el usuario en registro/pago. --}}
+            {{-- Código que escribirá el usuario. --}}
             <div>
                 <label class="block text-sm font-bold mb-1">Código</label>
                 <input type="text" name="code" value="{{ old('code') }}" placeholder="SEAFIT20"
@@ -63,7 +63,7 @@
             </div>
 
             <div>
-                {{-- Límite global de usos del código. --}}
+                {{-- Límite de usos del cupón. --}}
                 <label class="block text-sm font-bold mb-1">Máximo de usos (opcional)</label>
                 <input type="number" min="1" name="max_uses" value="{{ old('max_uses') }}"
                     class="w-full border rounded p-3 @error('max_uses') border-red-500 @enderror">
@@ -71,7 +71,7 @@
             </div>
 
             <div>
-                {{-- ID del cupón creado en Stripe (si aplica). --}}
+                {{-- ID del cupón creado en Stripe. --}}
                 <label class="block text-sm font-bold mb-1">Stripe coupon id (opcional)</label>
                 <input type="text" name="stripe_coupon_id" value="{{ old('stripe_coupon_id') }}"
                     placeholder="Ej: 25OFF_MENSUAL"
@@ -80,7 +80,7 @@
             </div>
 
             <div>
-                {{-- Notas internas para administración. --}}
+                {{-- Notas internas del cupón para los administradores. --}}
                 <label class="block text-sm font-bold mb-1">Notas (opcional)</label>
                 <textarea name="notes" rows="3"
                     class="w-full border rounded p-3 @error('notes') border-red-500 @enderror">{{ old('notes') }}</textarea>
@@ -88,7 +88,7 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-6">
-                {{-- Flags rápidos de comportamiento del cupón. --}}
+                {{-- Configuración rápida del cupón. --}}
                 <label class="inline-flex items-center gap-2">
                     <input type="checkbox" name="is_active" value="1" @checked(old('is_active', true))>
                     <span class="text-sm font-medium">Activo</span>

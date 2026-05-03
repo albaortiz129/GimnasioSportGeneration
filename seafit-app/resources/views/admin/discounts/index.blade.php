@@ -1,7 +1,7 @@
-{{-- Vista de admin para listar y gestionar códigos de descuento. --}}
+{{-- Gestionar códigos de descuento desde admin. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Descuentos - Admin')
+@section('titulo', 'Descuentos')
 
 @section('contenido')
     <div class="max-w-6xl mx-auto px-4 py-8">
@@ -69,7 +69,7 @@
             </table>
         </div>
 
-        {{-- Paginación de resultados. --}}
+        {{-- Resultados. --}}
         <div class="mt-4">{{ $codes->links() }}</div>
     </div>
 @endsection

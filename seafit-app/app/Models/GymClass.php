@@ -1,8 +1,7 @@
 <?php
 
 /**
- * Modelo de clases del gimnasio.
- * Solo guarda datos de clase y su relación con usuarios.
+ * Guarda datos de clase y su relación con usuarios.
  */
 namespace App\Models;
 

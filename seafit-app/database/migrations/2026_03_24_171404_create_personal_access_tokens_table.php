@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Migración de tokens personales para autenticacion API (Sanctum).
+ * Migración de tokens personales para autenticacion.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

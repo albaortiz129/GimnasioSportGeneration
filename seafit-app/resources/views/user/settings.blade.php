@@ -1,26 +1,26 @@
-{{-- Configuración del socio: edición de datos, contraseña y cancelación de suscripción. --}}
+{{-- Configuración del usuario. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Configuración - SeaFit')
+@section('titulo', 'Configuración')
 
 @section('contenido')
     <div class="flex flex-col md:flex-row min-h-screen bg-[#f8fafc] font-sans">
         {{-- Barra lateral del panel de socio. --}}
         <aside
             class="w-full md:w-[280px] md:min-w-[280px] bg-white p-6 md:p-8 border-b md:border-b-0 md:border-r border-gray-200">
-            <h2 class="text-xl font-extrabold text-[#0A1931] mb-8">Panel de Socio</h2>
+            <h2 class="text-xl font-extrabold text-[#0A1931] mb-8">Panel de socio</h2>
             <nav class="flex flex-col gap-2">
                 <a href="{{ route('perfil') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
-                    <span class="material-symbols-outlined">person</span> Mi Perfil
+                    <span class="material-symbols-outlined">person</span> Mi perfil
                 </a>
                 <a href="{{ route('mis.reservas') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
-                    <span class="material-symbols-outlined">calendar_month</span> Mis Reservas
+                    <span class="material-symbols-outlined">calendar_month</span> Mis reservas
                 </a>
                 <a href="{{ route('pago.gestion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
-                    <span class="material-symbols-outlined">payments</span> Gestión de Pago
+                    <span class="material-symbols-outlined">payments</span> Gestión de pago
                 </a>
                 <a href="{{ route('configuracion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors bg-[#e6f3ff] text-[#1A3878]">
@@ -29,7 +29,7 @@
             </nav>
         </aside>
 
-        {{-- Contenido principal de configuración. --}}
+        {{-- Contenido. --}}
         <main class="flex-1 p-6 md:p-10 lg:p-12 max-w-[1000px]">
             @if(session('success'))
                 <div
@@ -68,7 +68,7 @@
 
             {{-- Datos del formulario de registro editables por el socio. --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
-                <h3 class="text-xl font-bold text-[#0A1931] mb-6">Datos de Cuenta</h3>
+                <h3 class="text-xl font-bold text-[#0A1931] mb-6">Datos de cuenta</h3>
 
                 <form action="{{ route('configuracion.actualizar') }}" method="POST" novalidate>
                     @csrf
@@ -83,7 +83,8 @@
                         </div>
 
                         <div>
-                            <label for="cfg_apellidos" class="block text-sm text-gray-500 font-semibold mb-1">Apellidos</label>
+                            <label for="cfg_apellidos"
+                                class="block text-sm text-gray-500 font-semibold mb-1">Apellidos</label>
                             <input id="cfg_apellidos" type="text" name="apellidos"
                                 value="{{ old('apellidos', $user->apellidos) }}"
                                 class="w-full p-3 border border-gray-300 rounded-xl text-[#0A1931] outline-none focus:ring-2 focus:ring-[#1A3878] @error('apellidos') border-red-500 bg-red-50 @enderror">
@@ -103,8 +104,8 @@
 
                         <div>
                             <label for="cfg_dni" class="block text-sm text-gray-500 font-semibold mb-1">DNI</label>
-                            <input id="cfg_dni" type="text" name="dni" maxlength="9" oninput="this.value=this.value.toUpperCase()"
-                                value="{{ old('dni', $user->dni) }}"
+                            <input id="cfg_dni" type="text" name="dni" maxlength="9"
+                                oninput="this.value=this.value.toUpperCase()" value="{{ old('dni', $user->dni) }}"
                                 class="w-full p-3 border border-gray-300 rounded-xl text-[#0A1931] outline-none focus:ring-2 focus:ring-[#1A3878] @error('dni') border-red-500 bg-red-50 @enderror">
                             @error('dni')
                                 <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
@@ -112,7 +113,8 @@
                         </div>
 
                         <div>
-                            <label for="cfg_fecha_nacimiento" class="block text-sm text-gray-500 font-semibold mb-1">Fecha de nacimiento</label>
+                            <label for="cfg_fecha_nacimiento" class="block text-sm text-gray-500 font-semibold mb-1">Fecha
+                                de nacimiento</label>
                             <input id="cfg_fecha_nacimiento" type="date" name="fecha_nacimiento"
                                 value="{{ old('fecha_nacimiento', $user->fecha_nacimiento ? \Illuminate\Support\Carbon::parse($user->fecha_nacimiento)->format('Y-m-d') : '') }}"
                                 class="w-full p-3 border border-gray-300 rounded-xl text-[#0A1931] outline-none focus:ring-2 focus:ring-[#1A3878] @error('fecha_nacimiento') border-red-500 bg-red-50 @enderror">
@@ -122,7 +124,8 @@
                         </div>
 
                         <div>
-                            <label for="cfg_telefono" class="block text-sm text-gray-500 font-semibold mb-1">Teléfono</label>
+                            <label for="cfg_telefono"
+                                class="block text-sm text-gray-500 font-semibold mb-1">Teléfono</label>
                             <input id="cfg_telefono" type="text" name="telefono" maxlength="9"
                                 value="{{ old('telefono', $user->telefono) }}"
                                 class="w-full p-3 border border-gray-300 rounded-xl text-[#0A1931] outline-none focus:ring-2 focus:ring-[#1A3878] @error('telefono') border-red-500 bg-red-50 @enderror">
@@ -132,7 +135,8 @@
                         </div>
 
                         <div class="sm:col-span-2">
-                            <label for="cfg_domicilio" class="block text-sm text-gray-500 font-semibold mb-1">Domicilio</label>
+                            <label for="cfg_domicilio"
+                                class="block text-sm text-gray-500 font-semibold mb-1">Domicilio</label>
                             <input id="cfg_domicilio" type="text" name="domicilio"
                                 value="{{ old('domicilio', $user->domicilio) }}"
                                 class="w-full p-3 border border-gray-300 rounded-xl text-[#0A1931] outline-none focus:ring-2 focus:ring-[#1A3878] @error('domicilio') border-red-500 bg-red-50 @enderror">
@@ -151,7 +155,7 @@
                 </form>
             </section>
 
-            {{-- Cambio de contraseña desde configuración. --}}
+            {{-- Cambio de contraseña. --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <h3 class="text-xl font-bold text-[#0A1931] mb-6">Seguridad</h3>
 
@@ -164,11 +168,14 @@
                 <form action="{{ route('perfil.password') }}" method="POST" class="grid grid-cols-1 gap-4 max-w-md">
                     @csrf
                     <input type="password" name="password_actual" placeholder="Contraseña actual"
-                        class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-1 focus:ring-[#1A3878]" required>
+                        class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-1 focus:ring-[#1A3878]"
+                        required>
                     <input type="password" name="password" placeholder="Nueva contraseña"
-                        class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-1 focus:ring-[#1A3878]" required>
+                        class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-1 focus:ring-[#1A3878]"
+                        required>
                     <input type="password" name="password_confirmation" placeholder="Confirmar nueva contraseña"
-                        class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-1 focus:ring-[#1A3878]" required>
+                        class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-1 focus:ring-[#1A3878]"
+                        required>
                     <button type="submit"
                         class="bg-[#0A1931] text-white py-3 rounded-xl font-bold hover:bg-[#1A3878] transition-colors shadow-sm">
                         Actualizar contraseña
@@ -176,7 +183,7 @@
                 </form>
             </section>
 
-            {{-- Cancelación de suscripción desde configuración. --}}
+            {{-- Cancelación de suscripción. --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <h3 class="text-xl font-bold text-[#0A1931] mb-4">Suscripción</h3>
 
@@ -213,4 +220,3 @@
         </main>
     </div>
 @endsection
-

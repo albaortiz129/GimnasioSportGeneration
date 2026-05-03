@@ -1,26 +1,26 @@
-{{-- Vista "Mis Reservas": aquí el socio puede cancelar y añadir nuevas clases. --}}
+{{-- Mis reservas: aquí el socio puede cancelar y añadir nuevas clases. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Mis Reservas - SeaFit')
+@section('titulo', 'Mis reservas')
 
 @section('contenido')
     <div class="flex flex-col md:flex-row min-h-screen bg-[#f8fafc] font-sans">
         {{-- Barra lateral del panel de socio. --}}
         <aside
             class="w-full md:w-[280px] md:min-w-[280px] bg-white p-6 md:p-8 border-b md:border-b-0 md:border-r border-gray-200">
-            <h2 class="text-xl font-extrabold text-[#0A1931] mb-8">Panel de Socio</h2>
+            <h2 class="text-xl font-extrabold text-[#0A1931] mb-8">Panel de socio</h2>
             <nav class="flex flex-col gap-2">
                 <a href="{{ route('perfil') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
-                    <span class="material-symbols-outlined">person</span> Mi Perfil
+                    <span class="material-symbols-outlined">person</span> Mi perfil
                 </a>
                 <a href="{{ route('mis.reservas') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors bg-[#e6f3ff] text-[#1A3878]">
-                    <span class="material-symbols-outlined">calendar_month</span> Mis Reservas
+                    <span class="material-symbols-outlined">calendar_month</span> Mis reservas
                 </a>
                 <a href="{{ route('pago.gestion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
-                    <span class="material-symbols-outlined">payments</span> Gestión de Pago
+                    <span class="material-symbols-outlined">payments</span> Gestión de pago
                 </a>
                 <a href="{{ route('configuracion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
@@ -50,10 +50,10 @@
                 </div>
             </header>
 
-            {{-- Listado de reservas actuales del socio. --}}
+            {{-- Listado de reservas actuales. --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-[#0A1931]">Próximas Clases ({{ $user->classes->count() }})</h3>
+                    <h3 class="text-xl font-bold text-[#0A1931]">Próximas clases ({{ $user->classes->count() }})</h3>
                 </div>
 
                 <div class="flex flex-col gap-4">
@@ -91,12 +91,11 @@
                             <p class="text-gray-500 mb-4">No tienes clases reservadas actualmente.</p>
                             <a href="{{ route('agenda') }}"
                                 class="inline-block bg-[#1A3878] text-white py-2.5 px-6 rounded-lg font-bold transition-transform hover:scale-105 shadow-md">
-                                Ir a la agenda
+                                Ir a la agenda.
                             </a>
                         </div>
                     @endforelse
                 </div>
-
             </section>
         </main>
     </div>

@@ -20,16 +20,16 @@ return new class extends Migration {
 
         Schema::create('discount_codes', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 30)->unique(); // Ej: SEAFIT20
-            $table->enum('type', ['percent', 'fixed']); // percent=% | fixed=importe
+            $table->string('code', 30)->unique();
+            $table->enum('type', ['percent', 'fixed']);
             $table->decimal('value', 10, 2);
             $table->boolean('is_active')->default(true);
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('ends_at')->nullable();
-            $table->unsignedInteger('max_uses')->nullable(); // null = sin límite
+            $table->unsignedInteger('max_uses')->nullable();
             $table->unsignedInteger('used_count')->default(0);
             $table->boolean('one_use_per_user')->default(true);
-            $table->string('stripe_coupon_id')->nullable(); // Cupón real de Stripe
+            $table->string('stripe_coupon_id')->nullable();
             $table->text('notes')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();

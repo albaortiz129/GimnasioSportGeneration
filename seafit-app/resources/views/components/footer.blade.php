@@ -1,4 +1,4 @@
-{{-- Componente de pie de página global con enlaces corporativos y redes. --}}
+{{-- Pie de página. --}}
 <footer class="bg-[#051221] text-white py-[60px] shrink-0">
     {{-- Contenedor principal: columna en móvil, fila en PC --}}
     <div
@@ -6,8 +6,8 @@
 
         {{-- Logo y Texto --}}
         <div class="flex-[1.5] min-w-[200px] w-full md:w-auto">
-            <img src="{{ asset('imagenes/Logo transparente.png') }}" class="w-[210px] sm:w-[250px] h-auto block -mt-[15px] mb-5"
-                alt="Sea Fit Logo">
+            <img src="{{ asset('imagenes/Logo transparente.png') }}"
+                class="w-[210px] sm:w-[250px] h-auto block -mt-[15px] mb-5" alt="Sea Fit Logo">
             <p class="text-[14px] text-[#a0aec0] leading-[1.6] m-0">
                 Tu centro deportivo de confianza. Encuentra tu pasión y supérate cada día con nosotros.
             </p>
@@ -39,27 +39,27 @@
                 <li class="mb-[10px]">
                     <a href="{{ route('nosotros') }}"
                         class="text-[#a0aec0] text-[14px] transition-colors duration-300 hover:text-white">
-                        Sobre Nosotros
+                        Sobre nosotros
                     </a>
                 </li>
                 <li class="mb-[10px]">
                     <a href="{{ route('empleo') }}"
                         class="text-[#a0aec0] text-[14px] transition-colors duration-300 hover:text-white">
-                        Trabaja con Nosotros
+                        Trabaja con nosotros
                     </a>
                 </li>
             </ul>
         </div>
 
-        {{-- Redes --}}
+        {{-- Redes sociales--}}
         <div class="flex-1">
-            <h3 class="text-[16px] font-bold uppercase mb-[25px] text-white leading-none">Redes Sociales</h3>
+            <h3 class="text-[16px] font-bold uppercase mb-[25px] text-white leading-none">Redes sociales</h3>
             <div class="flex flex-col gap-[15px]">
                 <p class="text-[14px] text-[#a0aec0] leading-[1.6] m-0">
                     Síguenos para estar al día de todas las novedades y eventos.
                 </p>
 
-                {{-- Iconos de Redes --}}
+                {{-- Iconos de redes sociales--}}
                 <div class="flex flex-row gap-[20px] items-center mt-[5px]">
                     {{-- La clase `group` permite animar la imagen al pasar el ratón por el enlace. --}}
                     <a href="https://www.instagram.com" target="_blank" class="group">

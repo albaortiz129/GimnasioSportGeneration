@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**
-     * Agrega índice único en tabla pivote clase_user.
+     * Agrega un índice único en tabla clase_user.
      */
     public function up(): void
     {
@@ -19,7 +19,7 @@ return new class extends Migration {
             return;
         }
 
-        // Limpia duplicados históricos conservando el primer registro (compatible con MySQL/SQLite).
+        // Limpia duplicados históricos conservando el primer registro.
         $idsDuplicados = DB::table('clase_user as nuevo')
             ->join('clase_user as viejo', function ($join) {
                 $join->on('nuevo.user_id', '=', 'viejo.user_id')
@@ -44,9 +44,11 @@ return new class extends Migration {
             });
         } catch (QueryException $e) {
             // Si el índice ya existe en esta base de datos, no interrumpimos el despliegue.
-            if (str_contains(strtolower($e->getMessage()), 'already exists')
+            if (
+                str_contains(strtolower($e->getMessage()), 'already exists')
                 || str_contains(strtolower($e->getMessage()), 'duplicate')
-                || str_contains(strtolower($e->getMessage()), 'duplicate key name')) {
+                || str_contains(strtolower($e->getMessage()), 'duplicate key name')
+            ) {
                 return;
             }
 
@@ -55,7 +57,7 @@ return new class extends Migration {
     }
 
     /**
-     * Elimina índice único agregado.
+     * Elimina el índice único agregado.
      */
     public function down(): void
     {
@@ -69,11 +71,13 @@ return new class extends Migration {
                 $table->dropUnique($indexName);
             });
         } catch (QueryException $e) {
-            // Si el índice no existe, ignoramos para permitir rollback seguro.
-            if (str_contains(strtolower($e->getMessage()), 'no such index')
+            // Si el índice no existe, ignoramos para permitir rollback.
+            if (
+                str_contains(strtolower($e->getMessage()), 'no such index')
                 || str_contains(strtolower($e->getMessage()), 'cannot drop')
                 || str_contains(strtolower($e->getMessage()), 'doesn\'t exist')
-                || str_contains(strtolower($e->getMessage()), 'check that column/key exists')) {
+                || str_contains(strtolower($e->getMessage()), 'check that column/key exists')
+            ) {
                 return;
             }
 

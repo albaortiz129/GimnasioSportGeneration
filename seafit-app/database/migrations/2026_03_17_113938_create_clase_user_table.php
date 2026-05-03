@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Migración de la tabla pivote clase_user para reservas.
+ * Migración de la tabla clase_user para reservas.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

@@ -1,7 +1,6 @@
 <?php
 
 /**
- * Punto de arranque de Laravel.
  * Configura rutas, middleware y manejo global de excepciones.
  */
 use Illuminate\Foundation\Application;
@@ -27,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Evita la pantalla 419 por CSRF caducado y vuelve al formulario.
+        // Vuelve al formulario por CSRF caducado.
         $exceptions->render(function (TokenMismatchException $e, $request) {
             if ($request->expectsJson()) {
                 return response()->json([

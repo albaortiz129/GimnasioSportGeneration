@@ -1,7 +1,7 @@
-{{-- Vista pública principal (home) con acceso a servicios y planes. --}}
+{{-- Página principal. --}}
 @extends('layouts.app')
 
-@section('titulo', 'SeaFit - Tu gimnasio online')
+@section('titulo', 'SeaFit - Tu gimnasio de confianza')
 
 @section('contenido')
     @php
@@ -30,9 +30,9 @@
     @endphp
 
     <div class="w-full">
-        {{-- Banner Principal (Hero) --}}
-
-        <section class="min-h-[360px] sm:h-[450px] bg-cover bg-center flex items-center justify-center text-center px-4 sm:px-5 md:px-[15%]"
+        {{-- Banner --}}
+        <section
+            class="min-h-[360px] sm:h-[450px] bg-cover bg-center flex items-center justify-center text-center px-4 sm:px-5 md:px-[15%]"
             style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ asset('imagenes/banner.jpg') }}');">
             <div class="max-w-[900px]">
                 <h1 class="text-white text-2xl sm:text-3xl md:text-[42px] font-extrabold leading-[1.2] drop-shadow-md m-0">
@@ -59,13 +59,13 @@
             </div>
         </section>
 
-        {{-- Título de Introducción --}}
+        {{-- Título --}}
         <section class="text-center pt-12 sm:pt-[60px] pb-5 px-4 sm:px-5">
             <h2 class="text-[28px] sm:text-[32px] text-[#051221] mb-2.5 font-bold m-0">¿Listo?</h2>
             <p class="text-gray-600 text-base sm:text-lg m-0">Todo lo que necesitas para empezar</p>
         </section>
 
-        {{-- 3. Cuadrícula de Servicios --}}
+        {{-- Tarjetas --}}
         <section class="px-4 sm:px-5 py-10 sm:py-12 max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
 
             {{-- Tarjeta: Clases Colectivas --}}
@@ -113,7 +113,7 @@
                 </ul>
                 <a href="{{ route('valoracion') }}"
                     class="text-[#1A3878] font-bold flex items-center gap-2 hover:underline">
-                    Solicitar Valoración <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    Solicitar valoración <span class="material-symbols-outlined text-sm">arrow_forward</span>
                 </a>
             </div>
 
@@ -130,7 +130,7 @@
                     modalidad de pago que prefieras (mensual, trimestral o anual).
                 </p>
                 <a href="{{ url('/tarifas') }}" class="text-[#1A3878] font-bold flex items-center gap-2 hover:underline">
-                    Ver Tarifas <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    Ver tarifas <span class="material-symbols-outlined text-sm">arrow_forward</span>
                 </a>
             </div>
 
@@ -140,7 +140,7 @@
     @if($ctaMode === 'qr')
         <script>
             (() => {
-                // El botón del inicio abre el modal QR global.
+                // El botón del inicio abre el QR.
                 const botonInicio = document.getElementById('abrirQrHome');
 
                 botonInicio?.addEventListener('click', () => {

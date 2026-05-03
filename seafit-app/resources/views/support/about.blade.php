@@ -1,7 +1,7 @@
-{{-- Vista corporativa sobre historia, valores y proyección de SeaFit. --}}
+{{-- Sobre nosotros. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Nuestra Historia - SeaFit')
+@section('titulo', 'Sobre nosotros')
 
 @section('contenido')
     <div class="bg-[#F4F6F8] min-h-screen py-20 font-sans">
@@ -10,32 +10,30 @@
             {{-- TARJETA PRINCIPAL --}}
             <div class="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-sm border border-gray-100">
 
-                {{-- Título Principal --}}
+                {{-- Título --}}
                 <header class="text-center mb-12">
                     <h1 class="text-[#102A53] text-5xl font-black mb-6 tracking-tight leading-tight">
-                        Nuestra Historia: La Pasión por el Mar y el Deporte
+                        Nuestra historia: La pasión por el deporte.
                     </h1>
                 </header>
 
-                {{-- Texto Introductorio --}}
+                {{-- Texto --}}
                 <div class="space-y-8">
                     <p class="text-gray-600 text-lg leading-relaxed text-center italic">
-                        <strong>SeaFit Sports</strong> nació en Benalmádena con una visión simple: fusionar el entrenamiento
-                        de alta intensidad con la calma inspiradora del Mediterráneo.
+                        <strong>SeaFit Sports</strong> nació en Málaga con una visión simple: hacer la vida fitness mucho
+                        más sencilla.
                     </p>
 
                     <p class="text-gray-600 text-[17px] leading-relaxed">
                         No somos solo un gimnasio; somos un centro de bienestar integral diseñado para que nuestros socios
-                        no solo alcancen sus <strong>metas físicas</strong>, sino que encuentren un equilibrio mental.
-                        Creemos que el entorno influye en el rendimiento, y por ello hemos creado un espacio donde la
-                        tecnología y la naturaleza conviven.
+                        no solo alcancen sus metas físicas, sino que encuentren un equilibrio mental.
                     </p>
 
                     <hr class="border-gray-100">
 
                     {{-- Valores --}}
                     <section>
-                        <h2 class="text-[#102A53] text-3xl font-black mb-6 tracking-tight">Nuestros Valores</h2>
+                        <h2 class="text-[#102A53] text-3xl font-black mb-6 tracking-tight">Nuestros valores</h2>
                         <ul class="space-y-4">
                             <li class="flex items-start gap-3 text-gray-600 text-[17px]">
                                 <span class="text-[#1A3878] mt-1">•</span>
@@ -44,8 +42,8 @@
                             </li>
                             <li class="flex items-start gap-3 text-gray-600 text-[17px]">
                                 <span class="text-[#1A3878] mt-1">•</span>
-                                <span><strong>Comunidad:</strong> Creamos un ambiente motivador donde todos los socios se
-                                    apoyan mutuamente para superarse.</span>
+                                <span><strong>Comunidad:</strong> Creamos un ambiente motivador donde todos nos apoyamos
+                                    mutuamente para poder mejorar cada día.</span>
                             </li>
                             <li class="flex items-start gap-3 text-gray-600 text-[17px]">
                                 <span class="text-[#1A3878] mt-1">•</span>
@@ -64,16 +62,15 @@
 
                     {{-- Futuro --}}
                     <section>
-                        <h2 class="text-[#102A53] text-3xl font-black mb-6 tracking-tight">El Futuro de SeaFit</h2>
+                        <h2 class="text-[#102A53] text-3xl font-black mb-6 tracking-tight">El futuro de SeaFit</h2>
                         <p class="text-gray-600 text-[17px] leading-relaxed">
                             Continuamos expandiendo nuestros servicios, introduciendo nuevas clases colectivas y tecnología
-                            de seguimiento deportivo de vanguardia. Nuestro objetivo es ser tu <strong>aliado
-                                definitivo</strong> en el camino hacia un estilo de vida más saludable y activo en la Costa
-                            del Sol. ¡Únete a la marea SeaFit!
+                            de seguimiento deportivo. Nuestro objetivo es ser tu aliado definitivo en el camino hacia un
+                            estilo de vida más saludable y activo.
                         </p>
                     </section>
 
-                    {{-- Link a Tarifas --}}
+                    {{-- Link a tarifas --}}
                     <div class="pt-10 text-center">
                         <a href="{{ url('/tarifas') }}"
                             class="text-[#102A53] font-black text-xl underline hover:text-[#1A3878] transition-colors decoration-2 underline-offset-8">

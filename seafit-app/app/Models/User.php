@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Modelo Eloquent de usuarios/socios con relaciones y capacidades de facturación.
+ * Relaciones y capacidades de facturación.
  */
 namespace App\Models;
 
@@ -68,11 +68,11 @@ class User extends Authenticatable
 
     /**
      * Normaliza el email al guardar y al leer:
-     * - Siempre en minúsculas para evitar duplicados visuales.
-     * - Sin espacios al principio/final.
      */
     protected function email(): Attribute
     {
+        // Siempre en minúsculas para evitar duplicados.
+        // Sin espacios al principio/final.
         return Attribute::make(
             get: fn($value) => is_string($value) ? strtolower(trim($value)) : $value,
             set: fn($value) => is_string($value) ? strtolower(trim($value)) : $value,
@@ -99,7 +99,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Historial completo de descuentos usados por este usuario.
+     * Historial completo de descuentos usados por el usuario.
      */
     public function discountRedemptions(): HasMany
     {
@@ -124,6 +124,7 @@ class User extends Authenticatable
             return false;
         }
 
+        // Si el pago no está al día, no está activo.
         if ($this->payment_status !== 'al_dia') {
             return false;
         }
@@ -154,7 +155,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Texto corto del estado del plan (activo, pendiente, impagado, inactivo) para mostrar en vistas.
+     * Estado del plan para mostrar en vistas.
      */
     public function planStatusText(): string
     {

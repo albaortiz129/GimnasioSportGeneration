@@ -1,27 +1,27 @@
-{{-- Vista de gestión de pago: suscripción, tarjetas y facturas. --}}
+{{-- Gestión de pago: suscripción, tarjetas y facturas. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Gestión de Pago - SeaFit')
+@section('titulo', 'Gestión de pago')
 
 @section('contenido')
     <div class="flex flex-col md:flex-row min-h-screen bg-[#f8fafc] font-sans">
 
-        {{-- BARRA LATERAL --}}
+        {{-- Barra lateral --}}
         <aside
             class="w-full md:w-[280px] md:min-w-[280px] bg-white p-6 md:p-8 border-b md:border-b-0 md:border-r border-gray-200">
-            <h2 class="text-xl font-extrabold text-[#0A1931] mb-8">Panel de Socio</h2>
+            <h2 class="text-xl font-extrabold text-[#0A1931] mb-8">Panel de socio</h2>
             <nav class="flex flex-col gap-2">
                 <a href="{{ route('perfil') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
-                    <span class="material-symbols-outlined">person</span> Mi Perfil
+                    <span class="material-symbols-outlined">person</span> Mi perfil
                 </a>
                 <a href="{{ route('mis.reservas') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
-                    <span class="material-symbols-outlined">calendar_month</span> Mis Reservas
+                    <span class="material-symbols-outlined">calendar_month</span> Mis reservas
                 </a>
                 <a href="{{ route('pago.gestion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors bg-[#e6f3ff] text-[#1A3878]">
-                    <span class="material-symbols-outlined">payments</span> Gestión de Pago
+                    <span class="material-symbols-outlined">payments</span> Gestión de pago
                 </a>
                 <a href="{{ route('configuracion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#0A1931]">
@@ -30,10 +30,10 @@
             </nav>
         </aside>
 
-        {{-- CONTENIDO PRINCIPAL --}}
+        {{-- Contenido principal --}}
         <main class="flex-1 p-6 md:p-10 lg:p-12 max-w-[1000px]">
             <header class="mb-8">
-                <h1 class="text-3xl md:text-4xl font-black text-[#0A1931] mb-4">Gestión de Pago</h1>
+                <h1 class="text-3xl md:text-4xl font-black text-[#0A1931] mb-4">Gestión de pago</h1>
 
                 @if(session('success'))
                     <div
@@ -51,9 +51,9 @@
                     facturas.</p>
             </header>
 
-            {{-- RESUMEN DE FACTURACIÓN --}}
+            {{-- Resumen de facturación --}}
             @php
-                // Variables auxiliares para estado de cuenta.
+                // Variables auxiliares para el estado de cuenta.
                 $planActivo = $user->isPlanActive();
                 $fechaCobro = optional($user->next_payment_at)->format('d/m/Y') ?? 'Pendiente';
             @endphp
@@ -61,7 +61,7 @@
 
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-[#0A1931]">Resumen de Facturación</h3>
+                    <h3 class="text-xl font-bold text-[#0A1931]">Resumen de facturación</h3>
                 </div>
 
                 @if($planActivo)
@@ -103,10 +103,10 @@
 
             </section>
 
-            {{-- MÉTODOS DE PAGO GUARDADOS --}}
+            {{-- Métodos de pago guardados --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-[#0A1931]">Métodos de Pago Guardados</h3>
+                    <h3 class="text-xl font-bold text-[#0A1931]">Métodos de pago guardados</h3>
                 </div>
                 @php
                     // Si el principal es manual, no se marca ninguna tarjeta como principal.
@@ -141,7 +141,7 @@
                                     <input type="hidden" name="payment_method" value="{{ $metodo->id }}">
                                     <button type="submit"
                                         class="text-[#1A3878] bg-transparent border-none font-bold text-sm cursor-pointer p-0 hover:underline">
-                                        Establecer Principal
+                                        Establecer principal
                                     </button>
                                 </form>
                             @endif
@@ -211,7 +211,7 @@
                     <p class="text-gray-500 text-sm">No tienes métodos guardados todavía.</p>
                 @endif
 
-                {{-- Alta sencilla del método manual (solo Efectivo). --}}
+                {{-- Alta del método manual (solo Efectivo). --}}
                 <form action="{{ route('pago.guardar_manual') }}" method="POST"
                     class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3" id="form-metodo-manual">
                     @csrf
@@ -237,10 +237,10 @@
                 </a>
             </section>
 
-            {{-- HISTORIAL DE FACTURAS --}}
+            {{-- Historial de facturas --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="border-b border-gray-100 pb-4 mb-5">
-                    <h3 class="text-xl font-bold text-[#0A1931]">Historial de Facturas</h3>
+                    <h3 class="text-xl font-bold text-[#0A1931]">Historial de facturas</h3>
                 </div>
 
                 <div class="flex flex-col gap-5">
@@ -266,7 +266,7 @@
                         <p class="text-gray-500 text-center py-4">Aún no tienes facturas disponibles.</p>
                     @endforelse
                 </div>
-                {{-- Cambio conjunto de tarifa + método desde perfil socio. --}}
+                {{-- Cambio tarifa y método de pago. --}}
                 <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                     <h3 class="text-xl font-bold text-[#0A1931] mb-4">Cambiar plan y método de pago</h3>
 
@@ -279,7 +279,6 @@
                             <option value="anual">Anual</option>
                         </select>
 
-                        {{-- En este selector solo se muestran los métodos activos. --}}
                         <select name="metodo_pago" class="border rounded p-3" required>
                             <option value="visa">Visa</option>
                             <option value="efectivo">Efectivo</option>

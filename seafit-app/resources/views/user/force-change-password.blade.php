@@ -1,4 +1,4 @@
-{{-- Vista obligatoria para cambiar la contraseña temporal en el primer acceso. --}}
+{{-- Cambio de contraseña en el primer acceso. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Cambiar contraseña')
@@ -14,7 +14,7 @@
             <div class="bg-red-100 text-red-700 p-3 rounded mb-4">{{ $errors->first() }}</div>
         @endif
 
-        {{-- Formulario de nueva clave temporal. --}}
+        {{-- Formulario de nueva clave. --}}
         <form action="{{ route('password.force.update') }}" method="POST" class="space-y-4">
             @csrf
             <input type="password" name="password" placeholder="Nueva contraseña" class="w-full border rounded-xl p-3"

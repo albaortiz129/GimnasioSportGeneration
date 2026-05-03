@@ -16,12 +16,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1) Poblar clases semanales de SeaFit.
+        // 1) Clases semanales.
         $this->call([
             GymClassSeeder::class,
         ]);
 
-        // 2) Crear/actualizar admin por variables de entorno.
+        // 2) Crear/actualizar administrador de prueba.
         $adminEmail = env('ADMIN_EMAIL', 'soporte.seafit@gmail.com');
         $adminPass = env('ADMIN_PASSWORD', 'seafit12');
 
