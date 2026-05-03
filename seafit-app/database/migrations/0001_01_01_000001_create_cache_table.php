@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Migracion de tablas de cache y bloqueos de cache.
+ * Migración de tablas de caché y bloqueos de caché.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,7 +13,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Aplica cambios de esta migracion.
+        // Aplica cambios de esta migración.
         Schema::create('cache', function (Blueprint $table) {
             $table->string('key')->primary();
             $table->mediumText('value');

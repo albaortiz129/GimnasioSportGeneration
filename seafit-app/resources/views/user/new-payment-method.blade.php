@@ -34,7 +34,7 @@
             const errorsBox = document.getElementById('card-errors');
 
             cardButton.addEventListener('click', async () => {
-                // Evita doble envio y limpia errores previos.
+                // Evita doble envío y limpia errores previos.
                 cardButton.disabled = true;
                 errorsBox.textContent = '';
 

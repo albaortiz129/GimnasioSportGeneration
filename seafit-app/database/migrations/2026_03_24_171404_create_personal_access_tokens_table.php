@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Migración de tokens personales para autenticacion.
+ * Migración de tokens personales para autenticación.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -35,6 +35,3 @@ return new class extends Migration {
         Schema::dropIfExists('personal_access_tokens');
     }
 };
-
-
-

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Migracion inicial de usuarios, tokens de recuperacion y sesiones.
+ * Migración inicial de usuarios, tokens de recuperación y sesiones.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        // Aplica cambios de esta migracion.
+        // Aplica cambios de esta migración.
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');

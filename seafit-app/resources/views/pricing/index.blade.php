@@ -174,17 +174,17 @@
                 const botones = [btnMensual, btnTrimestral, btnAnual];
 
                 function actualizarUI(btnActivo, precio, sufijo, permanencia) {
-                    // Resetear todos los botones
+                    // Restablece todos los botones.
                     botones.forEach(btn => {
                         btn.classList.remove('bg-[#0A1931]', 'text-white');
                         btn.classList.add('bg-transparent', 'text-gray-500');
                     });
 
-                    // Activar el seleccionado
+                    // Activa el seleccionado.
                     btnActivo.classList.add('bg-[#0A1931]', 'text-white');
                     btnActivo.classList.remove('bg-transparent', 'text-gray-500');
 
-                    // Actualizar textos
+                    // Actualiza los textos.
                     precioMonto.innerText = precio;
                     precioMes.innerText = sufijo;
                     textoPermanencia.innerText = permanencia;

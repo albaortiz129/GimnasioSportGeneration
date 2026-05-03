@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Rutas web principales de SeaFit.
@@ -22,23 +22,23 @@ use Illuminate\Validation\Rule;
 
 /*
 --------------------------------------------------------------------------
- PAGINAS PUBLICAS (Rutas sin iniciar sesión)
+ PÁGINAS PÚBLICAS (Rutas sin iniciar sesión)
 --------------------------------------------------------------------------
 */
 
-// Pagina principal.
+// Página principal.
 Route::get('/', fn() => view('home.index'))->name('home');
 
-// Pagina de tarifas.
+// Página de tarifas.
 Route::get('/tarifas', fn() => view('pricing.index'))->name('tarifas');
 
-// Paginas del footer.
+// Páginas del footer.
 Route::view('/faq', 'support.faq')->name('faq');
 Route::view('/contacto', 'support.contact')->name('contacto');
 Route::view('/sobre-nosotros', 'support.about')->name('nosotros');
 Route::view('/trabaja-con-nosotros', 'support.jobs')->name('empleo');
 
-// Paginas de servicios y agenda.
+// Páginas de servicios y agenda.
 Route::get('/servicios', [ServiceController::class, 'index'])->name('servicios');
 Route::get('/agenda', [ServiceController::class, 'agenda'])->name('agenda');
 
@@ -48,7 +48,7 @@ Route::post('/valoracion', [AssessmentController::class, 'send'])->name('valorac
 
 /*
 --------------------------------------------------------------------------
- AUTENTICACION (Registro, login y cierre de sesion.)
+ AUTENTICACIÓN (Registro, login y cierre de sesión)
 --------------------------------------------------------------------------
 */
 
@@ -58,10 +58,10 @@ Route::get('/registro', fn() => view('user.register'))->name('registro');
 // Vista de login.
 Route::get('/login', fn() => view('user.login'))->name('login');
 
-// Envio del formulario de login.
+// Envío del formulario de login.
 Route::post('/login', [AuthController::class, 'login']);
 
-// Cierre de sesion.
+// Cierre de sesión.
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 /*
@@ -70,16 +70,16 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 --------------------------------------------------------------------------
 */
 
-// Muestra formulario para pedir enlace de recuperacion.
+// Muestra formulario para pedir enlace de recuperación.
 Route::get('/recuperar-password', [PasswordController::class, 'showRequestForm'])->name('password.request');
 
-// Envia el correo con el enlace de recuperacion.
+// Envía el correo con el enlace de recuperación.
 Route::post('/recuperar-password', [PasswordController::class, 'sendResetLink'])->name('password.email');
 
-// Muestra formulario para escribir nueva contrasena.
+// Muestra formulario para escribir nueva contraseña.
 Route::get('/reset-password/{token}', [PasswordController::class, 'showResetForm'])->name('password.reset');
 
-// Guarda la nueva contrasena.
+// Guarda la nueva contraseña.
 Route::post('/reset-password', [PasswordController::class, 'updatePassword'])->name('password.update');
 
 /*
@@ -89,7 +89,7 @@ Route::post('/reset-password', [PasswordController::class, 'updatePassword'])->n
 */
 
 Route::post('/trabaja-con-nosotros/enviar', function (Request $request) {
-    // Validacion de campos del formulario.
+    // Validación de campos del formulario.
     $data = $request->validate([
         'nombre' => 'required|string|max:120',
         'email' => 'required|email|max:190',
@@ -100,14 +100,14 @@ Route::post('/trabaja-con-nosotros/enviar', function (Request $request) {
     ], [
         'nombre.required' => 'El nombre es obligatorio.',
         'email.required' => 'El correo es obligatorio.',
-        'email.email' => 'El correo no tiene un formato valido.',
+        'email.email' => 'El correo no tiene un formato válido.',
         'puesto.required' => 'Indica el puesto al que te presentas.',
         'cv.required' => 'Debes adjuntar tu CV en PDF.',
         'cv.mimes' => 'El CV debe ser un archivo PDF.',
         'cv.max' => 'El CV no puede superar 5 MB.',
     ]);
 
-    // Normalizacion de datos para guardar/mostrar de forma consistente.
+    // Normalización de datos para guardar y mostrar de forma consistente.
     $data['nombre'] = trim((string) $data['nombre']);
     $data['email'] = strtolower(trim((string) $data['email']));
     $data['telefono'] = trim((string) ($data['telefono'] ?? ''));
@@ -115,7 +115,7 @@ Route::post('/trabaja-con-nosotros/enviar', function (Request $request) {
     $data['mensaje'] = trim((string) ($data['mensaje'] ?? ''));
 
     try {
-        // Envio del correo con plantilla y CV adjunto.
+        // Envío del correo con plantilla y CV adjunto.
         Mail::send('emails.job-application', ['data' => $data], function ($message) use ($data, $request) {
             $message->to('soporte.seafit@gmail.com');
             $message->replyTo($data['email'], $data['nombre']);
@@ -142,21 +142,21 @@ Route::post('/trabaja-con-nosotros/enviar', function (Request $request) {
 
         return back()
             ->withInput()
-            ->withErrors(['formulario' => 'No se pudo enviar la candidatura ahora mismo. Intentalo de nuevo en unos minutos.']);
+            ->withErrors(['formulario' => 'No se pudo enviar la candidatura ahora mismo. Inténtalo de nuevo en unos minutos.']);
     }
 
-    // Confirmacion final en pantalla.
+    // Confirmación final en pantalla.
     return back()->with('success', 'Candidatura enviada correctamente. Te contactaremos si encaja con el perfil.');
 })->name('empleo.enviar');
 
 /*
 --------------------------------------------------------------------------
- RUTAS DE USUARIO AUTENTICADO (Requieren sesion iniciada.)
+ RUTAS DE USUARIO AUTENTICADO (Requieren sesión iniciada)
 --------------------------------------------------------------------------
 */
 
 Route::middleware(['auth'])->group(function () {
-    // Pantallas para cambio obligatorio de contrasena temporal.
+    // Pantallas para cambio obligatorio de contraseña temporal.
     Route::get('/cambiar-password-inicial', [PasswordController::class, 'showInitialChangeForm'])->name('password.force.form');
     Route::post('/cambiar-password-inicial', [PasswordController::class, 'changeInitialPassword'])->name('password.force.update');
 });
@@ -178,7 +178,7 @@ Route::middleware(['auth', 'member', 'force.password'])->group(function () {
         return view('user.my-bookings', compact('user'));
     })->name('mis.reservas');
 
-    // BLOQUE DE PAGOS: ver pago, cambiar plan, tarjeta, metodos y facturas.
+    // BLOQUE DE PAGOS: ver pago, cambiar plan, tarjeta, métodos y facturas.
     Route::get('/mi-pago', [PaymentController::class, 'index'])->name('pago.gestion');
     Route::post('/mi-pago/plan/cancelar', [PaymentController::class, 'cancelPlan'])->name('plan.cancelar');
     Route::post('/mi-pago/plan/reanudar', [PaymentController::class, 'resumePlan'])->name('plan.reanudar');
@@ -196,7 +196,7 @@ Route::middleware(['auth', 'member', 'force.password'])->group(function () {
 
     Route::post('/mi-pago/cambiar-plan-metodo', [PaymentController::class, 'changePlanMethod'])->name('pago.cambiar_plan_metodo');
 
-    // CONFIGURACION: muestra y guarda datos de cuenta.
+    // CONFIGURACIÓN: muestra y guarda datos de cuenta.
     Route::get('/configuracion', function () {
         $user = Auth::user();
 
@@ -206,7 +206,7 @@ Route::middleware(['auth', 'member', 'force.password'])->group(function () {
     Route::post('/configuracion/actualizar', function (Request $request) {
         $user = Auth::user();
 
-        // Validacion de datos editables del perfil.
+        // Validación de datos editables del perfil.
         $data = $request->validate([
             'nombre' => 'required|string|max:255',
             'apellidos' => 'required|string|max:255',
@@ -217,10 +217,10 @@ Route::middleware(['auth', 'member', 'force.password'])->group(function () {
             'domicilio' => 'required|string|max:255',
         ], [
             'dni.size' => 'El DNI debe tener 9 caracteres.',
-            'telefono.regex' => 'El telefono debe tener 9 digitos y empezar por 6, 7, 8 o 9.',
+            'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9.',
         ]);
 
-        // Normalizacion previa antes de actualizar.
+        // Normalización previa antes de actualizar.
         $data['nombre'] = trim((string) $data['nombre']);
         $data['apellidos'] = trim((string) $data['apellidos']);
         $data['email'] = strtolower(trim((string) $data['email']));
@@ -233,7 +233,7 @@ Route::middleware(['auth', 'member', 'force.password'])->group(function () {
         return back()->with('success', 'Datos actualizados correctamente.');
     })->name('configuracion.actualizar');
 
-    // Cambio de contrasena desde perfil.
+    // Cambio de contraseña desde perfil.
     Route::post('/perfil/password', [PasswordController::class, 'changeProfilePassword'])->name('perfil.password');
 
     // Reservas de clases del socio.
@@ -265,7 +265,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/usuario/{user}/impago', [AdminPanelController::class, 'markUnpaid'])->name('admin.user.mark_unpaid');
     Route::post('/usuario/{user}/aprobar-manual', [AdminPanelController::class, 'approveManualPayment'])->name('admin.user.aprobar_manual');
 
-    // Gestion de clases y alumnos inscritos.
+    // Gestión de clases y alumnos inscritos.
     Route::get('/clases', [AdminPanelController::class, 'classesIndex'])->name('admin.classes.index');
     Route::post('/clases', [AdminPanelController::class, 'classStore'])->name('admin.classes.store');
     Route::put('/clases/{clase}', [AdminPanelController::class, 'classUpdate'])->name('admin.classes.update');
@@ -274,7 +274,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/clases/{clase}/usuarios', [AdminPanelController::class, 'addUserToClass'])->name('admin.classes.usuarios.store');
     Route::delete('/clases/{clase}/usuarios/{user}', [AdminPanelController::class, 'removeUserFromClass'])->name('admin.classes.usuarios.destroy');
 
-    // CRUD de codigos de descuento.
+    // CRUD de códigos de descuento.
     Route::get('/descuentos', [AdminDiscountController::class, 'index'])->name('admin.discounts.index');
     Route::get('/descuentos/nuevo', [AdminDiscountController::class, 'create'])->name('admin.discounts.create');
     Route::post('/descuentos', [AdminDiscountController::class, 'store'])->name('admin.discounts.store');

@@ -2,7 +2,7 @@
 
 /**
  * Middleware de la zona de socio
- * Evita que un administrador entre en paginas de socio.
+ * Evita que un administrador entre en páginas de socio.
  */
 namespace App\Http\Middleware;
 

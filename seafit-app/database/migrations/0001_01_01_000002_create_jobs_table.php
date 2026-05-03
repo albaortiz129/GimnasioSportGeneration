@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Migracion de colas: trabajos, lotes y trabajos fallidos.
+ * Migración de colas: trabajos, lotes y trabajos fallidos.
  */
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

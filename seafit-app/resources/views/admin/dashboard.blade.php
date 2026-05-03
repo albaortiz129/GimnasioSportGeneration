@@ -1,7 +1,7 @@
 {{-- Panel admin: gestión de clientes, cobros y planes. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Panel de administracion')
+@section('titulo', 'Panel de administración')
 
 @section('contenido')
     {{-- Si faltan columnas de cobros en la base de datos, algunas acciones se ocultan. --}}

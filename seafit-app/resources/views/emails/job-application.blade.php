@@ -1,4 +1,4 @@
-﻿{{-- Plantilla de correo interno para "Trabaja con nosotros". Este email lo recibe soporte con los datos del candidato.
+{{-- Plantilla de correo interno para "Trabaja con nosotros". Este email lo recibe soporte con los datos del candidato.
 --}}
 <div style="font-family: Arial, sans-serif; color: #0A1931; line-height: 1.5;">
     {{-- Titulo. --}}

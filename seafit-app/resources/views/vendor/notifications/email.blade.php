@@ -1,6 +1,6 @@
 {{-- Plantilla base de notificaciones por correo de Laravel. --}}
 <x-mail::message>
-    {{-- Titulo del correo.--}}
+    {{-- Título del correo. --}}
     @if (!empty($greeting))
         # {{ $greeting }}
     @else
@@ -17,7 +17,7 @@
 
     @endforeach
 
-    {{-- Boton de accion. --}}
+    {{-- Botón de acción. --}}
     @isset($actionText)
         <?php
         $color = match ($level) {

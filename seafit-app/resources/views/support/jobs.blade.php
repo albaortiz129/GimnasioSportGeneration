@@ -1,4 +1,4 @@
-﻿{{--Trabaja con nosotros.--}}
+{{--Trabaja con nosotros.--}}
 @extends('layouts.app')
 
 @section('titulo', 'Trabaja con nosotros')
@@ -7,15 +7,15 @@
     <div class="bg-[#F4F6F8] min-h-screen py-20 font-sans">
         <div class="container mx-auto max-w-4xl px-6">
 
-            {{-- Cabecera visual de la pagina. --}}
+            {{-- Cabecera visual de la página. --}}
             <header class="text-center mb-12">
                 <h1 class="text-[#102A53] text-5xl font-black mb-6 tracking-tight italic">Únete al equipo SeaFit</h1>
                 <p class="text-gray-600 text-[17px] font-medium max-w-2xl mx-auto leading-relaxed">
-                    ¿¿Te apasiona el fitness y el bienestar? Buscamos talento para seguir transformando vidas.
+                    ¿Te apasiona el fitness y el bienestar? Buscamos talento para seguir transformando vidas.
                 </p>
             </header>
 
-            {{-- Tarjeta principal con informacion y formulario. --}}
+            {{-- Tarjeta principal con información y formulario. --}}
             <div class="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-sm border border-gray-100">
 
                 {{-- Bloque informativo (izquierda) + beneficios (derecha). --}}
@@ -56,12 +56,12 @@
                 <hr class="border-gray-100 mb-12">
 
                 {{-- Formulario real de candidatura.
-                - action: ruta que procesa el envio.
+                - action: ruta que procesa el envío.
                 - enctype: necesario para subir archivos (CV). --}}
                 <div class="max-w-xl mx-auto">
                     <h3 class="text-[#102A53] text-center text-2xl font-black mb-8">Envíanos tu candidatura</h3>
 
-                    {{-- Mensaje de exito cuando el correo se envia bien. --}}
+                    {{-- Mensaje de éxito cuando el correo se envía bien. --}}
                     @if (session('success'))
                         <div class="mb-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
                             {{ session('success') }}
@@ -97,7 +97,7 @@
                             @enderror
                         </div>
 
-                        {{-- Telefono opcional. --}}
+                        {{-- Teléfono opcional. --}}
                         <div>
                             <input type="text" name="telefono" value="{{ old('telefono') }}"
                                 placeholder="Teléfono (opcional)"
@@ -117,7 +117,7 @@
                             @enderror
                         </div>
 
-                        {{-- Mensaje opcional de experiencia/motivacion. --}}
+                        {{-- Mensaje opcional de experiencia/motivación. --}}
                         <div>
                             <textarea name="mensaje" rows="5" placeholder="Cuéntanos tu experiencia (opcional)"
                                 class="w-full px-5 py-4 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#1A3878]/10 transition-all resize-none">{{ old('mensaje') }}</textarea>
@@ -138,7 +138,7 @@
                             @enderror
                         </div>
 
-                        {{-- Boton de envio final del formulario. --}}
+                        {{-- Botón de envío final del formulario. --}}
                         <button type="submit"
                             class="w-full bg-[#1A3878] text-white py-5 rounded-2xl font-black text-lg hover:bg-[#102A53] transition-all shadow-lg mt-4 uppercase tracking-widest">
                             Enviar candidatura

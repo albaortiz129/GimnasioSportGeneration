@@ -1,4 +1,4 @@
-﻿{{--Administración de clases: crear, editar y gestionar. --}}
+{{--Administración de clases: crear, editar y gestionar. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Clases')
