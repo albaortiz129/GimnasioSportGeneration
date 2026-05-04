@@ -256,7 +256,19 @@ class AdminPanelController extends Controller
             unset($data['password']); // Si no se introduce nueva contraseña, no se cambia la existente.
         }
 
+        // Guarda el estado previo para detectar cambios a "impagado".
+        $estadoAnteriorPago = (string) $user->payment_status;
+
         $user->update($data);
+
+        // Si el estado cambia a impagado desde la edición, se notifica por correo.
+        if ($estadoAnteriorPago !== 'impagado' && (string) $user->payment_status === 'impagado') {
+            $this->sendPaymentUnpaidEmail(
+                $user,
+                'Estado de pago actualizado a impagado por administración',
+                'update'
+            );
+        }
 
         return redirect()->route('admin.dashboard')->with('success', 'Usuario actualizado correctamente.');
     }
@@ -379,9 +391,20 @@ class AdminPanelController extends Controller
             return back()->with('error', 'No se permite marcar como impagado a un administrador.');
         }
 
+        // Evita reenvíos de correo si ya estaba marcado como impagado.
+        if ((string) $user->payment_status === 'impagado') {
+            return back()->with('success', 'El cliente ya estaba marcado como impagado.');
+        }
+
         $user->update([
             'payment_status' => 'impagado', // Pasa a estado de impago.
         ]);
+
+        $this->sendPaymentUnpaidEmail(
+            $user,
+            'Cuenta marcada como impagada por administración',
+            'markUnpaid'
+        );
 
         return back()->with('success', 'Cliente marcado como impagado.'); // Notifica al usuario.
     }
@@ -663,7 +686,7 @@ class AdminPanelController extends Controller
                 'nombre' => $user->nombre,
                 'metodo' => $metodo,
                 'tarifa' => ucfirst((string) $user->tarifa), // Obtiene el método de pago.
-                'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha', // Calcula la siguiente fecha de cobro.
+                'proximoCobro' => $this->formatNextPaymentDate($user), // Calcula la siguiente fecha de cobro.
                 'origen' => $origen, // Obtiene el método de pago.
             ], function ($message) use ($user) { // Envía el correo de pago aprobado.
                 $message->to($user->email); // Envía el correo al usuario.
@@ -675,6 +698,47 @@ class AdminPanelController extends Controller
                 'email' => $user->email, // Obtiene el correo del usuario.
                 'error' => $e->getMessage(), // Obtiene el error.
             ]);
+        }
+    }
+
+    /**
+     * Envía el correo de aviso de impago y registra errores.
+     */
+    private function sendPaymentUnpaidEmail(User $user, string $origen, string $context): void
+    {
+        try {
+            Mail::send('emails.payment-unpaid', [
+                'nombre' => $user->nombre,
+                'tarifa' => ucfirst((string) $user->tarifa),
+                'metodo' => $this->paymentMethodLabel($user->metodo_pago),
+                'proximoCobro' => $this->formatNextPaymentDate($user),
+                'origen' => $origen,
+            ], function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('Aviso de impago - SeaFit');
+            });
+        } catch (\Throwable $e) {
+            Log::error("Error al enviar correo de impago ({$context}).", [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Formatea la fecha del próximo cobro para mostrarla en los correos.
+     */
+    private function formatNextPaymentDate(User $user): string
+    {
+        if (empty($user->next_payment_at)) {
+            return 'Sin fecha';
+        }
+
+        try {
+            return Carbon::parse((string) $user->next_payment_at)->format('d/m/Y');
+        } catch (\Throwable) {
+            return 'Sin fecha';
         }
     }
 }

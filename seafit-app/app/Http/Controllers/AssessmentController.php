@@ -15,6 +15,8 @@ class AssessmentController extends Controller
      * Correo que recibe las solicitudes del formulario de entrenador.
      */
     private const TRAINER_FORM_RECIPIENT = 'aortpul1206@iesfuengirola1.es';
+    private const SUPPORT_SENDER_ADDRESS = 'soporte.seafit@gmail.com';
+    private const SUPPORT_SENDER_NAME = 'SeaFit Soporte';
 
     /**
      * Valida y envía la solicitud de valoración por correo.
@@ -43,7 +45,11 @@ class AssessmentController extends Controller
         try {
             // Enviamos un correo simple con todos los datos de la solicitud.
             Mail::send('emails.trainer-request', ['data' => $data], function ($message) use ($data) {
+                // Remitente fijo del gimnasio.
+                $message->from(self::SUPPORT_SENDER_ADDRESS, self::SUPPORT_SENDER_NAME);
+                // Destinatario del entrenador.
                 $message->to(self::TRAINER_FORM_RECIPIENT);
+                // El entrenador puede responder directamente al socio.
                 $message->replyTo($data['email'], $data['nombre']);
                 $message->subject('Nueva solicitud de entrenador personal SeaFit');
             });

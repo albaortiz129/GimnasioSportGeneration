@@ -67,7 +67,7 @@ class PaymentController extends Controller
 
             $suscripcion->cancel(); // Se cancela en Stripe pero mantiene acceso hasta fin de ciclo.
 
-            return back()->with('success', 'Tu suscripción ha sido cancelada. Tendrás acceso que se termine la suscripción actual.');
+            return back()->with('success', 'Tu suscripción ha sido cancelada. Tendrás acceso hasta que termine la suscripción actual.');
         }
 
         // Pagos manuales en efectivo.
@@ -299,8 +299,7 @@ class PaymentController extends Controller
         $yaExistia = $manuales->has($data['metodo_manual']); // Comprueba si el método manual ya existía.
 
         $manuales->put($data['metodo_manual'], [
-            'code' => $data['metodo_manual'], // Guarda el código de método manual.
-            'value' => null,
+            'code' => $data['metodo_manual'], // Guarda el código del método manual.
         ]);
 
         $user->manual_payment_methods = $manuales->values()->all(); // Actualiza los métodos de pago manuales del usuario.
@@ -360,7 +359,6 @@ class PaymentController extends Controller
         $user->manual_payment_methods = $manuales
             ->map(fn($metodo) => [
                 'code' => $metodo['code'],
-                'value' => $metodo['value'],
             ])
             ->values()
             ->all();
@@ -381,7 +379,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Normaliza el método manual
+     * Normaliza el método manual.
      */
     private function normalizeManualMethod(mixed $metodo): ?array
     {
@@ -395,28 +393,10 @@ class PaymentController extends Controller
             return null;
         }
 
-        $value = trim((string) ($metodo['value'] ?? ''));
-        $value = $value === '' ? null : $value;
-
         return [
             'code' => $code,
             'label' => $this->manualMethodName($code),
-            'value' => $value,
-            'value_masked' => $this->maskManualData($value),
         ];
-    }
-
-    /**
-     * Devuelve el dato manual listo para mostrar.
-     * En efectivo no se guarda información sensible, así que no se enmascara.
-     */
-    private function maskManualData(?string $value): ?string
-    {
-        if (!$value) {
-            return null;
-        }
-
-        return $value;
     }
 
     /**
@@ -626,7 +606,7 @@ class PaymentController extends Controller
                 'nombre' => $user->nombre,
                 'metodo' => $metodo,
                 'tarifa' => ucfirst((string) $user->tarifa),
-                'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha',
+                'proximoCobro' => $this->formatNextPaymentDate($user),
                 'origen' => $origen,
             ], function ($message) use ($user) {
                 $message->to($user->email);
@@ -639,6 +619,22 @@ class PaymentController extends Controller
                 'email' => $user->email,
                 'error' => $e->getMessage(),
             ]);
+        }
+    }
+
+    /**
+     * Formatea la fecha del próximo cobro para mostrarla en los correos.
+     */
+    private function formatNextPaymentDate(User $user): string
+    {
+        if (empty($user->next_payment_at)) {
+            return 'Sin fecha';
+        }
+
+        try {
+            return Carbon::parse((string) $user->next_payment_at)->format('d/m/Y');
+        } catch (\Throwable) {
+            return 'Sin fecha';
         }
     }
 

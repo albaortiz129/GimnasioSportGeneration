@@ -262,9 +262,9 @@
 
                     @auth
                         @if(!auth()->user()->is_admin && auth()->user()->isPlanActive())
-                            <button type="button" onclick="window.location.href='{{ route('valoracion') }}'"
+                            <button type="button" onclick="window.location.href='{{ url('/tarifas') }}'"
                                 class="mt-10 inline-flex items-center justify-center rounded-2xl h-14 px-8 bg-[#1A3878] text-white font-black text-lg hover:bg-[#0A1931] shadow-xl transition-all uppercase tracking-widest">
-                                Contratar entrenador personal
+                                Ir a la página de tarifas
                             </button>
                         @elseif(!auth()->user()->is_admin)
                             <button type="button" onclick="window.location.href='{{ route('pago.gestion') }}'"

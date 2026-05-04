@@ -10,8 +10,12 @@
         {{-- Panel del chat. --}}
         <div id="ai-chat-panel"
             class="hidden mt-3 w-[340px] max-w-[92vw] bg-white border border-gray-200 rounded-2xl shadow-2xl">
-            <div class="p-4 border-b">
+            <div class="p-4 border-b flex items-center justify-between">
                 <h3 class="font-black text-[#0A1931]">Asistente SeaFit</h3>
+                <button id="ai-chat-close" type="button"
+                    class="text-gray-500 hover:text-[#0A1931] font-bold text-lg leading-none" aria-label="Cerrar chat">
+                    &times;
+                </button>
             </div>
 
             <div id="ai-chat-messages" class="h-[320px] overflow-y-auto p-3 space-y-2 bg-[#f8fafc]">
@@ -35,6 +39,7 @@
         (() => {
             // Referencias de la interfaz del chat.
             const toggleBtn = document.getElementById('ai-chat-toggle');
+            const closeBtn = document.getElementById('ai-chat-close');
             const panel = document.getElementById('ai-chat-panel');
             const form = document.getElementById('ai-chat-form');
             const input = document.getElementById('ai-chat-input');
@@ -45,11 +50,26 @@
             const url = @json(route('ia.chat'));
             const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-            // Abre o cierra el panel.
-            toggleBtn.addEventListener('click', () => {
-                panel.classList.toggle('hidden');
-                if (!panel.classList.contains('hidden')) input.focus();
-            });
+            // Muestra el panel y oculta el botón flotante.
+            function openChat() {
+                panel.classList.remove('hidden');
+                toggleBtn.classList.add('hidden');
+                input.focus();
+            }
+
+            // Oculta el panel y vuelve a mostrar el botón flotante.
+            function closeChat() {
+                panel.classList.add('hidden');
+                toggleBtn.classList.remove('hidden');
+            }
+
+            // Abre el panel desde el botón flotante.
+            toggleBtn.addEventListener('click', openChat);
+
+            // Cierra el panel desde el botón de cierre.
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeChat);
+            }
 
             // Función para enviar el mensaje en el chat.
             function addMessage(text, from = 'bot') {

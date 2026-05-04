@@ -20,8 +20,7 @@ class AdminMiddleware
         if (auth()->check() && auth()->user()->is_admin) {
             return $next($request);
         }
-        // Si no cumple permisos, se devuelve al inicio con un mensaje de error.    
+        // Si no cumple permisos, se devuelve al inicio con un mensaje de error.
         return redirect('/')->with('error', 'Acceso denegado. No eres administrador.');
     }
 }
-

@@ -8,6 +8,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DiscountCode;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -94,7 +95,9 @@ class RegistrationController extends Controller
                 ], 422);
             }
 
-            return DB::transaction(function () use ($request) { // Inicia una transacción para garantizar la integridad de los datos.
+            $userIdParaCorreoPagoAprobado = null; // Guardará el usuario para enviar correo tras confirmar el registro.
+
+            $response = DB::transaction(function () use ($request, &$userIdParaCorreoPagoAprobado) { // Inicia una transacción para garantizar la integridad de los datos.
                 $discountCode = null; // Inicializa la variable que contendrá el código de descuento.
                 $mensajeDescuento = ''; // Inicializa la variable que contendrá el mensaje de descuento.
 
@@ -162,25 +165,7 @@ class RegistrationController extends Controller
                             $user->payment_status = 'al_dia'; // Se actualiza el estado del pago.
                             $user->next_payment_at = $this->nextChargeFromPlan($tarifa); // Se actualiza la fecha del próximo pago.
                             $user->save(); // Guarda el usuario.
-
-                            try { // Intenta enviar un correo al socio con la confirmación del pago.
-                                Mail::send('emails.payment-approved', [
-                                    'nombre' => $user->nombre, // Nombre del socio.
-                                    'metodo' => 'Tarjeta', // Método de pago.
-                                    'tarifa' => ucfirst((string) $user->tarifa), // Tarifa del plan.
-                                    'proximoCobro' => optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha', // Fecha del próximo pago.
-                                    'origen' => 'Pago con tarjeta confirmado en el registro', // Origen del pago.
-                                ], function ($message) use ($user) { // Función para enviar el correo.
-                                    $message->to($user->email); // Destinatario.
-                                    $message->subject('Pago aprobado - SeaFit'); // Asunto.
-                                });
-                            } catch (\Throwable $e) {
-                                Log::error('Error al enviar correo de pago aprobado en el registro.', [
-                                    'user_id' => $user->id,
-                                    'email' => $user->email,
-                                    'error' => $e->getMessage(),
-                                ]);
-                            }
+                            $userIdParaCorreoPagoAprobado = $user->id;
 
                             $mensajeFinal = 'Socio registrado y suscripción activada con éxito.';
                         } catch (\Throwable $e) { // Si falla Stripe, no se pierde el alta; queda pendiente de revisión.
@@ -206,6 +191,21 @@ class RegistrationController extends Controller
                     'email' => $user->email,
                 ], 201);
             });
+
+            // Si el alta con tarjeta se confirmó, enviamos el correo de pago aprobado.
+            if (!empty($userIdParaCorreoPagoAprobado)) {
+                $userParaCorreo = User::find($userIdParaCorreoPagoAprobado);
+
+                if ($userParaCorreo) {
+                    $this->sendPaymentApprovedEmail(
+                        $userParaCorreo,
+                        'Tarjeta',
+                        'Pago con tarjeta confirmado en el registro'
+                    );
+                }
+            }
+
+            return $response;
         } catch (\Throwable $e) {
             Log::error('Error en el registro SeaFit', [
                 'error' => $e->getMessage(),
@@ -273,5 +273,42 @@ class RegistrationController extends Controller
         $letrasValidas = 'TRWAGMYFPDXBNJZSQVHLCKE'; // Letras válidas para el DNI.
 
         return $letra === $letrasValidas[$numero % 23]; // Comprueba que la letra sea correcta.
+    }
+
+    /**
+     * Envía correo de pago aprobado cuando el alta con tarjeta termina correctamente.
+     */
+    private function sendPaymentApprovedEmail(User $user, string $metodo, string $origen): void
+    {
+        try {
+            $proximoCobro = 'Sin fecha';
+
+            if (!empty($user->next_payment_at)) {
+                $proximoCobro = Carbon::parse((string) $user->next_payment_at)->format('d/m/Y');
+            }
+
+            Mail::send('emails.payment-approved', [
+                'nombre' => $user->nombre,
+                'metodo' => $metodo,
+                'tarifa' => ucfirst((string) $user->tarifa),
+                'proximoCobro' => $proximoCobro,
+                'origen' => $origen,
+            ], function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('Pago aprobado - SeaFit');
+            });
+
+            Log::info('Correo de pago aprobado enviado en registro.', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
+        } catch (\Throwable $e) {
+            // Si falla el correo, no se rompe el registro del socio.
+            Log::error('Error al enviar correo de pago aprobado en registro.', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

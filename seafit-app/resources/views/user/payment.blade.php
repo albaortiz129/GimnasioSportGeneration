@@ -173,11 +173,6 @@
                                     class="m-0 text-xs font-bold {{ $esPrincipalManual ? 'text-green-700' : 'text-gray-500' }} mt-1 uppercase tracking-wider">
                                     {{ $esPrincipalManual ? 'Principal' : 'Manual guardado' }}
                                 </p>
-                                @if(!empty($manual['value_masked']))
-                                    <p class="m-0 text-sm text-gray-600 mt-1">
-                                        Dato: {{ $manual['value_masked'] }}
-                                    </p>
-                                @endif
                             </div>
                         </div>
 
