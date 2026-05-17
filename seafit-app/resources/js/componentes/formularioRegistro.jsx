@@ -30,7 +30,7 @@ const ETIQUETAS_CAMPOS = {
 // Tarifas disponibles para registro.
 const TARIFAS = [
     { id: 'mensual', nombre: 'Mensual', precio: '29.99 EUR', desc: 'Sin permanencia.' },
-    { id: 'trimestral', nombre: 'Trimestral', precio: '75.00 EUR', desc: 'Ahorra un 15.' },
+    { id: 'trimestral', nombre: 'Trimestral', precio: '75.00 EUR', desc: 'Ahorra un 15%.' },
     { id: 'anual', nombre: 'Anual', precio: '250.00 EUR', desc: 'Permanencia de 1 año.' },
 ];
 
