@@ -7,7 +7,7 @@
     <div class="max-w-6xl mx-auto px-4 py-8">
         {{-- Mensajes de resultado tras crear/editar/borrar. --}}
         @if(session('success'))
-            <div class="mb-4 p-3 rounded bg-[#c6ff7c] text-green-800">{{ session('success') }}</div>
+            <div class="mb-4 p-3 rounded bg-[#ADFE01] text-green-800">{{ session('success') }}</div>
         @endif
 
         @if(session('error'))
@@ -17,7 +17,7 @@
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-black">Códigos de descuento</h1>
             {{-- Botón para crear un nuevo cupón desde admin. --}}
-            <a href="{{ route('admin.discounts.create') }}" class="bg-[#265e1f] text-white px-4 py-2 rounded">
+            <a href="{{ route('admin.discounts.create') }}" class="bg-[#265E1F] text-white px-4 py-2 rounded">
                 Nuevo código
             </a>
         </div>
@@ -49,7 +49,7 @@
                             <td class="p-3 flex gap-2">
                                 {{-- Edición del código seleccionado. --}}
                                 <a href="{{ route('admin.discounts.edit', $c) }}"
-                                    class="bg-[#265e1f] text-white px-3 py-1 rounded">Editar</a>
+                                    class="bg-[#265E1F] text-white px-3 py-1 rounded">Editar</a>
 
                                 {{-- Borrado del código (si no tiene usos). --}}
                                 <form method="POST" action="{{ route('admin.discounts.destroy', $c) }}">

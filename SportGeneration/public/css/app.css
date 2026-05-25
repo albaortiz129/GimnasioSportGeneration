@@ -6,6 +6,7 @@ html,
 body {
     height: 100%;
     margin: 0;
+    overflow-x: hidden;
 }
 
 body {
@@ -13,6 +14,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    max-width: 100%;
     /* Ocupa el alto total de la pantalla */
 }
 

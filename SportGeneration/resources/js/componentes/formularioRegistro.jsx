@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // Importamos React y useState.
+﻿import React, { useState } from 'react'; // Importamos React y useState.
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'; // Importamos Stripe.
 
 // IDs de los campos del primer paso
@@ -21,9 +21,9 @@ const ETIQUETAS_CAMPOS = {
     dni: 'DNI',
     fecha_nacimiento: 'Fecha de nacimiento',
     email: 'Email',
-    password: 'Contraseña',
-    password_confirmation: 'Confirmar contraseña',
-    telefono: 'Teléfono',
+    password: 'ContraseÃ±a',
+    password_confirmation: 'Confirmar contraseÃ±a',
+    telefono: 'TelÃ©fono',
     domicilio: 'Domicilio',
 };
 
@@ -31,16 +31,16 @@ const ETIQUETAS_CAMPOS = {
 const TARIFAS = [
     { id: 'mensual', nombre: 'Mensual', precio: '29.99 EUR', desc: 'Sin permanencia.' },
     { id: 'trimestral', nombre: 'Trimestral', precio: '75.00 EUR', desc: 'Ahorra un 15%.' },
-    { id: 'anual', nombre: 'Anual', precio: '250.00 EUR', desc: 'Permanencia de 1 año.' },
+    { id: 'anual', nombre: 'Anual', precio: '250.00 EUR', desc: 'Permanencia de 1 aÃ±o.' },
 ];
 
-// Métodos de pago admitidos en registro.
+// MÃ©todos de pago admitidos en registro.
 const METODOS_PAGO = [
-    { id: 'visa', nombre: 'Tarjeta de crédito', icono: 'credit_card' },
+    { id: 'visa', nombre: 'Tarjeta de crÃ©dito', icono: 'credit_card' },
     { id: 'efectivo', nombre: 'Efectivo', icono: 'payments' },
 ];
 
-// Devuelve el precio visible según la tarifa elegida.
+// Devuelve el precio visible segÃºn la tarifa elegida.
 const obtenerPrecioTarifa = (tarifa) => {
     if (tarifa === 'anual') return '250.00 EUR';
     if (tarifa === 'trimestral') return '75.00 EUR';
@@ -49,10 +49,10 @@ const obtenerPrecioTarifa = (tarifa) => {
 
 // Formulario en 3 pasos: datos personales, tarifa y pago.
 const FormularioRegistro = () => {
-    const stripe = useStripe(); // Carga el objeto de Stripe para poder crear el método de pago con tarjeta.
+    const stripe = useStripe(); // Carga el objeto de Stripe para poder crear el mÃ©todo de pago con tarjeta.
     const elements = useElements(); // Da acceso al campo visual de tarjeta.
 
-    const [paso, setPaso] = useState(1); // Guarda el número de paso actual del formulario (1, 2 o 3).
+    const [paso, setPaso] = useState(1); // Guarda el nÃºmero de paso actual del formulario (1, 2 o 3).
     const [datos, setDatos] = useState({ // Guarda los valores escritos en los campos del formulario. y los actualiza cada vez que se escribe en ellos.
         nombre: '',
         apellidos: '',
@@ -69,7 +69,7 @@ const FormularioRegistro = () => {
     });
 
     const [errores, setErrores] = useState({}); // Guarda los mensajes de error del formulario. y los actualiza cada vez que se escribe en ellos.
-    const [cargando, setCargando] = useState(false); // Indica si el formulario está cargando.
+    const [cargando, setCargando] = useState(false); // Indica si el formulario estÃ¡ cargando.
 
     const validarDNIMatematico = (dni) => {
         const regexDni = /^[0-9]{8}[A-Z]$/i;
@@ -109,18 +109,18 @@ const FormularioRegistro = () => {
             }
             case 'password':
                 if (!validarPasswordFuerte(valor)) {
-                    error = 'Min. 8 caracteres, 1 mayúscula, 1 número y 1 símbolo.';
+                    error = 'Min. 8 caracteres, 1 mayÃºscula, 1 nÃºmero y 1 sÃ­mbolo.';
                 }
                 break;
             case 'password_confirmation':
                 if (!valor) {
-                    error = 'Debes confirmar la contraseña.';
+                    error = 'Debes confirmar la contraseÃ±a.';
                 } else if (valor !== datos.password) {
-                    error = 'Las contraseñas no coinciden.';
+                    error = 'Las contraseÃ±as no coinciden.';
                 }
                 break;
             case 'telefono':
-                if (!/^[6789]\d{8}$/.test(valor)) error = 'Teléfono incorrecto.';
+                if (!/^[6789]\d{8}$/.test(valor)) error = 'TelÃ©fono incorrecto.';
                 break;
             case 'domicilio':
                 if (!valor.trim()) error = 'El domicilio es obligatorio.';
@@ -134,12 +134,12 @@ const FormularioRegistro = () => {
     };
 
     const handleChange = (campo, valor) => {
-        // El email se mantiene en minúsculas para evitar duplicados por error.
+        // El email se mantiene en minÃºsculas para evitar duplicados por error.
         const valorNormalizado = campo === 'email' ? valor.toLowerCase() : valor;
 
         setDatos((prev) => ({ ...prev, [campo]: valorNormalizado }));
 
-        // Si cambia la contraseña, se revalida.
+        // Si cambia la contraseÃ±a, se revalida.
         if (campo === 'password') {
             setErrores((prev) => ({ ...prev, password_confirmation: '' }));
         }
@@ -163,13 +163,13 @@ const FormularioRegistro = () => {
             ? { dni: limpio.toUpperCase() }
             : { email: limpio.toLowerCase() };
 
-        // Comprueba que el DNI o email estén disponibles, si no muestra un error.
+        // Comprueba que el DNI o email estÃ©n disponibles, si no muestra un error.
         try {
-            const respuesta = await fetch('/api/registro/disponibilidad', { // Envía la solicitud al servidor.
-                method: 'POST', // Método de la solicitud.
+            const respuesta = await fetch('/api/registro/disponibilidad', { // EnvÃ­a la solicitud al servidor.
+                method: 'POST', // MÃ©todo de la solicitud.
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', // Añade el token CSRF para seguridad.
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', // AÃ±ade el token CSRF para seguridad.
                 },
                 body: JSON.stringify(payload), // Convierte el payload a JSON.
             });
@@ -208,7 +208,7 @@ const FormularioRegistro = () => {
         return dniLibre && emailLibre;
     };
 
-    // Envía el registro y, si está correcto, crea payment method en Stripe.
+    // EnvÃ­a el registro y, si estÃ¡ correcto, crea payment method en Stripe.
     const finalizarRegistro = async () => {
         setCargando(true);
         let stripePaymentMethodId = null;
@@ -257,7 +257,7 @@ const FormularioRegistro = () => {
             const resultado = await respuesta.json();
 
             if (respuesta.ok) {
-                alert(resultado.mensaje || 'Registro completado con éxito.');
+                alert(resultado.mensaje || 'Registro completado con Ã©xito.');
                 window.location.href = '/login';
                 return;
             }
@@ -282,11 +282,11 @@ const FormularioRegistro = () => {
             if (resultado.errors) {
                 msg += Object.values(resultado.errors).flat().join('\n- ');
             } else {
-                msg += resultado.error || 'Ocurrió un problema.';
+                msg += resultado.error || 'OcurriÃ³ un problema.';
             }
             alert(msg);
         } catch (error) {
-            alert('No hay conexión con el servidor.');
+            alert('No hay conexiÃ³n con el servidor.');
         } finally {
             setCargando(false);
         }
@@ -311,21 +311,21 @@ const FormularioRegistro = () => {
 
     const precioActual = obtenerPrecioTarifa(datos.tarifa);
 
-    // Visualización del formulario.
+    // VisualizaciÃ³n del formulario.
     return (
         <div className="bg-white w-full mx-auto overflow-hidden rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-gray-100">
             {/* Barra de progreso */}
             <div className="px-8 sm:px-14 pt-10 pb-4 text-left">
-                <span className="text-[13px] text-[#265e1f] font-bold tracking-wider uppercase">Paso {paso} de 3</span>
-                <div className="w-full h-[6px] bg-[#f0f4f8] rounded-full mt-2 overflow-hidden">
-                    <div className="h-full bg-[#265e1f] rounded-full transition-all duration-500" style={{ width: `${(paso / 3) * 100}%` }}></div>
+                <span className="text-[13px] text-[#265E1F] font-bold tracking-wider uppercase">Paso {paso} de 3</span>
+                <div className="w-full h-[6px] bg-[#EAF7DB] rounded-full mt-2 overflow-hidden">
+                    <div className="h-full bg-[#265E1F] rounded-full transition-all duration-500" style={{ width: `${(paso / 3) * 100}%` }}></div>
                 </div>
             </div>
 
             {/* Paso 1: Datos */}
             {paso === 1 && (
                 <section className="px-8 sm:px-14 pb-8">
-                    <h1 className="text-3xl font-extrabold text-[#265e1f] mb-2">Crea tu cuenta</h1>
+                    <h1 className="text-3xl font-extrabold text-[#265E1F] mb-2">Crea tu cuenta</h1>
                     <p className="text-[15px] text-gray-500 mb-8">Datos personales</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
@@ -340,7 +340,7 @@ const FormularioRegistro = () => {
                                         : campo === 'fecha_nacimiento'
                                             ? 'date'
                                             : 'text'}
-                                    className={`w-full p-3.5 border rounded-xl outline-none focus:ring-1 focus:ring-[#265e1f] ${errores[campo] ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-[#fdfdfd]'}`}
+                                    className={`w-full p-3.5 border rounded-xl outline-none focus:ring-1 focus:ring-[#265E1F] ${errores[campo] ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-[#fdfdfd]'}`}
                                     value={datos[campo]}
                                     onChange={(e) => handleChange(campo, e.target.value)}
                                     onBlur={async (e) => {
@@ -361,36 +361,36 @@ const FormularioRegistro = () => {
             {/* Paso 2: Tarifa */}
             {paso === 2 && (
                 <section className="px-8 sm:px-14 pb-8 text-left">
-                    <h1 className="text-3xl font-extrabold text-[#265e1f] mb-2">Elige tu plan</h1>
-                    <p className="text-[15px] text-gray-500 mb-8">Paso 2: selección de tarifa</p>
+                    <h1 className="text-3xl font-extrabold text-[#265E1F] mb-2">Elige tu plan</h1>
+                    <p className="text-[15px] text-gray-500 mb-8">Paso 2: selecciÃ³n de tarifa</p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                         {TARIFAS.map((t) => (
                             <div
                                 key={t.id}
-                                className={`p-8 rounded-2xl border-2 transition-all cursor-pointer text-center ${datos.tarifa === t.id ? 'border-[#265e1f] bg-[#f0f7ff]' : 'border-gray-200 hover:border-[#265e1f]'}`}
+                                className={`p-8 rounded-2xl border-2 transition-all cursor-pointer text-center ${datos.tarifa === t.id ? 'border-[#265E1F] bg-[#EAF7DB]' : 'border-gray-200 hover:border-[#265E1F]'}`}
                                 onClick={() => setDatos((prev) => ({ ...prev, tarifa: t.id }))}
                             >
-                                <h3 className="font-bold text-xl text-[#265e1f]">{t.nombre}</h3>
-                                <p className="text-3xl font-black text-[#265e1f] my-4">{t.precio}</p>
+                                <h3 className="font-bold text-xl text-[#265E1F]">{t.nombre}</h3>
+                                <p className="text-3xl font-black text-[#265E1F] my-4">{t.precio}</p>
                                 <p className="text-sm text-gray-500">{t.desc}</p>
                             </div>
                         ))}
                     </div>
 
                     <div className="mt-8">
-                        <label className="block text-sm font-bold text-[#265e1f] mb-2">
-                            Código de descuento (opcional)
+                        <label className="block text-sm font-bold text-[#265E1F] mb-2">
+                            CÃ³digo de descuento (opcional)
                         </label>
                         <input
                             type="text"
                             value={datos.cupon}
                             onChange={(e) => handleChange('cupon', e.target.value.toUpperCase())}
                             placeholder="Ej: SPORTGENERATION20"
-                            className="w-full p-3.5 border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-[#265e1f] bg-[#fdfdfd]"
+                            className="w-full p-3.5 border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-[#265E1F] bg-[#fdfdfd]"
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                            Si tienes un código, escríbelo aquí. Se validará al finalizar el registro.
+                            Si tienes un cÃ³digo, escrÃ­belo aquÃ­. Se validarÃ¡ al finalizar el registro.
                         </p>
                     </div>
                 </section>
@@ -399,12 +399,12 @@ const FormularioRegistro = () => {
             {/* Paso 3: Pago */}
             {paso === 3 && (
                 <div className="px-8 sm:px-14 pb-8 text-left">
-                    <h1 className="text-3xl font-extrabold text-[#265e1f] mb-2">Método de pago</h1>
-                    <p className="text-[15px] text-gray-500 mb-8">Total: <strong className="text-[#265e1f]">{precioActual}</strong></p>
+                    <h1 className="text-3xl font-extrabold text-[#265E1F] mb-2">MÃ©todo de pago</h1>
+                    <p className="text-[15px] text-gray-500 mb-8">Total: <strong className="text-[#265E1F]">{precioActual}</strong></p>
 
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 mb-8">
                         {METODOS_PAGO.map((metodo) => (
-                            <label key={metodo.id} className={`flex items-center gap-4 p-5 border-2 rounded-xl cursor-pointer transition-all ${datos.metodo_pago === metodo.id ? 'border-[#265e1f] bg-[#f0f7ff]' : 'border-gray-200'}`}>
+                            <label key={metodo.id} className={`flex items-center gap-4 p-5 border-2 rounded-xl cursor-pointer transition-all ${datos.metodo_pago === metodo.id ? 'border-[#265E1F] bg-[#EAF7DB]' : 'border-gray-200'}`}>
                                 <input
                                     type="radio"
                                     className="hidden"
@@ -412,8 +412,8 @@ const FormularioRegistro = () => {
                                     checked={datos.metodo_pago === metodo.id}
                                     onChange={() => handleChange('metodo_pago', metodo.id)}
                                 />
-                                <span className="material-symbols-outlined text-[#265e1f]">{metodo.icono}</span>
-                                <span className="font-bold text-[#265e1f]">{metodo.nombre}</span>
+                                <span className="material-symbols-outlined text-[#265E1F]">{metodo.icono}</span>
+                                <span className="font-bold text-[#265E1F]">{metodo.nombre}</span>
                             </label>
                         ))}
                     </div>
@@ -425,17 +425,17 @@ const FormularioRegistro = () => {
                                 Pago en efectivo
                             </div>
                             <p className="text-sm text-amber-700 m-0 leading-relaxed">
-                                Puedes pagar directamente en recepción antes de tu primera clase.<br />
-                                Tu cuenta quedará pendiente hasta que el administrador confirme el cobro.
+                                Puedes pagar directamente en recepciÃ³n antes de tu primera clase.<br />
+                                Tu cuenta quedarÃ¡ pendiente hasta que el administrador confirme el cobro.
                             </p>
                         </div>
                     )}
 
                     {datos.metodo_pago === 'visa' && (
-                        <div className="mb-8 p-5 border border-blue-200 rounded-xl bg-blue-50">
-                            <label className="block text-sm font-bold text-[#265e1f] mb-3 text-left">Datos de tu tarjeta</label>
+                        <div className="mb-8 p-5 border border-[#ADFE01] rounded-xl bg-[#EAF7DB]">
+                            <label className="block text-sm font-bold text-[#265E1F] mb-3 text-left">Datos de tu tarjeta</label>
                             <div className="bg-white p-4 border border-gray-300 rounded-lg shadow-sm">
-                                <CardElement options={{ style: { base: { fontSize: '16px', color: '#265e1f', fontFamily: 'Montserrat, sans-serif' } } }} />
+                                <CardElement options={{ style: { base: { fontSize: '16px', color: '#265E1F', fontFamily: 'Montserrat, sans-serif' } } }} />
                             </div>
                         </div>
                     )}
@@ -443,22 +443,22 @@ const FormularioRegistro = () => {
                     <button
                         onClick={finalizarRegistro}
                         disabled={cargando}
-                        className={`w-full py-4 rounded-xl text-white font-bold text-lg transition-all ${cargando ? 'bg-gray-400' : 'bg-[#265e1f] hover:bg-[#265e1f]'}`}
+                        className={`w-full py-4 rounded-xl text-white font-bold text-lg transition-all ${cargando ? 'bg-gray-400' : 'bg-[#265E1F] hover:bg-[#265E1F]'}`}
                     >
                         {cargando ? 'Procesando...' : 'Finalizar Registro'}
                     </button>
                 </div>
             )}
 
-            {/* Botones de navegación */}
-            <div className="flex justify-between items-center bg-[#f8fafc] px-8 sm:px-14 py-6 border-t">
+            {/* Botones de navegaciÃ³n */}
+            <div className="flex justify-between items-center bg-[#EAF7DB] px-8 sm:px-14 py-6 border-t">
                 {paso > 1 && (
                     <button onClick={volverPaso} className="text-gray-500 font-bold hover:underline">
-                        Atrás
+                        AtrÃ¡s
                     </button>
                 )}
                 {paso < 3 && (
-                    <button onClick={siguientePaso} className="ml-auto bg-[#265e1f] text-white py-3 px-10 rounded-xl font-bold hover:bg-[#265e1f]">
+                    <button onClick={siguientePaso} className="ml-auto bg-[#265E1F] text-white py-3 px-10 rounded-xl font-bold hover:bg-[#265E1F]">
                         Siguiente
                     </button>
                 )}
@@ -468,3 +468,5 @@ const FormularioRegistro = () => {
 };
 
 export default FormularioRegistro;
+
+

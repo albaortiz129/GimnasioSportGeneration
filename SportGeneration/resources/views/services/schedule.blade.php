@@ -4,17 +4,17 @@
 @section('titulo', 'Agenda')
 
 @section('contenido')
-    <div class="bg-[#F8F8F8] min-h-screen py-10 font-sans">
-        <div class="container mx-auto max-w-6xl px-4">
+    <div class="bg-white min-h-screen py-8 sm:py-10 font-sans">
+        <div class="container mx-auto max-w-5xl px-4 sm:px-5">
 
-            <header class="text-center mb-10">
-                <h1 class="text-[#265e1f] text-4xl font-black tracking-tighter mb-2 italic">CALENDARIO DE CLASES</h1>
+            <header class="text-center mb-8 sm:mb-9">
+                <h1 class="text-[#265E1F] text-3xl sm:text-4xl font-black tracking-tight mb-2">CALENDARIO DE CLASES</h1>
                 <p class="text-gray-500 font-medium">Gestiona tus entrenamientos de forma visual</p>
             </header>
 
             {{-- Filtrar agenda. --}}
             <div
-                class="flex justify-center gap-2 mb-8 bg-white p-2 rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
+                class="flex justify-center gap-2 mb-7 bg-white p-2 rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
                 @php
                     $dias = [
                         ['value' => 'Lunes', 'label' => 'Lunes'],
@@ -29,30 +29,30 @@
                 @endphp
                 @foreach($dias as $diaItem)
                     <a href="{{ route('agenda', ['dia' => $diaItem['value']]) }}"
-                        class="px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap
-                                                            {{ $diaActual == $diaItem['value'] ? 'bg-[#265e1f] text-white shadow-md' : 'text-gray-400 hover:bg-gray-50' }}">
+                        class="px-4 sm:px-5 py-2 rounded-lg font-bold text-sm transition-all whitespace-nowrap
+                                                            {{ $diaActual == $diaItem['value'] ? 'bg-[#265E1F] text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-[#265E1F]' }}">
                         {{ $diaItem['label'] }}
                     </a>
                 @endforeach
             </div>
 
-            <div class="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden">
-                <div class="grid grid-cols-[100px_1fr] min-h-[800px] relative">
+            <div class="bg-white rounded-[2rem] shadow-[0_18px_44px_rgba(0,0,0,0.08)] border border-gray-200 overflow-hidden">
+                <div class="grid grid-cols-[76px_1fr] min-h-[1120px] relative">
 
                     {{-- Columna de horas. --}}
                     <div class="bg-gray-50/50 border-r border-gray-100 flex flex-col">
                         @for($h = 8; $h <= 21; $h++)
                             <div
-                                class="h-[100px] border-b border-gray-100/50 text-[12px] font-black text-gray-400 flex items-start justify-center pt-4">
+                                class="h-[80px] border-b border-gray-100/50 text-[10px] font-black text-gray-400 flex items-start justify-center pt-3">
                                 {{ str_pad($h, 2, '0', STR_PAD_LEFT) }}:00
                             </div>
                         @endfor
                     </div>
 
-                    {{-- Tarjetas de clase. --}}
-                    <div class="relative p-0" id="calendar-grid">
+                        {{-- Tarjetas de clase. --}}
+                        <div class="relative p-0" id="calendar-grid">
                         @for($i = 0; $i <= 13; $i++)
-                            <div class="absolute w-full border-b border-gray-100" style="top: {{ $i * 100 }}px; height: 100px;">
+                            <div class="absolute w-full border-b border-gray-100" style="top: {{ $i * 80 }}px; height: 80px;">
                             </div>
                         @endfor
 
@@ -67,27 +67,30 @@
                                             $izquierda = $columnaActual * ($ancho + $separacion);
                                             $top = (int) ($clase->layout_top ?? 0);
                                             $alto = (int) ($clase->layout_height ?? 90);
+                                            $escalaAgenda = 0.82;
+                                            $topCompacto = (int) round($top * $escalaAgenda);
+                                            $altoCompacto = max((int) round($alto * $escalaAgenda), 64);
                                             $modoCompacto = $columnasTotales > 1;
                                             $claseBoton = $modoCompacto ? 'px-4 py-2' : 'px-6 py-2.5';
                                             // Plazas disponibles (capacidad - inscritos), nunca menor que 0.
                                             $plazasLibres = max((int) $clase->capacidad_max - $clase->users->count(), 0);
                                         @endphp
 
-                                        <div class="absolute rounded-[1.5rem] p-5 border-l-[6px] shadow-sm transition-all duration-300 group
+                                        <div class="absolute rounded-[1.25rem] p-4 border-l-[6px] shadow-sm transition-all duration-300 group
                                                                                 {{ $yaReservado
-                            ? 'bg-[#e6f3ff] border-[#265e1f] ring-1 ring-[#265e1f]/10'
-                            : ($estaCompleto ? 'bg-gray-100 border-gray-300 grayscale' : 'bg-white border-[#c6ff7c] hover:shadow-xl hover:-translate-y-1 border shadow-sm') }}"
-                                            style="top: {{ $top }}px; height: {{ $alto }}px; left: {{ $izquierda }}%; width: {{ $ancho }}%;">
+                            ? 'bg-[#EAF7DB] border-[#265E1F] ring-1 ring-[#265E1F]/10'
+                            : ($estaCompleto ? 'bg-gray-100 border-gray-300 grayscale' : 'bg-white border-[#ADFE01] hover:shadow-xl hover:-translate-y-1 border shadow-sm') }}"
+                                            style="top: {{ $topCompacto }}px; height: {{ $altoCompacto }}px; left: {{ $izquierda }}%; width: {{ $ancho }}%;">
 
                                             <div class="flex h-full min-w-0 items-center justify-between gap-3">
                                                 <div class="flex flex-col min-w-0 flex-1 pr-2">
                                                     <span
-                                                        class="text-[11px] font-black uppercase tracking-widest {{ $yaReservado ? 'text-[#265e1f]' : 'text-gray-400' }}">
+                                                        class="text-[11px] font-black uppercase tracking-widest {{ $yaReservado ? 'text-[#265E1F]' : 'text-gray-400' }}">
                                                         {{ substr($clase->hora_inicio, 0, 5) }} -
                                                         {{ \Carbon\Carbon::parse($clase->hora_inicio)->addHour()->format('H:i') }}
                                                     </span>
                                                     <h4
-                                                        class="font-black {{ $yaReservado ? 'text-[#265e1f]' : 'text-gray-800' }} tracking-tight truncate {{ $modoCompacto ? 'text-base' : 'text-xl' }}">
+                                                        class="font-black {{ $yaReservado ? 'text-[#265E1F]' : 'text-gray-800' }} tracking-tight truncate {{ $modoCompacto ? 'text-sm' : 'text-lg' }}">
                                                         {{ $clase->nombre }}
                                                     </h4>
                                                     <p class="text-xs font-bold text-gray-500 truncate">{{ $clase->sala }} - con
@@ -103,7 +106,7 @@
                                                     @if($yaReservado)
                                                         <div class="flex items-center">
                                                             <div
-                                                                class="group-hover:hidden flex items-center gap-1 bg-[#265e1f] text-white px-4 py-2 rounded-full text-xs font-black">
+                                                                class="group-hover:hidden flex items-center gap-1 bg-[#265E1F] text-white px-4 py-2 rounded-full text-xs font-black">
                                                                 <span class="material-symbols-outlined text-sm">check_circle</span> RESERVADO
                                                             </div>
 
@@ -127,7 +130,7 @@
                                                             onsubmit="return confirm('Confirmas tu reserva para {{ $clase->nombre }} a las {{ substr($clase->hora_inicio, 0, 5) }}h?')">
                                                             @csrf
                                                             <button type="submit"
-                                                                class="bg-[#265e1f] text-white {{ $claseBoton }} rounded-2xl hover:bg-[#265e1f] hover:scale-105 transition-all text-xs font-black shadow-md uppercase">
+                                                                class="bg-[#265E1F] text-white {{ $claseBoton }} rounded-2xl hover:bg-[#265E1F] hover:scale-105 transition-all text-xs font-black shadow-md uppercase">
                                                                 Reservar
                                                             </button>
                                                         </form>
@@ -149,8 +152,8 @@
 
     <style>
         #calendar-grid {
-            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-            background-size: 30px 30px;
+            background-image: radial-gradient(#EAF7DB 1px, transparent 1px);
+            background-size: 26px 26px;
         }
     </style>
 @endsection

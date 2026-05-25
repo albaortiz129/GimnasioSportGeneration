@@ -6,7 +6,7 @@
         {{-- Logo --}}
         <div class="w-full md:flex-1 flex justify-center md:justify-start">
             <a href="{{ url('/') }}" class="block">
-                <img src="{{ asset('imagenes/logo-header.png') }}" alt="Sport Generation"
+                <img src="{{ asset('imagenes/logo-header.svg') }}" alt="Sport Generation"
                     class="h-[50px] sm:h-[54px] block object-contain">
             </a>
         </div>
@@ -15,11 +15,11 @@
         <div class="w-full md:flex-1 flex justify-center">
             <nav class="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:gap-[25px] text-sm sm:text-base">
                 <a href="{{ url('/') }}"
-                    class="{{ Request::is('/') ? 'text-[#265e1f] font-bold' : 'text-gray-600 font-medium hover:text-[#265e1f] transition-colors duration-300' }}">Inicio</a>
+                    class="{{ Request::is('/') ? 'text-[#1f2937] font-bold' : 'text-[#1f2937] font-medium hover:text-[#265E1F] transition-colors duration-300' }}">Inicio</a>
                 <a href="{{ url('/servicios') }}"
-                    class="{{ Request::is('servicios') ? 'text-[#265e1f] font-bold' : 'text-gray-600 font-medium hover:text-[#265e1f] transition-colors duration-300' }}">Servicios</a>
+                    class="{{ Request::is('servicios') ? 'text-[#1f2937] font-bold' : 'text-[#1f2937] font-medium hover:text-[#265E1F] transition-colors duration-300' }}">Servicios</a>
                 <a href="{{ url('/tarifas') }}"
-                    class="{{ Request::is('tarifas') ? 'text-[#265e1f] font-bold' : 'text-gray-600 font-medium hover:text-[#265e1f] transition-colors duration-300' }}">Tarifas</a>
+                    class="{{ Request::is('tarifas') ? 'text-[#1f2937] font-bold' : 'text-[#1f2937] font-medium hover:text-[#265E1F] transition-colors duration-300' }}">Tarifas</a>
             </nav>
         </div>
 
@@ -28,11 +28,11 @@
             @guest
                 <div class="flex">
                     <a href="{{ url('/registro') }}"
-                        class="bg-[#265e1f] text-white py-2 px-4 sm:px-5 border-2 border-[#265e1f] rounded-l-xl font-bold text-xs sm:text-sm">
+                        class="bg-[#265E1F] text-white py-2 px-4 sm:px-5 border-2 border-[#265E1F] rounded-l-xl font-bold text-xs sm:text-sm">
                         Regístrate
                     </a>
                     <a href="{{ url('/login') }}"
-                        class="bg-transparent text-[#265e1f] py-2 px-4 sm:px-5 border-2 border-[#265e1f] border-l-0 rounded-r-xl font-bold text-xs sm:text-sm transition-colors duration-300 hover:bg-gray-50">
+                        class="bg-white text-[#265E1F] py-2 px-4 sm:px-5 border-2 border-[#265E1F] border-l-0 rounded-r-xl font-bold text-xs sm:text-sm transition-colors duration-300 hover:bg-[#EAF7DB]">
                         Iniciar sesión
                     </a>
                 </div>
@@ -52,7 +52,7 @@
                     @else
                         {{-- Perfil del usuario. --}}
                         <a href="{{ url('/perfil') }}"
-                            class="inline-flex items-center gap-1.5 text-[#265e1f] font-semibold text-sm sm:text-base hover:text-[#265e1f] transition-colors whitespace-nowrap leading-none shrink-0">
+                            class="inline-flex items-center gap-1.5 text-[#265E1F] font-semibold text-sm sm:text-base hover:text-[#265E1F] transition-colors whitespace-nowrap leading-none shrink-0">
                             <span class="material-symbols-outlined text-[22px] leading-none">account_circle</span>
                             Mi perfil
                         </a>
@@ -61,7 +61,7 @@
                     <form action="{{ route('logout') }}" method="POST" class="m-0">
                         @csrf
                         <button type="submit"
-                            class="bg-[#265e1f] text-white py-2 px-4 sm:px-[18px] rounded-full font-bold text-xs sm:text-sm transition-colors hover:bg-[#265e1f]">
+                            class="bg-[#265E1F] text-white py-2 px-4 sm:px-[18px] rounded-full font-bold text-xs sm:text-sm transition-colors hover:bg-[#265E1F]">
                             Cerrar sesión
                         </button>
                     </form>
@@ -78,14 +78,14 @@
         <div id="modalQrHeader"
             class="fixed inset-0 bg-black/70 backdrop-blur-md z-[120] hidden flex items-center justify-center p-4">
             <div class="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl text-center">
-                <h3 class="text-2xl font-black text-[#265e1f] mb-2">Tu QR</h3>
+                <h3 class="text-2xl font-black text-[#265E1F] mb-2">Tu QR</h3>
 
                 <div class="bg-white border border-gray-200 rounded-2xl p-4 inline-block">
                     <img id="qrImgHeader" width="220" height="220" alt="QR" class="w-[220px] h-[220px] object-contain" />
                 </div>
 
                 <button type="button" id="cerrarQrHeader"
-                    class="mt-5 w-full bg-[#265e1f] text-white py-3 rounded-xl font-bold hover:bg-[#265e1f] transition-colors">
+                    class="mt-5 w-full bg-[#265E1F] text-white py-3 rounded-xl font-bold hover:bg-[#265E1F] transition-colors">
                     Cerrar
                 </button>
             </div>

@@ -14,7 +14,7 @@
     <div class="max-w-7xl mx-auto px-4 py-8">
         {{-- Mensajes de resultado (éxito o error) --}}
         @if(session('success'))
-            <div class="bg-[#c6ff7c] border border-[#c6ff7c] text-green-800 px-4 py-3 rounded mb-4">
+            <div class="bg-[#ADFE01] border border-[#ADFE01] text-green-800 px-4 py-3 rounded mb-4">
                 {{ session('success') }}
             </div>
         @endif
@@ -32,15 +32,15 @@
             {{-- Accesos a pantallas principales del panel administrador. --}}
             <div class="flex gap-2">
                 <a href="{{ route('admin.user.create') }}"
-                    class="bg-[#265e1f] text-white px-4 py-2 rounded-xl font-bold text-sm">
+                    class="bg-[#265E1F] text-white px-4 py-2 rounded-xl font-bold text-sm">
                     Nuevo cliente
                 </a>
                 <a href="{{ route('admin.classes.index') }}"
-                    class="bg-[#265e1f] text-white px-4 py-2 rounded-xl font-bold text-sm">
+                    class="bg-[#265E1F] text-white px-4 py-2 rounded-xl font-bold text-sm">
                     Gestionar clases
                 </a>
                 <a href="{{ route('admin.discounts.index') }}"
-                    class="bg-[#265e1f] text-white px-4 py-2 rounded-xl font-bold text-sm">
+                    class="bg-[#265E1F] text-white px-4 py-2 rounded-xl font-bold text-sm">
                     Descuentos
                 </a>
             </div>
@@ -52,7 +52,7 @@
             <div class="flex gap-2 mt-2">
                 <input type="text" name="q" value="{{ $buscar ?? '' }}" placeholder="Nombre, apellidos, email o DNI"
                     class="w-full border rounded-xl p-2">
-                <button class="bg-[#265e1f] text-white px-4 rounded-xl font-bold">Buscar</button>
+                <button class="bg-[#265E1F] text-white px-4 rounded-xl font-bold">Buscar</button>
             </div>
         </form>
 
@@ -87,7 +87,7 @@
                                     {{ $u->email }} | Estado: <span class="font-bold">{{ $estadoPago }}</span>
                                 </p>
                                 @if($codigoDescuento)
-                                    <p class="text-sm text-[#265e1f] mt-1">
+                                    <p class="text-sm text-[#265E1F] mt-1">
                                         Cupón: <span class="font-bold">{{ $codigoDescuento }}</span>
                                         | Descuento: -{{ number_format($descuentoAplicado, 2, ',', '.') }} EUR
                                         | Cobro estimado: {{ number_format($totalCobrar, 2, ',', '.') }} EUR
@@ -148,7 +148,7 @@
                             <p class="font-black text-lg">{{ $user->nombre }} {{ $user->apellidos }}</p>
                             <p class="text-sm text-gray-600">{{ $user->email }} | DNI: {{ $user->dni }}</p>
                             @if($codigoDescuento)
-                                <p class="text-sm text-[#265e1f] mt-1">
+                                <p class="text-sm text-[#265E1F] mt-1">
                                     Cupón usado: <span class="font-bold">{{ $codigoDescuento }}</span>
                                     | Descuento aplicado: -{{ number_format($descuentoAplicado, 2, ',', '.') }} EUR
                                 </p>
@@ -180,7 +180,7 @@
                                         <option value="{{ $tarifa }}" @selected($user->tarifa === $tarifa)>{{ ucfirst($tarifa) }}</option>
                                     @endforeach
                                 </select>
-                                <button class="w-full bg-[#265e1f] text-white py-2 rounded font-bold text-sm">Guardar plan</button>
+                                <button class="w-full bg-[#265E1F] text-white py-2 rounded font-bold text-sm">Guardar plan</button>
                             </form>
 
                             {{-- Registro de cobro manual con método y nota interna. --}}
@@ -198,7 +198,7 @@
                                     <option value="visa">Tarjeta</option>
                                 </select>
                                 <input type="text" name="nota" class="w-full border rounded p-2 mb-2" placeholder="Nota (opcional)">
-                                <button class="w-full bg-[#265e1f] text-white py-2 rounded font-bold text-sm">Registrar
+                                <button class="w-full bg-[#265E1F] text-white py-2 rounded font-bold text-sm">Registrar
                                     cobro</button>
                             </form>
 
@@ -227,7 +227,7 @@
                         <div class="border rounded-xl p-3 flex flex-col gap-2">
                             <p class="font-bold text-sm mb-1">Gestión de usuario</p>
                             <a href="{{ route('admin.user.edit', $user) }}"
-                                class="text-center bg-[#265e1f] text-white py-2 rounded font-bold text-sm">Editar ficha</a>
+                                class="text-center bg-[#265E1F] text-white py-2 rounded font-bold text-sm">Editar ficha</a>
 
                             <form action="{{ route('admin.user.delete', $user) }}" method="POST"
                                 onsubmit="return confirm('¿Seguro que quieres eliminar este usuario?')">
