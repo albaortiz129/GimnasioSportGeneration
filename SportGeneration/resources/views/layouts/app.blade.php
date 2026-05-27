@@ -1,4 +1,4 @@
-﻿{{-- Layout base compartido por las pÃ¡ginas. --}}
+{{-- Layout base compartido por las páginas. --}}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -10,7 +10,7 @@
     {{-- Token de seguridad para formularios y peticiones --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- LibrerÃ­as visuales --}}
+    {{-- Librerías visuales --}}
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700;900&display=swap" rel="stylesheet" />
@@ -32,7 +32,7 @@
         @yield('contenido')
     </main>
 
-    {{-- Pie de pÃ¡gina --}}
+    {{-- Pie de página --}}
     @include('components.footer')
 
     {{-- Chat IA --}}

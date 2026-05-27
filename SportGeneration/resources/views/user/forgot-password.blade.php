@@ -1,7 +1,7 @@
-﻿{{-- Solicitar email de recuperaciÃ³n de contraseÃ±a. --}}
+{{-- Solicitar email de recuperación de contraseña. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Recuperar contraseÃ±a')
+@section('titulo', 'Recuperar contraseña')
 
 @section('contenido')
     <div class="min-h-[80vh] flex items-center justify-center bg-[#EAF7DB] px-4 py-12">
@@ -12,18 +12,18 @@
                 class="bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-gray-100 overflow-hidden">
                 <div class="h-2 bg-[#265E1F]"></div>
                 <div class="p-8 sm:p-12">
-                    {{-- TÃ­tulo --}}
+                    {{-- Título --}}
                     <div class="text-center mb-8">
                         <div class="w-16 h-16 bg-[#265E1F]/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <span class="material-symbols-outlined text-[#265E1F] text-3xl">lock_reset</span>
                         </div>
-                        <h1 class="text-2xl font-black text-[#265E1F] tracking-tight">Â¿Olvidaste tu clave?</h1>
+                        <h1 class="text-2xl font-black text-[#265E1F] tracking-tight">¿Olvidaste tu clave?</h1>
                         <p class="text-gray-500 text-sm mt-2 leading-relaxed">
                             No te preocupes. Introduce tu email y te enviaremos un enlace para que crees una nueva.
                         </p>
                     </div>
 
-                    {{-- Mensaje de Ã©xito --}}
+                    {{-- Mensaje de éxito --}}
                     @if (session('status'))
                         <div
                             class="mb-8 p-4 bg-[#ADFE01] border border-[#ADFE01] rounded-2xl flex items-center gap-3 animate-fade-in">
@@ -40,7 +40,7 @@
                         <div>
                             <label for="email"
                                 class="block text-xs font-black text-[#265E1F] uppercase tracking-widest ml-1 mb-2">
-                                Correo electrÃ³nico
+                                Correo electrónico
                             </label>
                             <div class="relative">
                                 <span
@@ -66,7 +66,7 @@
                             class="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-[#265E1F] transition-colors group">
                             <span
                                 class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                            Volver al inicio de sesiÃ³n
+                            Volver al inicio de sesión
                         </a>
                     </div>
                 </div>

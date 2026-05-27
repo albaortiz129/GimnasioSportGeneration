@@ -1,6 +1,6 @@
-﻿{{-- Plantilla del correo para nuevas solicitudes de entrenador personal. --}}
+{{-- Plantilla del correo para nuevas solicitudes de entrenador personal. --}}
 <div style="font-family: Arial, sans-serif; color: #265E1F; line-height: 1.5;">
-    {{-- TÃ­tulo. --}}
+    {{-- Título. --}}
     <h2>Nueva solicitud de entrenador personal - Sport Generation</h2>
 
     {{-- Cuerpo. --}}

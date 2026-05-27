@@ -6,7 +6,7 @@ html,
 body {
     height: 100%;
     margin: 0;
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 body {
@@ -18,9 +18,32 @@ body {
     /* Ocupa el alto total de la pantalla */
 }
 
+/* Evita desbordes horizontales por padding + width en componentes. */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 main {
     flex: 1 0 auto;
     /* Empuja el footer hacia abajo */
+}
+
+header,
+main,
+footer {
+    max-width: 100%;
+    overflow-x: clip;
+}
+
+html::-webkit-scrollbar:horizontal,
+body::-webkit-scrollbar:horizontal {
+    height: 0;
+}
+
+#ai-chat-wrapper {
+    contain: layout paint;
 }
 
 /* =========================================

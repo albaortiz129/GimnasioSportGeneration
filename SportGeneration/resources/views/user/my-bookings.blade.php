@@ -1,4 +1,4 @@
-﻿{{-- Mis reservas: aquÃ­ el socio puede cancelar y aÃ±adir nuevas clases. --}}
+{{-- Mis reservas: aquí el socio puede cancelar y añadir nuevas clases. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Mis reservas')
@@ -20,11 +20,11 @@
                 </a>
                 <a href="{{ route('pago.gestion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#265E1F]">
-                    <span class="material-symbols-outlined">payments</span> GestiÃ³n de pago
+                    <span class="material-symbols-outlined">payments</span> Gestión de pago
                 </a>
                 <a href="{{ route('configuracion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#265E1F]">
-                    <span class="material-symbols-outlined">settings</span> ConfiguraciÃ³n
+                    <span class="material-symbols-outlined">settings</span> Configuración
                 </a>
             </nav>
         </aside>
@@ -44,7 +44,7 @@
                     <div>
                         <h1 class="text-3xl md:text-4xl font-black text-[#265E1F] mb-2">Mis Reservas</h1>
                         <p class="text-gray-500 text-[15px]">
-                            AquÃ­ puedes gestionar tus clases reservadas y cancelar plaza cuando lo necesites.
+                            Aquí puedes gestionar tus clases reservadas y cancelar plaza cuando lo necesites.
                         </p>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
             {{-- Listado de reservas actuales. --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-[#265E1F]">PrÃ³ximas clases ({{ $user->classes->count() }})</h3>
+                    <h3 class="text-xl font-bold text-[#265E1F]">Próximas clases ({{ $user->classes->count() }})</h3>
                 </div>
 
                 <div class="flex flex-col gap-4">
@@ -75,7 +75,7 @@
                                 </span>
 
                                 <form action="{{ route('clase.cancelar', $clase->id) }}" method="POST"
-                                    onsubmit="return confirm('Â¿Seguro que quieres cancelar tu plaza en {{ $clase->nombre }}?')"
+                                    onsubmit="return confirm('¿Seguro que quieres cancelar tu plaza en {{ $clase->nombre }}?')"
                                     class="m-0">
                                     @csrf
                                     @method('DELETE')

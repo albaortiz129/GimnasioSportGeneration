@@ -97,7 +97,7 @@
                     <img src="{{ asset('imagenes/gimnasio-cardio-logo.png') }}" alt="Entrenador Personal"
                         class="w-[58px] h-[58px] object-contain">
                 </div>
-                <h3 class="text-gray-900 text-2xl sm:text-[28px] font-black leading-tight mb-3 m-0">Cele Medina Fourniert</h3>
+                <h3 class="text-gray-900 text-2xl sm:text-[28px] font-black leading-tight mb-3 m-0">Cele Molina</h3>
                 <p class="text-gray-600 text-base leading-normal mb-2">
                     Nuestro entrenador profesional diseñará un plan 100% adaptado a tus metas,
                     ajustando la rutina al detalle.

@@ -1,7 +1,7 @@
-﻿{{-- ConfiguraciÃ³n del usuario. --}}
+{{-- Configuración del usuario. --}}
 @extends('layouts.app')
 
-@section('titulo', 'ConfiguraciÃ³n')
+@section('titulo', 'Configuración')
 
 @section('contenido')
     <div class="flex flex-col md:flex-row min-h-screen bg-[#EAF7DB] font-sans">
@@ -20,11 +20,11 @@
                 </a>
                 <a href="{{ route('pago.gestion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#265E1F]">
-                    <span class="material-symbols-outlined">payments</span> GestiÃ³n de pago
+                    <span class="material-symbols-outlined">payments</span> Gestión de pago
                 </a>
                 <a href="{{ route('configuracion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors bg-[#EAF7DB] text-[#265E1F]">
-                    <span class="material-symbols-outlined">settings</span> ConfiguraciÃ³n
+                    <span class="material-symbols-outlined">settings</span> Configuración
                 </a>
             </nav>
         </aside>
@@ -48,14 +48,14 @@
             @endif
 
             <header class="mb-8">
-                <h1 class="text-3xl md:text-4xl font-black text-[#265E1F] mb-2">ConfiguraciÃ³n</h1>
+                <h1 class="text-3xl md:text-4xl font-black text-[#265E1F] mb-2">Configuración</h1>
                 <p class="text-gray-500 text-[15px]">
-                    Desde aquÃ­ puedes cambiar tus datos, actualizar la contraseÃ±a y cancelar tu suscripciÃ³n.
+                    Desde aquí puedes cambiar tus datos, actualizar la contraseña y cancelar tu suscripción.
                 </p>
             </header>
 
             @php
-                // Variables para mostrar el estado de la suscripciÃ³n en el bloque de cancelaciÃ³n.
+                // Variables para mostrar el estado de la suscripción en el bloque de cancelación.
                 $planActivo = $user->isPlanActive();
                 $fechaHasta = optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha';
                 $suscripcion = $user->subscription('default');
@@ -125,7 +125,7 @@
 
                         <div>
                             <label for="cfg_telefono"
-                                class="block text-sm text-gray-500 font-semibold mb-1">TelÃ©fono</label>
+                                class="block text-sm text-gray-500 font-semibold mb-1">Teléfono</label>
                             <input id="cfg_telefono" type="text" name="telefono" maxlength="9"
                                 value="{{ old('telefono', $user->telefono) }}"
                                 class="w-full p-3 border border-gray-300 rounded-xl text-[#265E1F] outline-none focus:ring-2 focus:ring-[#265E1F] @error('telefono') border-red-500 bg-red-50 @enderror">
@@ -155,7 +155,7 @@
                 </form>
             </section>
 
-            {{-- Cambio de contraseÃ±a. --}}
+            {{-- Cambio de contraseña. --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <h3 class="text-xl font-bold text-[#265E1F] mb-6">Seguridad</h3>
 
@@ -167,53 +167,53 @@
 
                 <form action="{{ route('perfil.password') }}" method="POST" class="grid grid-cols-1 gap-4 max-w-md">
                     @csrf
-                    <input type="password" name="password_actual" placeholder="ContraseÃ±a actual"
+                    <input type="password" name="password_actual" placeholder="Contraseña actual"
                         class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-1 focus:ring-[#265E1F]"
                         required>
-                    <input type="password" name="password" placeholder="Nueva contraseÃ±a"
+                    <input type="password" name="password" placeholder="Nueva contraseña"
                         class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-1 focus:ring-[#265E1F]"
                         required>
-                    <input type="password" name="password_confirmation" placeholder="Confirmar nueva contraseÃ±a"
+                    <input type="password" name="password_confirmation" placeholder="Confirmar nueva contraseña"
                         class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-1 focus:ring-[#265E1F]"
                         required>
                     <button type="submit"
                         class="bg-[#265E1F] text-white py-3 rounded-xl font-bold hover:bg-[#265E1F] transition-colors shadow-sm">
-                        Actualizar contraseÃ±a
+                        Actualizar contraseña
                     </button>
                 </form>
             </section>
 
-            {{-- CancelaciÃ³n de suscripciÃ³n. --}}
+            {{-- Cancelación de suscripción. --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
-                <h3 class="text-xl font-bold text-[#265E1F] mb-4">SuscripciÃ³n</h3>
+                <h3 class="text-xl font-bold text-[#265E1F] mb-4">Suscripción</h3>
 
                 @if($enPeriodoCancelacion || $cancelacionManualProgramada)
                     <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
-                        <p class="font-bold text-amber-800">CancelaciÃ³n ya programada</p>
+                        <p class="font-bold text-amber-800">Cancelación ya programada</p>
                         <p class="text-sm text-amber-700 mt-1">
-                            Tu acceso seguirÃ¡ activo hasta el {{ $fechaHasta }}.
+                            Tu acceso seguirá activo hasta el {{ $fechaHasta }}.
                         </p>
                     </div>
                 @elseif($puedeCancelar)
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
-                            <p class="font-bold text-[#265E1F]">Cancelar suscripciÃ³n al final del perÃ­odo</p>
+                            <p class="font-bold text-[#265E1F]">Cancelar suscripción al final del período</p>
                             <p class="text-sm text-gray-500 mt-1">
-                                MantendrÃ¡s el acceso hasta el {{ $fechaHasta }} y despuÃ©s no se harÃ¡n mÃ¡s cobros.
+                                Mantendrás el acceso hasta el {{ $fechaHasta }} y después no se harán más cobros.
                             </p>
                         </div>
                         <form action="{{ route('plan.cancelar') }}" method="POST"
-                            onsubmit="return confirm('Se cancelarÃ¡ al final del perÃ­odo actual. Â¿Continuar?')">
+                            onsubmit="return confirm('Se cancelará al final del período actual. ¿Continuar?')">
                             @csrf
                             <button type="submit"
                                 class="bg-red-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-red-700 transition-colors">
-                                Cancelar suscripciÃ³n
+                                Cancelar suscripción
                             </button>
                         </form>
                     </div>
                 @else
                     <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                        <p class="font-bold text-gray-800">No hay una suscripciÃ³n activa para cancelar</p>
+                        <p class="font-bold text-gray-800">No hay una suscripción activa para cancelar</p>
                     </div>
                 @endif
             </section>

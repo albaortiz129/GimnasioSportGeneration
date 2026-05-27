@@ -1,4 +1,4 @@
-﻿{{-- Mi perfil. --}}
+{{-- Mi perfil. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Mi perfil')
@@ -20,11 +20,11 @@
                 </a>
                 <a href="{{ route('pago.gestion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#265E1F]">
-                    <span class="material-symbols-outlined">payments</span> GestiÃ³n de pago
+                    <span class="material-symbols-outlined">payments</span> Gestión de pago
                 </a>
                 <a href="{{ route('configuracion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#265E1F]">
-                    <span class="material-symbols-outlined">settings</span> ConfiguraciÃ³n
+                    <span class="material-symbols-outlined">settings</span> Configuración
                 </a>
             </nav>
         </aside>
@@ -45,12 +45,12 @@
             <header class="mb-8">
                 <h1 class="text-3xl md:text-4xl font-black text-[#265E1F] mb-2">Mi perfil</h1>
                 <p class="text-gray-500 text-[15px]">
-                    AquÃ­ puedes consultar tus datos de cuenta, tus reservas y el estado de tu membresÃ­a actual.
+                    Aquí puedes consultar tus datos de cuenta, tus reservas y el estado de tu membresía actual.
                 </p>
             </header>
 
             @php
-                // Estado de membresÃ­a para mostrar informaciÃ³n clara en modo lectura.
+                // Estado de membresía para mostrar información clara en modo lectura.
                 $planActivo = $user->isPlanActive();
                 $fechaHasta = optional($user->next_payment_at)->format('d/m/Y') ?? 'Sin fecha';
                 $suscripcion = $user->subscription('default');
@@ -58,22 +58,22 @@
                 $cancelada = $user->tarifa === 'cancelada' || ($suscripcion ? $suscripcion->canceled() : false);
             @endphp
 
-            {{-- Tarjeta de membresÃ­a. --}}
+            {{-- Tarjeta de membresía. --}}
             <section
                 class="bg-[#265E1F] text-white p-6 md:p-8 rounded-2xl flex flex-col gap-2 mb-8 shadow-lg border border-white/10">
-                <p class="text-xs uppercase tracking-widest text-gray-400 font-bold">MembresÃ­a actual</p>
+                <p class="text-xs uppercase tracking-widest text-gray-400 font-bold">Membresía actual</p>
                 <h2 class="text-2xl md:text-3xl font-bold">
                     @if($cancelada && !$enPeriodo && !$planActivo)
-                        Sin suscripciÃ³n activa
+                        Sin suscripción activa
                     @else
-                        {{ $user->tarifa === 'cancelada' ? 'CancelaciÃ³n programada' : ucfirst($user->tarifa) }}
+                        {{ $user->tarifa === 'cancelada' ? 'Cancelación programada' : ucfirst($user->tarifa) }}
                     @endif
                 </h2>
                 <p class="text-sm text-gray-300">
                     @if($planActivo)
                         Estado: Activa (hasta {{ $fechaHasta }})
                     @elseif($user->payment_status === 'pendiente')
-                        Estado: Pendiente de validaciÃ³n
+                        Estado: Pendiente de validación
                     @elseif($user->payment_status === 'impagado')
                         Estado: Impagada
                     @else
@@ -81,7 +81,7 @@
                     @endif
                 </p>
                 <p class="text-xs text-gray-400 mt-1">
-                    Para cambiar datos, contraseÃ±a o cancelar la suscripciÃ³n, usa el apartado ConfiguraciÃ³n.
+                    Para cambiar datos, contraseña o cancelar la suscripción, usa el apartado Configuración.
                 </p>
             </section>
 
@@ -114,7 +114,7 @@
                         </p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-500">TelÃ©fono:</p>
+                        <p class="text-sm text-gray-500">Teléfono:</p>
                         <p class="font-bold text-[#265E1F]">{{ $user->telefono }}</p>
                     </div>
                     <div class="sm:col-span-2">
@@ -149,7 +149,7 @@
                     </a>
                     <a href="{{ route('configuracion') }}"
                         class="inline-flex items-center justify-center gap-2 bg-white text-[#265E1F] border border-[#265E1F] px-5 py-3 rounded-xl font-bold hover:bg-[#EAF7DB] transition-colors">
-                        <span class="material-symbols-outlined">settings</span> Ir a configuraciÃ³n
+                        <span class="material-symbols-outlined">settings</span> Ir a configuración
                     </a>
                 </div>
             </section>

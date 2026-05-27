@@ -1,7 +1,7 @@
-﻿{{-- GestiÃ³n de pago: suscripciÃ³n, tarjetas y facturas. --}}
+{{-- Gestión de pago: suscripción, tarjetas y facturas. --}}
 @extends('layouts.app')
 
-@section('titulo', 'GestiÃ³n de pago')
+@section('titulo', 'Gestión de pago')
 
 @section('contenido')
     <div class="flex flex-col md:flex-row min-h-screen bg-[#EAF7DB] font-sans">
@@ -21,11 +21,11 @@
                 </a>
                 <a href="{{ route('pago.gestion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors bg-[#EAF7DB] text-[#265E1F]">
-                    <span class="material-symbols-outlined">payments</span> GestiÃ³n de pago
+                    <span class="material-symbols-outlined">payments</span> Gestión de pago
                 </a>
                 <a href="{{ route('configuracion') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-[#265E1F]">
-                    <span class="material-symbols-outlined">settings</span> ConfiguraciÃ³n
+                    <span class="material-symbols-outlined">settings</span> Configuración
                 </a>
             </nav>
         </aside>
@@ -33,7 +33,7 @@
         {{-- Contenido principal --}}
         <main class="flex-1 p-6 md:p-10 lg:p-12 max-w-[1000px]">
             <header class="mb-8">
-                <h1 class="text-3xl md:text-4xl font-black text-[#265E1F] mb-4">GestiÃ³n de pago</h1>
+                <h1 class="text-3xl md:text-4xl font-black text-[#265E1F] mb-4">Gestión de pago</h1>
 
                 @if(session('success'))
                     <div
@@ -47,11 +47,11 @@
                     </div>
                 @endif
 
-                <p class="text-gray-500 text-[15px]">Administra tu suscripciÃ³n, mÃ©todos de pago y revisa tu historial de
+                <p class="text-gray-500 text-[15px]">Administra tu suscripción, métodos de pago y revisa tu historial de
                     facturas.</p>
             </header>
 
-            {{-- Resumen de facturaciÃ³n --}}
+            {{-- Resumen de facturación --}}
             @php
                 // Variables auxiliares para el estado de cuenta.
                 $planActivo = $user->isPlanActive();
@@ -61,52 +61,52 @@
 
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-[#265E1F]">Resumen de facturaciÃ³n</h3>
+                    <h3 class="text-xl font-bold text-[#265E1F]">Resumen de facturación</h3>
                 </div>
 
                 @if($planActivo)
                     <div class="rounded-xl border border-[#ADFE01] bg-[#ADFE01] p-4">
-                        <p class="font-bold text-green-800">SuscripciÃ³n activa</p>
+                        <p class="font-bold text-green-800">Suscripción activa</p>
                         <p class="text-sm text-green-700 mt-1">
-                            Plan: {{ $user->tarifa === 'cancelada' ? 'CancelaciÃ³n programada' : ucfirst($user->tarifa) }} |
-                            MÃ©todo: {{ ucfirst($user->metodo_pago ?? 'sin definir') }}
+                            Plan: {{ $user->tarifa === 'cancelada' ? 'Cancelación programada' : ucfirst($user->tarifa) }} |
+                            Método: {{ ucfirst($user->metodo_pago ?? 'sin definir') }}
                         </p>
                         <p class="text-sm text-green-700 mt-1">
-                            PrÃ³ximo cobro: {{ $fechaCobro }}
+                            Próximo cobro: {{ $fechaCobro }}
                         </p>
                     </div>
                 @elseif($user->payment_status === 'pendiente')
                     <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
-                        <p class="font-bold text-amber-800">Pago pendiente de validaciÃ³n</p>
+                        <p class="font-bold text-amber-800">Pago pendiente de validación</p>
                         <p class="text-sm text-amber-700 mt-1">
-                            Tu plan se activarÃ¡ cuando el administrador confirme el pago manual.
+                            Tu plan se activará cuando el administrador confirme el pago manual.
                         </p>
                         <p class="text-sm text-amber-700 mt-1">
-                            MÃ©todo seleccionado: {{ ucfirst($user->metodo_pago ?? 'sin definir') }}
+                            Método seleccionado: {{ ucfirst($user->metodo_pago ?? 'sin definir') }}
                         </p>
                     </div>
                 @elseif($user->payment_status === 'impagado')
                     <div class="rounded-xl border border-red-200 bg-red-50 p-4">
-                        <p class="font-bold text-red-800">SuscripciÃ³n impagada</p>
+                        <p class="font-bold text-red-800">Suscripción impagada</p>
                         <p class="text-sm text-red-700 mt-1">
-                            Hay un pago pendiente. Revisa tu mÃ©todo de pago o solicita renovaciÃ³n.
+                            Hay un pago pendiente. Revisa tu método de pago o solicita renovación.
                         </p>
                     </div>
                 @else
                     <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                        <p class="font-bold text-gray-800">SuscripciÃ³n inactiva</p>
+                        <p class="font-bold text-gray-800">Suscripción inactiva</p>
                         <p class="text-sm text-gray-600 mt-1">
-                            No tienes una suscripciÃ³n activa en este momento.
+                            No tienes una suscripción activa en este momento.
                         </p>
                     </div>
                 @endif
 
             </section>
 
-            {{-- MÃ©todos de pago guardados --}}
+            {{-- Métodos de pago guardados --}}
             <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-[#265E1F]">MÃ©todos de pago guardados</h3>
+                    <h3 class="text-xl font-bold text-[#265E1F]">Métodos de pago guardados</h3>
                 </div>
                 @php
                     // Si el principal es manual, no se marca ninguna tarjeta como principal.
@@ -159,7 +159,7 @@
                     </div>
                 @endforeach
 
-                {{-- MÃ©todos manuales guardados en la base de datos. --}}
+                {{-- Métodos manuales guardados en la base de datos. --}}
                 @foreach($metodosManuales as $manual)
                     @php $esPrincipalManual = $principalEsManual && ($user->metodo_pago === $manual['code']); @endphp
 
@@ -203,16 +203,16 @@
                 @endforeach
 
                 @if($metodosPago->isEmpty() && $metodosManuales->isEmpty())
-                    <p class="text-gray-500 text-sm">No tienes mÃ©todos guardados todavÃ­a.</p>
+                    <p class="text-gray-500 text-sm">No tienes métodos guardados todavía.</p>
                 @endif
 
-                {{-- Alta del mÃ©todo manual (solo Efectivo). --}}
+                {{-- Alta del método manual (solo Efectivo). --}}
                 <form action="{{ route('pago.guardar_manual') }}" method="POST"
                     class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3" id="form-metodo-manual">
                     @csrf
                     <div>
                         <select name="metodo_manual" id="metodo_manual" class="border rounded p-3 w-full" required>
-                            <option value="">Guardar mÃ©todo manual...</option>
+                            <option value="">Guardar método manual...</option>
                             <option value="efectivo" {{ old('metodo_manual') === 'efectivo' ? 'selected' : '' }}>Efectivo
                             </option>
                         </select>
@@ -222,13 +222,13 @@
                     </div>
 
                     <button type="submit" class="bg-[#265E1F] text-white rounded p-3 font-bold h-fit">
-                        Guardar mÃ©todo
+                        Guardar método
                     </button>
                 </form>
 
                 <a href="{{ route('pago.nuevo') }}"
                     class="inline-flex items-center gap-2 text-[#265E1F] font-bold text-sm transition-colors hover:text-[#265E1F] mt-4">
-                    <span class="material-symbols-outlined">add_circle</span> AÃ±adir tarjeta
+                    <span class="material-symbols-outlined">add_circle</span> Añadir tarjeta
                 </a>
             </section>
 
@@ -258,12 +258,12 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-gray-500 text-center py-4">AÃºn no tienes facturas disponibles.</p>
+                        <p class="text-gray-500 text-center py-4">Aún no tienes facturas disponibles.</p>
                     @endforelse
                 </div>
-                {{-- Cambio tarifa y mÃ©todo de pago. --}}
+                {{-- Cambio tarifa y método de pago. --}}
                 <section class="bg-white rounded-2xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
-                    <h3 class="text-xl font-bold text-[#265E1F] mb-4">Cambiar plan y mÃ©todo de pago</h3>
+                    <h3 class="text-xl font-bold text-[#265E1F] mb-4">Cambiar plan y método de pago</h3>
 
                     <form action="{{ route('pago.cambiar_plan_metodo') }}" method="POST"
                         class="grid grid-cols-1 md:grid-cols-3 gap-3">

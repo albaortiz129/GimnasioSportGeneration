@@ -1,4 +1,4 @@
-﻿{{-- Servicios. --}}
+{{-- Servicios. --}}
 @extends('layouts.app')
 
 @section('titulo', 'Servicios')
@@ -8,7 +8,8 @@
         <main class="flex flex-1 flex-col items-center flex-grow">
             {{-- Cabecera --}}
             <div class="w-full text-center py-14 sm:py-16 bg-white border-b border-gray-200">
-                <h1 class="text-gray-900 text-4xl lg:text-5xl font-black leading-tight tracking-tighter max-w-4xl mx-auto px-4">
+                <h1
+                    class="text-gray-900 text-4xl lg:text-5xl font-black leading-tight tracking-tighter max-w-4xl mx-auto px-4">
                     <span class="block">Descubre lo mejor de</span>
                     <span class="block text-[#265E1F] whitespace-nowrap">Sport Generation</span>
                 </h1>
@@ -17,8 +18,9 @@
                 </p>
             </div>
 
-            <div class="layout-content-container flex flex-col w-full max-w-7xl flex-1 gap-14 lg:gap-16 px-4 sm:px-5 py-12 lg:py-16">
-                {{-- Mensaje de Ã©xito tras una reserva/cancelaciÃ³n. --}}
+            <div
+                class="layout-content-container flex flex-col w-full max-w-7xl flex-1 gap-14 lg:gap-16 px-4 sm:px-5 py-12 lg:py-16">
+                {{-- Mensaje de éxito tras una reserva/cancelación. --}}
                 @if(session('success'))
                     <div
                         class="bg-[#EAF7DB] text-[#265E1F] p-4 rounded-2xl border border-[#ADFE01] font-semibold text-center shadow-sm">
@@ -26,7 +28,7 @@
                     </div>
                 @endif
 
-                {{-- SecciÃ³n de clases en el calendario. --}}
+                {{-- Sección de clases en el calendario. --}}
                 <section id="clases"
                     class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-8 p-6 lg:p-10 rounded-[2.5rem] bg-white border border-[#EAF7DB] shadow-[0_22px_55px_rgba(38,94,31,0.08)] transition-all">
 
@@ -63,16 +65,16 @@
                     {{-- Bloque derecho. --}}
                     <div
                         class="bg-white rounded-[2.25rem] border border-gray-200 shadow-inner overflow-hidden flex flex-col h-[750px]">
-                        {{-- Selector horizontal de dÃ­as --}}
+                        {{-- Selector horizontal de días --}}
                         <div class="p-3 sm:p-4 bg-white border-b border-gray-200 flex gap-2 overflow-x-auto">
                             @php
                                 $diasSemana = [
                                     ['value' => 'Lunes', 'label' => 'Lunes'],
                                     ['value' => 'Martes', 'label' => 'Martes'],
-                                    ['value' => 'Miercoles', 'label' => 'MiÃ©rcoles'],
+                                    ['value' => 'Miercoles', 'label' => 'Miércoles'],
                                     ['value' => 'Jueves', 'label' => 'Jueves'],
                                     ['value' => 'Viernes', 'label' => 'Viernes'],
-                                    ['value' => 'Sabado', 'label' => 'SÃ¡bado'],
+                                    ['value' => 'Sabado', 'label' => 'Sábado'],
                                     ['value' => 'Domingo', 'label' => 'Domingo'],
                                 ];
                                 $diaActivo = request('dia', 'Lunes');
@@ -80,7 +82,7 @@
                             @foreach($diasSemana as $diaItem)
                                 <a href="{{ route('servicios', ['dia' => $diaItem['value']]) }}#clases"
                                     class="flex-shrink-0 text-xs font-black px-6 py-2.5 rounded-full transition-all uppercase tracking-widest
-                                                                                                                                                                                                                                                                                                                                                                                                    {{ $diaActivo == $diaItem['value'] ? 'bg-[#265E1F] text-white shadow-md scale-[1.02]' : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-[#265E1F]' }}">
+                                                                                                                                                                                                                                                                                                                                                                                                            {{ $diaActivo == $diaItem['value'] ? 'bg-[#265E1F] text-white shadow-md scale-[1.02]' : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-[#265E1F]' }}">
                                     {{ $diaItem['label'] }}
                                 </a>
                             @endforeach
@@ -99,7 +101,7 @@
                                 @endfor
                             </div>
 
-                            {{-- Ãrea de clases. --}}
+                            {{-- Área de clases. --}}
                             <div
                                 class="relative min-h-[1400px] bg-[linear-gradient(to_bottom,#EAF7DB_1px,transparent_1px)] bg-[size:100%_100px]">
                                 @forelse($clases as $clase)
@@ -119,7 +121,7 @@
 
                                     {{-- Tarjeta dinamica de clase --}}
                                     <div class="absolute rounded-3xl p-5 border-l-[8px] shadow-sm transition-all group overflow-hidden
-                                                                                                                                                                                                                                                {{ $yaReservado ? 'bg-[#EAF7DB] border-[#265E1F] ring-1 ring-inset ring-[#265E1F]/20' : ($estaCompleto ? 'bg-gray-100 border-gray-400' : 'bg-white border-[#ADFE01] hover:shadow-xl hover:-translate-y-0.5 border shadow-sm') }}"
+                                                                                                                                                                                                                                                        {{ $yaReservado ? 'bg-[#EAF7DB] border-[#265E1F] ring-1 ring-inset ring-[#265E1F]/20' : ($estaCompleto ? 'bg-gray-100 border-gray-400' : 'bg-white border-[#ADFE01] hover:shadow-xl hover:-translate-y-0.5 border shadow-sm') }}"
                                         style="top: {{ $top }}px; height: {{ $alto }}px; left: {{ $izquierda }}%; width: {{ $ancho }}%;">
 
                                         <div class="flex h-full min-w-0 items-center justify-between gap-3">
@@ -146,7 +148,7 @@
                                             {{-- Acciones --}}
                                             <div class="flex items-center justify-end shrink-0 min-w-[120px]">
                                                 @if($yaReservado)
-                                                    {{-- Si estÃ¡ reservada, al pasar el ratÃ³n permite cancelar --}}
+                                                    {{-- Si está reservada, al pasar el ratón permite cancelar --}}
                                                     <div class="flex items-center">
                                                         <div
                                                             class="group-hover:hidden bg-[#265E1F] text-white flex items-center gap-1.5 px-4 py-2 rounded-2xl text-[10px] font-black">
@@ -192,7 +194,7 @@
                     </div>
                 </section>
 
-                {{-- SecciÃ³n de entrenador personal --}}
+                {{-- Sección de entrenador personal --}}
                 <section id="entrenador"
                     class="grid grid-cols-1 lg:grid-cols-2 gap-10 p-8 lg:p-12 rounded-[2.5rem] bg-white border border-gray-200 shadow-[0_16px_40px_rgba(0,0,0,0.08)]">
                     <div class="rounded-[2rem] overflow-hidden shadow-2xl h-full min-h-[350px] bg-gray-300 relative group">
@@ -208,17 +210,19 @@
                         </div>
                         <h2 class="text-gray-900 text-4xl font-black tracking-tighter">Entrenador personal</h2>
                         <p class="text-lg text-gray-600 leading-relaxed">
-                            Lleva tu fÃ­sico al siguiente nivel con planes 100% personalizados. EvaluaciÃ³n mensual de grasa
+                            Cele Molina es un gran entrenador y fisioculturista de éxito, con él puedes llevar tu físico al
+                            siguiente nivel
+                            con planes 100% personalizados. Evaluación mensual de grasa
                             corporal, masa muscular y rendimiento.
                         </p>
                         <button onclick="window.location.href='{{ route('valoracion') }}'"
                             class="flex w-fit min-w-[240px] items-center justify-center rounded-2xl h-14 px-8 bg-[#265E1F] text-white font-black text-lg hover:bg-[#265E1F] shadow-xl hover:shadow-[#265E1F]/40 transition-all uppercase tracking-widest">
-                            Solicitar valoraciÃ³n
+                            Solicitar valoración
                         </button>
                     </div>
                 </section>
 
-                {{-- SecciÃ³n de membresÃ­a
+                {{-- Sección de membresía
                 <section id="membresia"
                     class="p-10 lg:p-16 rounded-[2.5rem] bg-white text-[#265E1F] shadow-[0_20px_50px_rgba(0,0,0,0.05)] text-center border border-gray-100 relative overflow-hidden">
 
@@ -239,7 +243,7 @@
                             <span
                                 class="material-symbols-outlined text-4xl text-[#265E1F] group-hover:scale-110 transition-transform">fitness_center</span>
                             <h4 class="font-black text-lg mt-5 text-[#265E1F]">Cardio y fuerza</h4>
-                            <p class="text-sm text-gray-400 mt-1 font-medium italic">Maquinaria de Ãºltima generaciÃ³n.</p>
+                            <p class="text-sm text-gray-400 mt-1 font-medium italic">Maquinaria de última generación.</p>
                         </div>
 
                         <div
@@ -255,7 +259,7 @@
                             <span
                                 class="material-symbols-outlined text-4xl text-[#265E1F] group-hover:scale-110 transition-transform">hot_tub</span>
                             <h4 class="font-black text-lg mt-5 text-[#265E1F]">Zonas wellness</h4>
-                            <p class="text-sm text-gray-400 mt-1 font-medium italic">Sauna, baÃ±o turco y vestuarios.</p>
+                            <p class="text-sm text-gray-400 mt-1 font-medium italic">Sauna, baño turco y vestuarios.</p>
                         </div>
                     </div>
 
@@ -263,7 +267,7 @@
                     @if(!auth()->user()->is_admin && auth()->user()->isPlanActive())
                     <button type="button" onclick="window.location.href='{{ url('/tarifas') }}'"
                         class="mt-10 inline-flex items-center justify-center rounded-2xl h-14 px-8 bg-[#265E1F] text-white font-black text-lg hover:bg-[#265E1F] shadow-xl transition-all uppercase tracking-widest">
-                        Ir a la pÃ¡gina de tarifas
+                        Ir a la página de tarifas
                     </button>
                     @elseif(!auth()->user()->is_admin)
                     <button type="button" onclick="window.location.href='{{ route('pago.gestion') }}'"
@@ -274,7 +278,7 @@
                     @else
                     <button type="button" onclick="window.location.href='{{ url('/tarifas') }}'"
                         class="mt-10 inline-flex items-center justify-center rounded-2xl h-14 px-8 bg-[#265E1F] text-white font-black text-lg hover:bg-[#265E1F] shadow-xl transition-all uppercase tracking-widest">
-                        Ver planes y precios de membresÃ­a
+                        Ver planes y precios de membresía
                     </button>
                     @endauth
                 </section>
@@ -284,4 +288,3 @@
     </div>
 
 @endsection
-

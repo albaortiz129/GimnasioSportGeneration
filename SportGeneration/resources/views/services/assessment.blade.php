@@ -1,10 +1,10 @@
-﻿{{-- Formulario de entrenador personal. --}}
+{{-- Formulario de entrenador personal. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Solicita tu sesiÃ³n de valoraciÃ³n')
+@section('titulo', 'Solicita tu sesión de valoración')
 
 @section('contenido')
-    {{-- Errores de validaciÃ³n o de envÃ­o del formulario. --}}
+    {{-- Errores de validación o de envío del formulario. --}}
     @if ($errors->any())
         <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-xl mb-6 shadow-sm">
             <p class="font-bold mb-1">Revisa los datos del formulario:</p>
@@ -16,7 +16,7 @@
         </div>
     @endif
 
-    {{-- Mensaje de Ã©xito. --}}
+    {{-- Mensaje de éxito. --}}
     @if (session('exito'))
         <div class="bg-[#ADFE01] border-l-4 border-green-500 text-green-700 p-4 rounded-xl mb-6 shadow-sm flex items-center">
             <span class="material-symbols-outlined mr-2">check_circle</span>
@@ -27,12 +27,12 @@
     <div class="bg-[#F8F8F8] min-h-screen py-16 flex justify-center items-center font-display">
         <div class="bg-white p-12 rounded-[2.5rem] shadow-2xl border border-gray-100 max-w-2xl w-full text-center">
 
-            {{-- TÃ­tulo --}}
+            {{-- Título --}}
             <h1 class="text-[#265E1F] text-5xl font-black mb-4 tracking-tighter">
-                Solicita tu sesiÃ³n de valoraciÃ³n
+                Solicita tu sesión de valoración
             </h1>
             <p class="text-gray-600 text-lg mb-10 leading-relaxed">
-                Un entrenador personal se pondrÃ¡ en contacto contigo en las prÃ³ximas 24 horas.
+                Un entrenador personal se pondrá en contacto contigo en las próximas 24 horas.
             </p>
 
             <form action="{{ route('valoracion.enviar') }}" method="POST" class="text-left space-y-6">
@@ -72,11 +72,11 @@
                 <div>
                     <label class="block text-gray-900 font-bold mb-2 ml-1">Mensaje opcional</label>
                     <textarea name="mensaje" rows="4"
-                        placeholder="CuÃ©ntanos mÃ¡s sobre tus necesidades o horarios preferidos."
+                        placeholder="Cuéntanos más sobre tus necesidades o horarios preferidos."
                         class="w-full p-4 rounded-xl border border-gray-200 focus:border-[#265E1F] outline-none transition-all resize-none">{{ old('mensaje') }}</textarea>
                 </div>
 
-                {{-- BotÃ³n enviar. --}}
+                {{-- Botón enviar. --}}
                 <button type="submit"
                     class="w-full bg-[#265E1F] text-white font-black py-5 rounded-2xl hover:bg-[#265E1F] transition-all text-xl shadow-lg mt-4">
                     Enviar solicitud

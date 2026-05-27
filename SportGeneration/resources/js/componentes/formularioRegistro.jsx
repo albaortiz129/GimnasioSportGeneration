@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react'; // Importamos React y useState.
+import React, { useState } from 'react'; // Importamos React y useState.
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'; // Importamos Stripe.
 
 // IDs de los campos del primer paso
@@ -21,9 +21,9 @@ const ETIQUETAS_CAMPOS = {
     dni: 'DNI',
     fecha_nacimiento: 'Fecha de nacimiento',
     email: 'Email',
-    password: 'ContraseÃ±a',
-    password_confirmation: 'Confirmar contraseÃ±a',
-    telefono: 'TelÃ©fono',
+    password: 'Contraseña',
+    password_confirmation: 'Confirmar contraseña',
+    telefono: 'Teléfono',
     domicilio: 'Domicilio',
 };
 
@@ -31,16 +31,16 @@ const ETIQUETAS_CAMPOS = {
 const TARIFAS = [
     { id: 'mensual', nombre: 'Mensual', precio: '29.99 EUR', desc: 'Sin permanencia.' },
     { id: 'trimestral', nombre: 'Trimestral', precio: '75.00 EUR', desc: 'Ahorra un 15%.' },
-    { id: 'anual', nombre: 'Anual', precio: '250.00 EUR', desc: 'Permanencia de 1 aÃ±o.' },
+    { id: 'anual', nombre: 'Anual', precio: '250.00 EUR', desc: 'Permanencia de 1 año.' },
 ];
 
-// MÃ©todos de pago admitidos en registro.
+// Métodos de pago admitidos en registro.
 const METODOS_PAGO = [
-    { id: 'visa', nombre: 'Tarjeta de crÃ©dito', icono: 'credit_card' },
+    { id: 'visa', nombre: 'Tarjeta de crédito', icono: 'credit_card' },
     { id: 'efectivo', nombre: 'Efectivo', icono: 'payments' },
 ];
 
-// Devuelve el precio visible segÃºn la tarifa elegida.
+// Devuelve el precio visible según la tarifa elegida.
 const obtenerPrecioTarifa = (tarifa) => {
     if (tarifa === 'anual') return '250.00 EUR';
     if (tarifa === 'trimestral') return '75.00 EUR';
@@ -49,10 +49,10 @@ const obtenerPrecioTarifa = (tarifa) => {
 
 // Formulario en 3 pasos: datos personales, tarifa y pago.
 const FormularioRegistro = () => {
-    const stripe = useStripe(); // Carga el objeto de Stripe para poder crear el mÃ©todo de pago con tarjeta.
+    const stripe = useStripe(); // Carga el objeto de Stripe para poder crear el método de pago con tarjeta.
     const elements = useElements(); // Da acceso al campo visual de tarjeta.
 
-    const [paso, setPaso] = useState(1); // Guarda el nÃºmero de paso actual del formulario (1, 2 o 3).
+    const [paso, setPaso] = useState(1); // Guarda el número de paso actual del formulario (1, 2 o 3).
     const [datos, setDatos] = useState({ // Guarda los valores escritos en los campos del formulario. y los actualiza cada vez que se escribe en ellos.
         nombre: '',
         apellidos: '',
@@ -69,7 +69,7 @@ const FormularioRegistro = () => {
     });
 
     const [errores, setErrores] = useState({}); // Guarda los mensajes de error del formulario. y los actualiza cada vez que se escribe en ellos.
-    const [cargando, setCargando] = useState(false); // Indica si el formulario estÃ¡ cargando.
+    const [cargando, setCargando] = useState(false); // Indica si el formulario está cargando.
 
     const validarDNIMatematico = (dni) => {
         const regexDni = /^[0-9]{8}[A-Z]$/i;
@@ -109,18 +109,18 @@ const FormularioRegistro = () => {
             }
             case 'password':
                 if (!validarPasswordFuerte(valor)) {
-                    error = 'Min. 8 caracteres, 1 mayÃºscula, 1 nÃºmero y 1 sÃ­mbolo.';
+                    error = 'Min. 8 caracteres, 1 mayúscula, 1 número y 1 símbolo.';
                 }
                 break;
             case 'password_confirmation':
                 if (!valor) {
-                    error = 'Debes confirmar la contraseÃ±a.';
+                    error = 'Debes confirmar la contraseña.';
                 } else if (valor !== datos.password) {
-                    error = 'Las contraseÃ±as no coinciden.';
+                    error = 'Las contraseñas no coinciden.';
                 }
                 break;
             case 'telefono':
-                if (!/^[6789]\d{8}$/.test(valor)) error = 'TelÃ©fono incorrecto.';
+                if (!/^[6789]\d{8}$/.test(valor)) error = 'Teléfono incorrecto.';
                 break;
             case 'domicilio':
                 if (!valor.trim()) error = 'El domicilio es obligatorio.';
@@ -134,12 +134,12 @@ const FormularioRegistro = () => {
     };
 
     const handleChange = (campo, valor) => {
-        // El email se mantiene en minÃºsculas para evitar duplicados por error.
+        // El email se mantiene en minúsculas para evitar duplicados por error.
         const valorNormalizado = campo === 'email' ? valor.toLowerCase() : valor;
 
         setDatos((prev) => ({ ...prev, [campo]: valorNormalizado }));
 
-        // Si cambia la contraseÃ±a, se revalida.
+        // Si cambia la contraseña, se revalida.
         if (campo === 'password') {
             setErrores((prev) => ({ ...prev, password_confirmation: '' }));
         }
@@ -163,13 +163,13 @@ const FormularioRegistro = () => {
             ? { dni: limpio.toUpperCase() }
             : { email: limpio.toLowerCase() };
 
-        // Comprueba que el DNI o email estÃ©n disponibles, si no muestra un error.
+        // Comprueba que el DNI o email estén disponibles, si no muestra un error.
         try {
-            const respuesta = await fetch('/api/registro/disponibilidad', { // EnvÃ­a la solicitud al servidor.
-                method: 'POST', // MÃ©todo de la solicitud.
+            const respuesta = await fetch('/api/registro/disponibilidad', { // Envía la solicitud al servidor.
+                method: 'POST', // Método de la solicitud.
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', // AÃ±ade el token CSRF para seguridad.
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', // Añade el token CSRF para seguridad.
                 },
                 body: JSON.stringify(payload), // Convierte el payload a JSON.
             });
@@ -208,7 +208,7 @@ const FormularioRegistro = () => {
         return dniLibre && emailLibre;
     };
 
-    // EnvÃ­a el registro y, si estÃ¡ correcto, crea payment method en Stripe.
+    // Envía el registro y, si está correcto, crea payment method en Stripe.
     const finalizarRegistro = async () => {
         setCargando(true);
         let stripePaymentMethodId = null;
@@ -257,7 +257,7 @@ const FormularioRegistro = () => {
             const resultado = await respuesta.json();
 
             if (respuesta.ok) {
-                alert(resultado.mensaje || 'Registro completado con Ã©xito.');
+                alert(resultado.mensaje || 'Registro completado con éxito.');
                 window.location.href = '/login';
                 return;
             }
@@ -282,11 +282,11 @@ const FormularioRegistro = () => {
             if (resultado.errors) {
                 msg += Object.values(resultado.errors).flat().join('\n- ');
             } else {
-                msg += resultado.error || 'OcurriÃ³ un problema.';
+                msg += resultado.error || 'Ocurrió un problema.';
             }
             alert(msg);
         } catch (error) {
-            alert('No hay conexiÃ³n con el servidor.');
+            alert('No hay conexión con el servidor.');
         } finally {
             setCargando(false);
         }
@@ -311,7 +311,7 @@ const FormularioRegistro = () => {
 
     const precioActual = obtenerPrecioTarifa(datos.tarifa);
 
-    // VisualizaciÃ³n del formulario.
+    // Visualización del formulario.
     return (
         <div className="bg-white w-full mx-auto overflow-hidden rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-gray-100">
             {/* Barra de progreso */}
@@ -362,7 +362,7 @@ const FormularioRegistro = () => {
             {paso === 2 && (
                 <section className="px-8 sm:px-14 pb-8 text-left">
                     <h1 className="text-3xl font-extrabold text-[#265E1F] mb-2">Elige tu plan</h1>
-                    <p className="text-[15px] text-gray-500 mb-8">Paso 2: selecciÃ³n de tarifa</p>
+                    <p className="text-[15px] text-gray-500 mb-8">Paso 2: selección de tarifa</p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                         {TARIFAS.map((t) => (
@@ -380,7 +380,7 @@ const FormularioRegistro = () => {
 
                     <div className="mt-8">
                         <label className="block text-sm font-bold text-[#265E1F] mb-2">
-                            CÃ³digo de descuento (opcional)
+                            Código de descuento (opcional)
                         </label>
                         <input
                             type="text"
@@ -390,7 +390,7 @@ const FormularioRegistro = () => {
                             className="w-full p-3.5 border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-[#265E1F] bg-[#fdfdfd]"
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                            Si tienes un cÃ³digo, escrÃ­belo aquÃ­. Se validarÃ¡ al finalizar el registro.
+                            Si tienes un código, escríbelo aquí. Se validará al finalizar el registro.
                         </p>
                     </div>
                 </section>
@@ -399,7 +399,7 @@ const FormularioRegistro = () => {
             {/* Paso 3: Pago */}
             {paso === 3 && (
                 <div className="px-8 sm:px-14 pb-8 text-left">
-                    <h1 className="text-3xl font-extrabold text-[#265E1F] mb-2">MÃ©todo de pago</h1>
+                    <h1 className="text-3xl font-extrabold text-[#265E1F] mb-2">Método de pago</h1>
                     <p className="text-[15px] text-gray-500 mb-8">Total: <strong className="text-[#265E1F]">{precioActual}</strong></p>
 
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 mb-8">
@@ -425,8 +425,8 @@ const FormularioRegistro = () => {
                                 Pago en efectivo
                             </div>
                             <p className="text-sm text-amber-700 m-0 leading-relaxed">
-                                Puedes pagar directamente en recepciÃ³n antes de tu primera clase.<br />
-                                Tu cuenta quedarÃ¡ pendiente hasta que el administrador confirme el cobro.
+                                Puedes pagar directamente en recepción antes de tu primera clase.<br />
+                                Tu cuenta quedará pendiente hasta que el administrador confirme el cobro.
                             </p>
                         </div>
                     )}
@@ -450,11 +450,11 @@ const FormularioRegistro = () => {
                 </div>
             )}
 
-            {/* Botones de navegaciÃ³n */}
+            {/* Botones de navegación */}
             <div className="flex justify-between items-center bg-[#EAF7DB] px-8 sm:px-14 py-6 border-t">
                 {paso > 1 && (
                     <button onClick={volverPaso} className="text-gray-500 font-bold hover:underline">
-                        AtrÃ¡s
+                        Atrás
                     </button>
                 )}
                 {paso < 3 && (

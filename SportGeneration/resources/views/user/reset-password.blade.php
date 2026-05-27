@@ -1,7 +1,7 @@
-﻿{{-- Establecer una nueva contraseÃ±a. --}}
+{{-- Establecer una nueva contraseña. --}}
 @extends('layouts.app')
 
-@section('titulo', 'Crear nueva contraseÃ±a')
+@section('titulo', 'Crear nueva contraseña')
 
 @section('contenido')
     <div class="min-h-[80vh] flex items-center justify-center bg-[#EAF7DB] px-4 py-12">
@@ -16,11 +16,11 @@
                         <div class="w-16 h-16 bg-[#265E1F]/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <span class="material-symbols-outlined text-[#265E1F] text-3xl">lock_open</span>
                         </div>
-                        <h1 class="text-2xl font-black text-[#265E1F] tracking-tight">Nueva contraseÃ±a</h1>
+                        <h1 class="text-2xl font-black text-[#265E1F] tracking-tight">Nueva contraseña</h1>
                         <p class="text-gray-500 text-sm mt-2 leading-relaxed">Configura tu nueva clave de acceso.</p>
                     </div>
 
-                    {{-- Lista de errores de validaciÃ³n del backend. --}}
+                    {{-- Lista de errores de validación del backend. --}}
                     @if ($errors->any())
                         <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl">
                             @foreach ($errors->all() as $error)
@@ -29,7 +29,7 @@
                         </div>
                     @endif
 
-                    {{-- Este token oculto lo valida el servidor antes de cambiar la contraseÃ±a --}}
+                    {{-- Este token oculto lo valida el servidor antes de cambiar la contraseña --}}
                     <form action="{{ route('password.update') }}" method="POST" class="space-y-5">
                         @csrf
                         <input type="hidden" name="token" value="{{ $token }}">
@@ -37,14 +37,14 @@
                         <div>
                             <label
                                 class="block text-xs font-black text-[#265E1F] uppercase tracking-widest ml-1 mb-2">Correo
-                                electrÃ³nico</label>
+                                electrónico</label>
                             <input type="email" name="email" value="{{ request()->email }}" required
                                 class="w-full px-4 py-4 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#265E1F]/10 focus:border-[#265E1F] transition-all text-sm">
                         </div>
 
                         <div>
                             <label class="block text-xs font-black text-[#265E1F] uppercase tracking-widest ml-1 mb-2">Nueva
-                                contraseÃ±a</label>
+                                contraseña</label>
                             <input type="password" name="password" required
                                 class="w-full px-4 py-4 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#265E1F]/10 focus:border-[#265E1F] transition-all text-sm">
                         </div>
@@ -52,14 +52,14 @@
                         <div>
                             <label
                                 class="block text-xs font-black text-[#265E1F] uppercase tracking-widest ml-1 mb-2">Confirmar
-                                contraseÃ±a</label>
+                                contraseña</label>
                             <input type="password" name="password_confirmation" required
                                 class="w-full px-4 py-4 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#265E1F]/10 focus:border-[#265E1F] transition-all text-sm">
                         </div>
 
                         <button type="submit"
                             class="w-full bg-[#265E1F] text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-[#265E1F] transition-all shadow-lg shadow-[#265E1F]/10">
-                            Guardar nueva contraseÃ±a
+                            Guardar nueva contraseña
                         </button>
                     </form>
                 </div>

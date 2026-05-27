@@ -6,7 +6,7 @@
         {{-- Logo --}}
         <div class="w-full md:flex-1 flex justify-center md:justify-start">
             <a href="{{ url('/') }}" class="block">
-                <img src="{{ asset('imagenes/logo-header.svg') }}" alt="Sport Generation"
+                <img src="{{ asset('imagenes/logo-header.png') }}" alt="Sport Generation"
                     class="h-[50px] sm:h-[54px] block object-contain">
             </a>
         </div>

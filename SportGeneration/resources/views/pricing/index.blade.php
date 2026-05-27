@@ -1,7 +1,7 @@
-﻿{{-- Tarifas. --}}
+{{-- Tarifas. --}}
 @extends('layouts.app')
 
-@section('titulo', 'MembresÃ­a y tarifas')
+@section('titulo', 'Membresía y tarifas')
 
 @section('contenido')
     <div class="max-w-[1200px] mx-auto py-10 px-5 text-[#265E1F]">
@@ -14,19 +14,19 @@
 
             <div class="relative z-10">
                 <nav class="text-sm font-medium mb-2 opacity-80">Inicio / Tarifas</nav>
-                <h1 class="text-3xl sm:text-4xl font-black m-0 drop-shadow-lg">Tarifas de acceso total (MembresÃ­a)</h1>
+                <h1 class="text-3xl sm:text-4xl font-black m-0 drop-shadow-lg">Tarifas de acceso total (Membresía)</h1>
             </div>
         </section>
 
-        {{-- Contenedor principal: Columna en mÃ³vil, Fila en PC. --}}
+        {{-- Contenedor principal: Columna en móvil, Fila en PC. --}}
         <div class="flex flex-col lg:flex-row gap-10 items-start">
 
-            {{-- Columna izquierda: InformaciÃ³n. --}}
+            {{-- Columna izquierda: Información. --}}
             <div class="flex-[2] w-full">
                 <section class="mb-10">
                     <h2 class="text-2xl font-bold mb-3">Acceso ilimitado a todas nuestras instalaciones</h2>
-                    <p class="text-gray-600 mb-8">Con la MembresÃ­a Total, obtienes la llave de Sport Generation para disfrutar de cada
-                        Ã¡rea: gimnasio, piscina, pistas y clases. Sin lÃ­mites de horario.</p>
+                    <p class="text-gray-600 mb-8">Con la Membresía Total, obtienes la llave de Sport Generation para disfrutar de cada
+                        área: gimnasio, piscina, pistas y clases. Sin límites de horario.</p>
 
                     {{-- Grid de servicios. --}}
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
@@ -40,21 +40,21 @@
                             <img src="{{ asset('imagenes/clases-logo.png') }}" alt="Icono clases"
                                 class="w-[50px] h-[50px] mb-2 block">
                             <h3 class="text-black mt-0 mb-1 text-lg font-bold leading-tight">Clases colectivas</h3>
-                            <p class="text-gray-500 text-sm m-0 leading-snug">Acceso ilimitado al catÃ¡logo de mÃ¡s de 50
+                            <p class="text-gray-500 text-sm m-0 leading-snug">Acceso ilimitado al catálogo de más de 50
                                 clases.</p>
                         </div>
                         <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
                             <img src="{{ asset('imagenes/piscina-logo.png') }}" alt="Icono piscina"
                                 class="w-[50px] h-[50px] mb-2 block">
                             <h3 class="text-black mt-0 mb-1 text-lg font-bold leading-tight">Piscina y wellness</h3>
-                            <p class="text-gray-500 text-sm m-0 leading-snug">Uso libre de piscina climatizada, sauna y baÃ±o
+                            <p class="text-gray-500 text-sm m-0 leading-snug">Uso libre de piscina climatizada, sauna y baño
                                 turco.</p>
                         </div>
                     </div>
                 </section>
 
                 <section>
-                    <h2 class="text-2xl font-bold mb-6">Â¿CÃ³mo funciona la membresÃ­a?</h2>
+                    <h2 class="text-2xl font-bold mb-6">¿Cómo funciona la membresía?</h2>
                     <div class="relative pl-5 border-l-2 border-[#265E1F]">
 
                         <div class="relative pb-8 pl-5">
@@ -63,7 +63,7 @@
                             </div>
                             <strong class="block mb-1 text-lg">1. Elige tu plan</strong>
                             <p class="text-gray-600 text-sm m-0">Selecciona tu modalidad (mensual, trimestral o anual) y
-                                regÃ­strate en lÃ­nea o en recepciÃ³n.</p>
+                                regístrate en línea o en recepción.</p>
                         </div>
 
                         <div class="relative pb-8 pl-5">
@@ -71,7 +71,7 @@
                                 class="absolute -left-[27px] top-0 w-4 h-4 bg-[#265E1F] rounded-full border-4 border-white">
                             </div>
                             <strong class="block mb-1 text-lg">2. Acceso total</strong>
-                            <p class="text-gray-600 text-sm m-0">Recibe tu tarjeta de socio. Desde el primer dÃ­a tendrÃ¡s
+                            <p class="text-gray-600 text-sm m-0">Recibe tu tarjeta de socio. Desde el primer día tendrás
                                 acceso a todas las zonas.</p>
                         </div>
 
@@ -104,11 +104,11 @@
                     </div>
 
                     <div class="text-center my-6">
-                        <span id="precio-monto" class="text-5xl font-black text-[#265E1F]">29,99â‚¬</span>
+                        <span id="precio-monto" class="text-5xl font-black text-[#265E1F]">29,99€</span>
                         <span id="precio-mes" class="text-xl text-gray-500 font-medium">/mes</span>
                     </div>
 
-                    {{-- LÃ³gica de seguridad para socios --}}
+                    {{-- Lógica de seguridad para socios --}}
                     @auth
                         @if(auth()->user()->isPlanActive())
                             <div class="bg-[#EAF7DB] border border-[#EAF7DB] p-4 rounded-xl text-center mb-6">
@@ -133,7 +133,7 @@
                     @else
                         <a href="{{ url('/registro') }}"
                             class="block bg-[#265E1F] text-white text-center py-4 rounded-xl font-bold transition-transform hover:scale-105 mb-6">
-                            Â¡Ãšnete ahora!
+                            ¡Únete ahora!
                         </a>
                     @endauth
 
@@ -191,15 +191,15 @@
                 }
 
                 btnMensual.addEventListener('click', () => {
-                    actualizarUI(btnMensual, '29,99â‚¬', '/mes', 'Sin permanencia obligatoria');
+                    actualizarUI(btnMensual, '29,99€', '/mes', 'Sin permanencia obligatoria');
                 });
 
                 btnTrimestral.addEventListener('click', () => {
-                    actualizarUI(btnTrimestral, '75,00â‚¬', '/total', 'Pago Ãºnico cada 3 meses');
+                    actualizarUI(btnTrimestral, '75,00€', '/total', 'Pago único cada 3 meses');
                 });
 
                 btnAnual.addEventListener('click', () => {
-                    actualizarUI(btnAnual, '250,00â‚¬', '/aÃ±o', 'Permanencia de 1 aÃ±o');
+                    actualizarUI(btnAnual, '250,00€', '/año', 'Permanencia de 1 año');
                 });
             </script>
 @endsection
