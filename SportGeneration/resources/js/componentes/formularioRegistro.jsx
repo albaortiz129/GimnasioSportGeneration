@@ -11,7 +11,13 @@ const CAMPOS_PASO_1 = [
     'password',
     'password_confirmation',
     'telefono',
-    'domicilio',
+    'via',
+    'numero',
+    'piso_puerta',
+    'bloque_escalera',
+    'codigo_postal',
+    'localidad',
+    'provincia',
 ];
 
 // Etiquetas de campos del paso 1.
@@ -24,7 +30,23 @@ const ETIQUETAS_CAMPOS = {
     password: 'Contraseña',
     password_confirmation: 'Confirmar contraseña',
     telefono: 'Teléfono',
-    domicilio: 'Domicilio',
+    via: 'Vía',
+    numero: 'Número',
+    piso_puerta: 'Piso / puerta',
+    bloque_escalera: 'Bloque / escalera',
+    codigo_postal: 'Código postal',
+    localidad: 'Localidad',
+    provincia: 'Provincia',
+};
+
+const PLACEHOLDERS_CAMPOS = {
+    via: 'Calle Mayor',
+    numero: '12',
+    piso_puerta: '2º A',
+    bloque_escalera: 'Bloque 1, Escalera B',
+    codigo_postal: '29001',
+    localidad: 'Málaga',
+    provincia: 'Málaga',
 };
 
 // Tarifas disponibles para registro.
@@ -62,7 +84,13 @@ const FormularioRegistro = () => {
         email: '',
         password: '',
         password_confirmation: '',
-        domicilio: '',
+        via: '',
+        numero: '',
+        piso_puerta: '',
+        bloque_escalera: '',
+        codigo_postal: '',
+        localidad: '',
+        provincia: '',
         tarifa: '',
         metodo_pago: 'visa',
         cupon: '',
@@ -122,8 +150,24 @@ const FormularioRegistro = () => {
             case 'telefono':
                 if (!/^[6789]\d{8}$/.test(valor)) error = 'Teléfono incorrecto.';
                 break;
-            case 'domicilio':
-                if (!valor.trim()) error = 'El domicilio es obligatorio.';
+            case 'via':
+                if (!valor.trim()) error = 'La vía es obligatoria.';
+                break;
+            case 'numero':
+                if (!valor.trim()) error = 'El número es obligatorio.';
+                break;
+            case 'piso_puerta':
+                break;
+            case 'bloque_escalera':
+                break;
+            case 'codigo_postal':
+                if (!/^\d{5}$/.test(valor)) error = 'Código postal incorrecto.';
+                break;
+            case 'localidad':
+                if (!valor.trim()) error = 'La localidad es obligatoria.';
+                break;
+            case 'provincia':
+                if (!valor.trim()) error = 'La provincia es obligatoria.';
                 break;
             default:
                 break;
@@ -340,6 +384,8 @@ const FormularioRegistro = () => {
                                         : campo === 'fecha_nacimiento'
                                             ? 'date'
                                             : 'text'}
+                                    placeholder={PLACEHOLDERS_CAMPOS[campo] || ''}
+                                    maxLength={campo === 'codigo_postal' ? 5 : undefined}
                                     className={`w-full p-3.5 border rounded-xl outline-none focus:ring-1 focus:ring-[#265E1F] ${errores[campo] ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-[#fdfdfd]'}`}
                                     value={datos[campo]}
                                     onChange={(e) => handleChange(campo, e.target.value)}
@@ -468,5 +514,4 @@ const FormularioRegistro = () => {
 };
 
 export default FormularioRegistro;
-
 

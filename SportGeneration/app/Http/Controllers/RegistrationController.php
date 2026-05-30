@@ -68,7 +68,13 @@ class RegistrationController extends Controller
                     'confirmed',
                     'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/',
                 ],
-                'domicilio' => 'required|string|max:255',
+                'via' => 'required|string|max:120',
+                'numero' => 'required|string|max:20',
+                'piso_puerta' => 'nullable|string|max:60',
+                'bloque_escalera' => 'nullable|string|max:80',
+                'codigo_postal' => ['required', 'regex:/^\d{5}$/'],
+                'localidad' => 'required|string|max:120',
+                'provincia' => 'required|string|max:120',
                 'tarifa' => 'required|in:mensual,trimestral,anual',
                 'metodo_pago' => 'required|in:visa,efectivo',
                 'cupon' => 'nullable|string|max:100',
@@ -128,7 +134,7 @@ class RegistrationController extends Controller
                 $user->fecha_nacimiento = $request->fecha_nacimiento;
                 $user->telefono = trim((string) $request->telefono);
                 $user->email = strtolower(trim((string) $request->email));
-                $user->domicilio = trim((string) $request->domicilio);
+                $user->domicilio = $this->buildAddress($request);
                 $user->tarifa = $tarifa;
                 $user->metodo_pago = $metodoPago;
                 $user->password = Hash::make((string) $request->password);
@@ -255,6 +261,33 @@ class RegistrationController extends Controller
             'mensual' => $fecha->addMonthNoOverflow()->toDateString(), // Suma 1 mes a la fecha actual.
             default => null, // Si la tarifa no es válida, devuelve null.
         };
+    }
+
+    /**
+     * Une los campos separados del formulario en el campo domicilio existente.
+     */
+    private function buildAddress(Request $request): string
+    {
+        $parts = [
+            trim((string) $request->via),
+            'Nº ' . trim((string) $request->numero),
+        ];
+
+        $pisoPuerta = trim((string) $request->input('piso_puerta', ''));
+        if ($pisoPuerta !== '') {
+            $parts[] = $pisoPuerta;
+        }
+
+        $bloqueEscalera = trim((string) $request->input('bloque_escalera', ''));
+        if ($bloqueEscalera !== '') {
+            $parts[] = $bloqueEscalera;
+        }
+
+        $parts[] = trim((string) $request->codigo_postal);
+        $parts[] = trim((string) $request->localidad);
+        $parts[] = trim((string) $request->provincia);
+
+        return implode(', ', array_filter($parts, fn(string $part): bool => $part !== ''));
     }
 
     /**
