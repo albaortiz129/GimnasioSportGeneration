@@ -4,7 +4,7 @@
 @section('titulo', 'Gestión de pago')
 
 @section('contenido')
-    <div class="flex flex-col md:flex-row min-h-screen bg-[#EAF7DB] font-sans">
+    <div class="flex flex-col md:flex-row min-h-screen bg-[#F9FAFB] font-sans">
 
         {{-- Barra lateral --}}
         <aside

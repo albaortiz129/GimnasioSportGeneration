@@ -4,7 +4,7 @@
 @section('titulo', 'Mis reservas')
 
 @section('contenido')
-    <div class="flex flex-col md:flex-row min-h-screen bg-[#EAF7DB] font-sans">
+    <div class="flex flex-col md:flex-row min-h-screen bg-[#F9FAFB] font-sans">
         {{-- Barra lateral del panel de socio. --}}
         <aside
             class="w-full md:w-[280px] md:min-w-[280px] bg-white p-6 md:p-8 border-b md:border-b-0 md:border-r border-gray-200">
