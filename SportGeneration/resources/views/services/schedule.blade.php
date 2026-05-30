@@ -72,8 +72,8 @@
                                             $altoCompacto = max((int) round($alto * $escalaAgenda), 64);
                                             $modoCompacto = $columnasTotales > 1;
                                             $claseBoton = $modoCompacto ? 'px-4 py-2' : 'px-6 py-2.5';
-                                            // Plazas disponibles (capacidad - inscritos), nunca menor que 0.
-                                            $plazasLibres = max((int) $clase->capacidad_max - $clase->users->count(), 0);
+                                            // capacidad_max guarda las plazas restantes; las reservas ya la decrementan.
+                                            $plazasLibres = max((int) $clase->capacidad_max, 0);
                                         @endphp
 
                                         <div class="absolute rounded-[1.25rem] p-4 border-l-[6px] shadow-sm transition-all duration-300 group

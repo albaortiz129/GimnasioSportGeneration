@@ -114,21 +114,6 @@
                     </div>
                 </div>
 
-                <div class="faq-item bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group active">
-                    <button class="faq-trigger flex items-center justify-between w-full p-8 text-left outline-none">
-                        <h3
-                            class="text-[#265E1F] font-bold text-[19px] tracking-tight transition-colors group-hover:text-[#265E1F]">
-                            ¿Cómo puedo cancelar o cambiar mi clase reservada?
-                        </h3>
-                    </button>
-                    <div class="faq-content transition-all duration-300 ease-in-out group-[.active]:max-h-[500px] max-h-0">
-                        <div class="px-8 pb-8 pt-0 text-gray-600 leading-relaxed text-[15px] font-medium">
-                            Puedes gestionar todas tus reservas desde el "Panel de Socio" > "Mis Reservas".
-                            Tienes hasta 2 horas antes del inicio de la clase para cancelar sin penalización.
-                        </div>
-                    </div>
-                </div>
-
                 <div class="faq-item bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group">
                     <button class="faq-trigger flex items-center justify-between w-full p-8 text-left outline-none">
                         <h3
@@ -199,4 +184,3 @@
         });
     </script>
 @endsection
-
