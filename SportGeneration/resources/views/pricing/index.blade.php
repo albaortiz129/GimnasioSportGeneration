@@ -9,7 +9,7 @@
         {{-- Banner. --}}
         <section
             class="h-[250px] flex items-end p-10 rounded-[15px] text-white mb-[30px] bg-cover bg-center bg-no-repeat relative overflow-hidden"
-            style="background-image: url('{{ asset('imagenes/sauna-tarifas-banner.jpg') }}');">
+            style="background-image: url('{{ asset('imagenes/tarifas-banner.jpg') }}');">
             <div class="absolute inset-0 bg-black bg-opacity-40"></div>
 
             <div class="relative z-10">
@@ -25,30 +25,34 @@
             <div class="flex-[2] w-full">
                 <section class="mb-10">
                     <h2 class="text-2xl font-bold mb-3">Acceso ilimitado a todas nuestras instalaciones</h2>
-                    <p class="text-gray-600 mb-8">Con la Membresía Total, obtienes la llave de Sport Generation para disfrutar de cada
-                        área: gimnasio, piscina, pistas y clases. Sin límites de horario.</p>
+                    <p class="text-gray-600 mb-8">Al ser miembro, obtienes la llave de Sport Generation para disfrutar de cada
+                        área: gimnasio, entrenamiento personal y clases sin ningun coste adicional.</p>
 
                     {{-- Grid de servicios. --}}
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
-                        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
-                            <img src="{{ asset('imagenes/gimnasio-cardio-logo.png') }}" alt="Icono gimnasio"
-                                class="w-[50px] h-[50px] mb-2 block">
-                            <h3 class="text-black mt-0 mb-1 text-lg font-bold leading-tight">Gimnasio y cardio</h3>
-                            <p class="text-gray-500 text-sm m-0 leading-snug">Maquinaria y zonas de entrenamiento libre.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-8">
+                        <div class="bg-white min-h-[210px] p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center text-center transition-shadow hover:shadow-md">
+                            <div class="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#ADFE01]">
+                                <img src="{{ asset('imagenes/gimnasio-cardio-logo.png') }}" alt="Icono gimnasio"
+                                    class="h-12 w-12 object-contain">
+                            </div>
+                            <h3 class="min-h-[48px] text-black mt-0 mb-3 text-lg font-black leading-tight">Gimnasio y cardio</h3>
+                            <p class="text-gray-500 text-sm m-0 leading-relaxed">Maquinaria y zonas de entrenamiento libre.</p>
                         </div>
-                        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
-                            <img src="{{ asset('imagenes/clases-logo.png') }}" alt="Icono clases"
-                                class="w-[50px] h-[50px] mb-2 block">
-                            <h3 class="text-black mt-0 mb-1 text-lg font-bold leading-tight">Clases colectivas</h3>
-                            <p class="text-gray-500 text-sm m-0 leading-snug">Acceso ilimitado al catálogo de más de 50
-                                clases.</p>
+                        <div class="bg-white min-h-[210px] p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center text-center transition-shadow hover:shadow-md">
+                            <div class="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#ADFE01]">
+                                <img src="{{ asset('imagenes/clases-logo.png') }}" alt="Icono clases"
+                                    class="h-12 w-12 object-contain">
+                            </div>
+                            <h3 class="min-h-[48px] text-black mt-0 mb-3 text-lg font-black leading-tight">Clases colectivas</h3>
+                            <p class="text-gray-500 text-sm m-0 leading-relaxed">Acceso ilimitado al catálogo de todas nuestras clases colectivas.</p>
                         </div>
-                        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
-                            <img src="{{ asset('imagenes/piscina-logo.png') }}" alt="Icono piscina"
-                                class="w-[50px] h-[50px] mb-2 block">
-                            <h3 class="text-black mt-0 mb-1 text-lg font-bold leading-tight">Piscina y wellness</h3>
-                            <p class="text-gray-500 text-sm m-0 leading-snug">Uso libre de piscina climatizada, sauna y baño
-                                turco.</p>
+                        <div class="bg-white min-h-[210px] p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center text-center transition-shadow hover:shadow-md">
+                            <div class="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#ADFE01]">
+                                <img src="{{ asset('imagenes/piscina-logo.png') }}" alt="Icono entrenamiento personalizado"
+                                    class="h-12 w-12 object-contain">
+                            </div>
+                            <h3 class="min-h-[48px] text-black mt-0 mb-3 text-lg font-black leading-tight">Entrenamiento personalizado</h3>
+                            <p class="text-gray-500 text-sm m-0 leading-relaxed">Con la ayuda de nuestro entrenador profesional podrás cumplir todas tus metas.</p>
                         </div>
                     </div>
                 </section>
@@ -62,7 +66,7 @@
                                 class="absolute -left-[27px] top-0 w-4 h-4 bg-[#265E1F] rounded-full border-4 border-white">
                             </div>
                             <strong class="block mb-1 text-lg">1. Elige tu plan</strong>
-                            <p class="text-gray-600 text-sm m-0">Selecciona tu modalidad (mensual, trimestral o anual) y
+                            <p class="text-gray-600 text-sm m-0">Selecciona la modalidad a pagar (mensual, trimestral o anual) y
                                 regístrate en línea o en recepción.</p>
                         </div>
 
@@ -71,7 +75,7 @@
                                 class="absolute -left-[27px] top-0 w-4 h-4 bg-[#265E1F] rounded-full border-4 border-white">
                             </div>
                             <strong class="block mb-1 text-lg">2. Acceso total</strong>
-                            <p class="text-gray-600 text-sm m-0">Recibe tu tarjeta de socio. Desde el primer día tendrás
+                            <p class="text-gray-600 text-sm m-0">Recibe tu QR/RFID. Desde el primer día tendrás
                                 acceso a todas las zonas.</p>
                         </div>
 
@@ -145,7 +149,7 @@
                             <li class="flex items-start gap-3 mb-3">
                                 <img src="{{ asset('imagenes/check-logo.png') }}" alt="Check"
                                     class="w-5 h-5 flex-shrink-0 mt-0.5">
-                                <span>Gimnasio, piscina y wellness</span>
+                                <span>Entrada a gimnasio</span>
                             </li>
                             <li class="flex items-start gap-3 mb-3">
                                 <img src="{{ asset('imagenes/check-logo.png') }}" alt="Check"
@@ -203,5 +207,3 @@
                 });
             </script>
 @endsection
-
-
