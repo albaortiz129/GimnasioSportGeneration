@@ -9,7 +9,7 @@
 
             {{-- Cabecera. --}}
             <header class="text-center mb-12">
-                <h1 class="text-[#265E1F] text-5xl font-extrabold mb-6 tracking-tight">Contactános</h1>
+                <h1 class="text-[#265E1F] text-5xl font-extrabold mb-6 tracking-tight">Contáctanos</h1>
                 <p class="text-gray-600 text-[17px] font-medium leading-relaxed">
                     Envíanos un mensaje y te responderemos lo antes posible.
                 </p>
@@ -67,4 +67,3 @@
         </div>
     </div>
 @endsection
-

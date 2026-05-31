@@ -79,7 +79,7 @@
                     </button>
                     <div class="faq-content transition-all duration-300 ease-in-out group-[.active]:max-h-[500px] max-h-0">
                         <div class="px-8 pb-8 pt-0 text-gray-600 leading-relaxed text-[15px] font-medium">
-                            Si, un viernes al mes podrás traer a un acompañante de forma totalmente gratuita para que
+                            Sí, un viernes al mes podrás traer a un acompañante de forma totalmente gratuita para que
                             entrene contigo, pero deberás avisar al llegar.
                         </div>
                     </div>
@@ -94,7 +94,7 @@
                     </button>
                     <div class="faq-content transition-all duration-300 ease-in-out group-[.active]:max-h-[500px] max-h-0">
                         <div class="px-8 pb-8 pt-0 text-gray-600 leading-relaxed text-[15px] font-medium">
-                            Si, en el gimnasio dispones de una tabla de entrenamiento por grupos musculares que puedes usar.
+                            Sí, en el gimnasio dispones de una tabla de entrenamiento por grupos musculares que puedes usar.
                         </div>
                     </div>
                 </div>

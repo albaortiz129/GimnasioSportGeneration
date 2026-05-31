@@ -41,11 +41,11 @@ const ETIQUETAS_CAMPOS = {
 
 const PLACEHOLDERS_CAMPOS = {
     via: 'Calle Mayor',
-    numero: '12',
+    numero: '1',
     piso_puerta: '2º A',
     bloque_escalera: 'Bloque 1, Escalera B',
-    codigo_postal: '29001',
-    localidad: 'Málaga',
+    codigo_postal: '29630',
+    localidad: 'Benalmádena',
     provincia: 'Málaga',
 };
 

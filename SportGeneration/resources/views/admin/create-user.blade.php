@@ -205,7 +205,7 @@
             }
 
             function validarDNIMatematico(dni) {
-                // Comprueba numero y letra oficial del DNI.
+                // Comprueba número y letra oficial del DNI.
                 const regexDni = /^[0-9]{8}[A-Z]$/i;
                 if (!regexDni.test(dni)) return false;
 
@@ -265,7 +265,7 @@
                 const valor = passwordInput.value || '';
                 if (!valor) return setError(passwordInput, passwordError, 'La contraseña es obligatoria');
                 if (!validarPasswordFuerte(valor)) {
-                    return setError(passwordInput, passwordError, 'Min. 8, 1 mayuscula, 1 minuscula, 1 numero y 1 simbolo');
+                    return setError(passwordInput, passwordError, 'Mín. 8, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo');
                 }
                 return setError(passwordInput, passwordError, '');
             }
