@@ -50,7 +50,7 @@ return [
         'enabled' => env('AI_CHAT_ENABLED', true),
 
         // Correo mostrado cuando no hay respuesta fiable.
-        'support_email' => env('AI_SUPPORT_EMAIL', 'soporte.seafit@gmail.com'),
+        'support_email' => env('AI_SUPPORT_EMAIL', 'noreply.sportgeneration@gmail.com'),
     ],
 
 ];

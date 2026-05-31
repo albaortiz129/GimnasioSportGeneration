@@ -7,6 +7,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Support\MailAddresses;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +53,7 @@ class PasswordController extends Controller
 
         try {
             Mail::send('emails.password-reset', ['token' => $token], function ($message) use ($email) {
+                $message->from(MailAddresses::SUPPORT_ADDRESS, MailAddresses::SUPPORT_NAME);
                 $message->to($email); // Envía el correo al usuario.
                 $message->subject('Recuperar contraseña de Sport Generation'); // Asunto del correo.
             });

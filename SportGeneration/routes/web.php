@@ -180,6 +180,7 @@ Route::middleware(['auth', 'member', 'force.password'])->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Dashboard principal.
     Route::get('/dashboard', [AdminPanelController::class, 'index'])->name('admin.dashboard');
+    Route::post('/dashboard/notificaciones-impago', [AdminPanelController::class, 'updateUnpaidNotificationEmail'])->name('admin.notifications.unpaid');
 
     // CRUD de usuarios.
     Route::get('/usuarios/nuevo', [AdminPanelController::class, 'create'])->name('admin.user.create');

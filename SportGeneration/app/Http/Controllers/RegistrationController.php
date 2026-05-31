@@ -8,6 +8,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DiscountCode;
 use App\Models\User;
+use App\Support\MailAddresses;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -327,6 +328,7 @@ class RegistrationController extends Controller
                 'proximoCobro' => $proximoCobro,
                 'origen' => $origen,
             ], function ($message) use ($user) {
+                $message->from(MailAddresses::SUPPORT_ADDRESS, MailAddresses::SUPPORT_NAME);
                 $message->to($user->email);
                 $message->subject('Pago aprobado - Sport Generation');
             });

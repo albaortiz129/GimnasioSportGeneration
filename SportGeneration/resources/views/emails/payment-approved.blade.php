@@ -24,6 +24,7 @@
     {{-- Cierre. --}}
     <p>Si no has solicitado esta acción, por favor, contacta con el equipo de Sport Generation.</p>
     <p>Un saludo,<br>El equipo de Sport Generation</p>
+    @include('emails.partials.no-reply-notice')
 </body>
 
 </html>

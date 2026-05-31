@@ -29,7 +29,7 @@
 
                 <div class="mb-6">
                     <label class="block font-semibold mb-2.5 text-[14px] text-gray-800">Email</label>
-                    <input type="email" name="email" placeholder="tu@email.com" value="{{ old('email') }}" required
+                    <input type="text" name="email" placeholder="ejemplo@email.com" value="{{ old('email') }}" required
                         class="w-full p-4 border border-gray-200 rounded-xl bg-[#fdfdfd] text-[14px] outline-none focus:border-[#265E1F] focus:ring-1 focus:ring-[#265E1F] transition-all">
                 </div>
 

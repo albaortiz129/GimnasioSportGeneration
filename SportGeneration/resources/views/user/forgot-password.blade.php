@@ -45,9 +45,9 @@
                             <div class="relative">
                                 <span
                                     class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl">email</span>
-                                <input type="email" name="email" id="email" required
+                                <input type="email" name="email" id="ejemplo@email.com" required
                                     class="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-[#265E1F]/10 focus:border-[#265E1F] transition-all placeholder:text-gray-300 text-sm"
-                                    placeholder="tu@email.com">
+                                    placeholder="">
                             </div>
                             @error('email')
                                 <p class="text-red-500 text-xs mt-2 ml-1 font-bold italic">{{ $message }}</p>

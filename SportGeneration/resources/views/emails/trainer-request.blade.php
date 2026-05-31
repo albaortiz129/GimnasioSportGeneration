@@ -17,4 +17,5 @@
     <p style="margin: 14px 0 0 0; color: #4A4A4A; font-size: 13px;">
         Este correo ha sido enviado desde el formulario de Sport Generation.
     </p>
+    @include('emails.partials.no-reply-notice')
 </div>

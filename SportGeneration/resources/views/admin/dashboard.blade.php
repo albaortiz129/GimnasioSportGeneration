@@ -234,7 +234,7 @@
                                     @endif
 
                                     <form action="{{ route('admin.user.delete', $user) }}" method="POST"
-                                        onsubmit="return confirm('Seguro que quieres eliminar este usuario?')">
+                                        onsubmit="return confirm('¿Seguro que quieres eliminar este usuario?')">
                                         @csrf
                                         @method('DELETE')
                                         <button class="rounded-lg bg-red-600 px-3 py-2 text-sm font-bold text-white">
@@ -250,6 +250,33 @@
                         </div>
                     @endforelse
                 </div>
+            </section>
+
+            <section class="mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <h2 class="text-lg font-black text-gray-900">Notificaciones de impago</h2>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Este correo recibirá avisos internos cuando marques a un cliente como impagado.
+                        </p>
+                    </div>
+
+                    <form action="{{ route('admin.notifications.unpaid') }}" method="POST"
+                        class="flex w-full flex-col gap-2 sm:flex-row lg:max-w-xl">
+                        @csrf
+                        <input type="email" name="unpaid_notification_email"
+                            value="{{ old('unpaid_notification_email', $unpaidNotificationEmail ?? '') }}"
+                            placeholder="correo@ejemplo.com"
+                            class="w-full rounded-xl border border-gray-200 p-3 outline-none focus:border-[#265E1F]">
+                        <button class="rounded-xl bg-[#265E1F] px-5 py-3 font-bold text-white">
+                            Guardar
+                        </button>
+                    </form>
+                </div>
+
+                @error('unpaid_notification_email')
+                    <p class="mt-2 text-sm font-bold text-red-600">{{ $message }}</p>
+                @enderror
             </section>
         </div>
     </div>

@@ -216,7 +216,7 @@ return [
             'intent' => 'soporte_contacto',
             'priority' => 11,
             'tags' => ['soporte', 'contacto', 'ayuda', 'email', 'correo', 'no responde', 'no funciona'],
-            'answer' => 'Si necesitas ayuda directa, contacta con soporte en soporte.seafit@gmail.com.',
+            'answer' => 'Si necesitas ayuda directa, contacta con soporte en noreply.sportgeneration@gmail.com.',
         ],
     ],
 ];

@@ -5,6 +5,7 @@
  */
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,13 +17,26 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        $data = $request->validate([
+            'email' => ['required', 'string'],
             'password' => ['required', 'min:6'],
         ]);
 
-        // Normaliza el email para evitar fallos por mayúsculas/minúsculas.
-        $credentials['email'] = strtolower(trim((string) $credentials['email']));
+        $login = strtolower(trim((string) $data['email']));
+        $email = $login === 'admin'
+            ? $this->resolveAdminEmail()
+            : $login;
+
+        if (!$email) {
+            return back()->withErrors([
+                'email' => 'No hay ningún administrador configurado.',
+            ])->onlyInput('email');
+        }
+
+        $credentials = [
+            'email' => $email,
+            'password' => $data['password'],
+        ];
 
         try {
             if (Auth::attempt($credentials)) {
@@ -56,6 +70,20 @@ class AuthController extends Controller
         return back()->withErrors([
             'email' => 'El correo electrónico o la contraseña no coinciden.',
         ])->onlyInput('email');
+    }
+
+    /**
+     * Permite entrar como admin escribiendo "admin" en el campo de usuario.
+     */
+    private function resolveAdminEmail(): ?string
+    {
+        $configuredEmail = strtolower(trim((string) env('ADMIN_EMAIL', '')));
+
+        if ($configuredEmail !== '') {
+            return $configuredEmail;
+        }
+
+        return User::where('is_admin', true)->orderBy('id')->value('email');
     }
 
     /**

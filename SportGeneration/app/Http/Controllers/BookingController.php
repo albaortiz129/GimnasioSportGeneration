@@ -6,6 +6,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\GymClass;
+use App\Support\MailAddresses;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -74,6 +75,7 @@ class BookingController extends Controller
                 'sala' => (string) ($datosClase['sala'] ?? 'Sin sala'),
                 'instructor' => (string) ($datosClase['instructor'] ?? 'Sin instructor'),
             ], function ($message) use ($user) {
+                $message->from(MailAddresses::SUPPORT_ADDRESS, MailAddresses::SUPPORT_NAME);
                 $message->to($user->email);
                 $message->subject('Reserva confirmada - Sport Generation');
             });

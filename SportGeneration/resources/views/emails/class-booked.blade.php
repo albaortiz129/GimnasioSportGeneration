@@ -26,6 +26,7 @@
     {{-- Cierre. --}}
     <p>Si no reconoces esta reserva, por favor, contacta con el equipo de Sport Generation.</p>
     <p>Un saludo,<br>Equipo Sport Generation</p>
+    @include('emails.partials.no-reply-notice')
 </body>
 
 </html>

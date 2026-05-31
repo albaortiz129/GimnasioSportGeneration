@@ -1,18 +1,19 @@
-{{-- Plantilla de correo para avisar al socio cuando queda en estado impagado. --}}
+{{-- Aviso interno para administración cuando un socio queda impagado. --}}
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
-    {{-- Título. --}}
     <meta charset="UTF-8">
-    <title>Aviso de impago - Sport Generation</title>
+    <title>Aviso interno de impago - Sport Generation</title>
 </head>
 
 <body style="font-family: Arial, sans-serif; padding: 20px; color: #265e1f;">
-    {{-- Cuerpo. --}}
-    <h2>Hola, {{ $nombre }}</h2>
-    <p>Tu cuenta en Sport Generation ha pasado a estado <strong>impagado</strong>.</p>
+    <h2>Aviso interno de impago</h2>
+    <p>Se ha marcado un cliente como impagado en Sport Generation.</p>
 
+    <p><strong>Cliente:</strong> {{ $nombre }}</p>
+    <p><strong>Email:</strong> {{ $email }}</p>
+    <p><strong>DNI:</strong> {{ $dni }}</p>
     <p><strong>Plan:</strong> {{ $tarifa }}</p>
     <p><strong>Método de pago:</strong> {{ $metodo }}</p>
     <p><strong>Próximo cobro:</strong> {{ $proximoCobro }}</p>
@@ -21,8 +22,7 @@
         <p><strong>Detalle:</strong> {{ $origen }}</p>
     @endif
 
-    <p>Para regularizar tu situación, contacta con el equipo del gimnasio o accede a tu panel para revisar el pago.</p>
-    <p>Un saludo,<br>El equipo de Sport Generation</p>
+    <p>Revisa el panel de administración para gestionar este caso.</p>
     @include('emails.partials.no-reply-notice')
 </body>
 

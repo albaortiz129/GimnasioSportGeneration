@@ -24,6 +24,7 @@
     {{-- Cierre. --}}
     <p>Si no has solicitado este cambio, ignora este correo.</p>
     <p>Un saludo,<br>El equipo de Sport Generation</p>
+    @include('emails.partials.no-reply-notice')
 </body>
 
 </html>

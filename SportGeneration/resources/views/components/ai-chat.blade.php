@@ -104,10 +104,10 @@
                     });
 
                     const data = await res.json();
-                    const reply = data?.reply || 'No tengo esa información ahora. Puedes contactar en soporte.seafit@gmail.com.';
+                    const reply = data?.reply || 'No tengo esa información ahora. Puedes contactar en noreply.sportgeneration@gmail.com.';
                     addMessage(reply, 'bot');
                 } catch (error) {
-                    addMessage('No tengo esa información ahora. Puedes contactar en soporte.seafit@gmail.com.', 'bot');
+                    addMessage('No tengo esa información ahora. Puedes contactar en noreply.sportgeneration@gmail.com.', 'bot');
                 } finally {
                     input.disabled = false;
                     input.focus();

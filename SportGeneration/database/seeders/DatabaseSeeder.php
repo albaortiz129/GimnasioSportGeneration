@@ -22,8 +22,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 2) Crear/actualizar administrador de prueba.
-        $adminEmail = env('ADMIN_EMAIL', 'soporte.seafit@gmail.com');
-        $adminPass = env('ADMIN_PASSWORD', 'seafit12');
+        $adminEmail = env('ADMIN_EMAIL', 'noreply.sportgeneration@gmail.com');
+        $adminPass = env('ADMIN_PASSWORD', 'Cele.medina35');
 
         User::updateOrCreate(
             ['email' => $adminEmail],
