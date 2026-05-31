@@ -5,10 +5,12 @@
  */
 namespace App\Http\Controllers;
 
+use App\Models\AppSetting;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class AuthController extends Controller
 {
@@ -23,9 +25,7 @@ class AuthController extends Controller
         ]);
 
         $login = strtolower(trim((string) $data['email']));
-        $email = $login === 'admin'
-            ? $this->resolveAdminEmail()
-            : $login;
+        $email = $this->resolveLoginEmail($login);
 
         if (!$email) {
             return back()->withErrors([
@@ -73,17 +73,41 @@ class AuthController extends Controller
     }
 
     /**
-     * Permite entrar como admin escribiendo "admin" en el campo de usuario.
+     * Resuelve alias de administrador sin obligar a que el correo de avisos exista como usuario.
      */
+    private function resolveLoginEmail(string $login): ?string
+    {
+        if ($login === 'admin' || $login === $this->unpaidNotificationEmail()) {
+            return $this->resolveAdminEmail();
+        }
+
+        return $login;
+    }
+
     private function resolveAdminEmail(): ?string
     {
         $configuredEmail = strtolower(trim((string) config('services.sport_generation.admin_email', '')));
 
-        if ($configuredEmail !== '') {
+        if (filter_var($configuredEmail, FILTER_VALIDATE_EMAIL)
+            && User::where('email', $configuredEmail)->where('is_admin', true)->exists()) {
             return $configuredEmail;
         }
 
         return User::where('is_admin', true)->orderBy('id')->value('email');
+    }
+
+    private function unpaidNotificationEmail(): ?string
+    {
+        if (!Schema::hasTable('app_settings')) {
+            return null;
+        }
+
+        $email = strtolower(trim((string) AppSetting::getValue(
+            'unpaid_notification_email',
+            config('services.sport_generation.unpaid_notification_email')
+        )));
+
+        return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : null;
     }
 
     /**
