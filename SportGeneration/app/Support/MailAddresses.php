@@ -4,8 +4,25 @@ namespace App\Support;
 
 class MailAddresses
 {
-    public const SUPPORT_ADDRESS = 'noreply.sportgeneration@gmail.com';
-    public const SUPPORT_NAME = 'Sport Generation Soporte';
-    public const TRAINER_REQUEST_RECIPIENT = 'aortpul1206@iesfuengirola1.es';
-    public const DEFAULT_ADMIN_NOTIFICATION_EMAIL = 'alba.ortiz129@gmail.com';
+    public static function supportAddress(): string
+    {
+        return (string) config('mail.from.address', 'noreply@example.com');
+    }
+
+    public static function supportName(): string
+    {
+        return (string) config('mail.from.name', 'Sport Generation');
+    }
+
+    public static function trainerRequestRecipient(): string
+    {
+        return (string) config('services.sport_generation.trainer_request_email', self::supportAddress());
+    }
+
+    public static function defaultAdminNotificationEmail(): ?string
+    {
+        $email = trim((string) config('services.sport_generation.unpaid_notification_email', ''));
+
+        return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : null;
+    }
 }

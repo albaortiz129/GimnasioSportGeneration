@@ -22,8 +22,12 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 2) Crear/actualizar administrador de prueba.
-        $adminEmail = env('ADMIN_EMAIL', 'noreply.sportgeneration@gmail.com');
-        $adminPass = env('ADMIN_PASSWORD', 'Cele.medina35');
+        $adminEmail = (string) config('services.sport_generation.admin_email', 'admin@example.com');
+        $adminPass = config('services.sport_generation.admin_password');
+
+        if (!$adminPass) {
+            throw new \RuntimeException('Define ADMIN_PASSWORD en el .env antes de ejecutar los seeders.');
+        }
 
         User::updateOrCreate(
             ['email' => $adminEmail],
@@ -43,4 +47,3 @@ class DatabaseSeeder extends Seeder
         );
     }
 }
-

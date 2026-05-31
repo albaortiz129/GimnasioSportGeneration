@@ -134,6 +134,10 @@ class AdminPanelController extends Controller
 
         $email = strtolower(trim((string) ($data['unpaid_notification_email'] ?? '')));
 
+        if ($email === MailAddresses::supportAddress()) {
+            return back()->with('error', 'No uses el correo automático como destinatario de impagos. Pon el correo de la persona que debe recibir los avisos.');
+        }
+
         AppSetting::setValue(self::UNPAID_NOTIFICATION_EMAIL_KEY, $email !== '' ? $email : null);
 
         return back()->with('success', 'Correo de notificaciones actualizado.');
@@ -294,11 +298,15 @@ class AdminPanelController extends Controller
 
         // Si el estado cambia a impagado desde la edición, se notifica por correo.
         if ($estadoAnteriorPago !== 'impagado' && (string) $user->payment_status === 'impagado') {
-            $this->sendPaymentUnpaidEmail(
+            $envios = $this->sendPaymentUnpaidEmail(
                 $user,
                 'Estado de pago actualizado a impagado por administración',
                 'update'
             );
+
+            if (!$envios['interno'] || !$envios['cliente']) {
+                return redirect()->route('admin.dashboard')->with('error', 'Usuario actualizado, pero no se pudieron enviar todos los correos de impago. Revisa la configuración SMTP.');
+            }
         }
 
         return redirect()->route('admin.dashboard')->with('success', 'Usuario actualizado correctamente.');
@@ -423,11 +431,15 @@ class AdminPanelController extends Controller
         }
 
         if ((string) $user->payment_status === 'impagado') {
-            $this->sendPaymentUnpaidEmail(
+            $envios = $this->sendPaymentUnpaidEmail(
                 $user,
                 'Cliente ya estaba marcado como impagado. Aviso reenviado por administración',
                 'markUnpaid:already_unpaid'
             );
+
+            if (!$envios['interno'] || !$envios['cliente']) {
+                return back()->with('error', 'El cliente ya estaba marcado como impagado, pero no se pudieron enviar todos los correos. Revisa la configuración SMTP.');
+            }
 
             return back()->with('success', 'El cliente ya estaba marcado como impagado. Aviso reenviado.');
         }
@@ -436,11 +448,15 @@ class AdminPanelController extends Controller
             'payment_status' => 'impagado', // Pasa a estado de impago.
         ]);
 
-        $this->sendPaymentUnpaidEmail(
+        $envios = $this->sendPaymentUnpaidEmail(
             $user,
             'Cuenta marcada como impagada por administración',
             'markUnpaid'
         );
+
+        if (!$envios['interno'] || !$envios['cliente']) {
+            return back()->with('error', 'Cliente marcado como impagado, pero no se pudieron enviar todos los correos. Revisa la configuración SMTP.');
+        }
 
         return back()->with('success', 'Cliente marcado como impagado.'); // Notifica al usuario.
     }
@@ -725,7 +741,7 @@ class AdminPanelController extends Controller
                 'proximoCobro' => $this->formatNextPaymentDate($user), // Calcula la siguiente fecha de cobro.
                 'origen' => $origen, // Obtiene el método de pago.
             ], function ($message) use ($user) { // Envía el correo de pago aprobado.
-                $message->from(MailAddresses::SUPPORT_ADDRESS, MailAddresses::SUPPORT_NAME);
+                $message->from(MailAddresses::supportAddress(), MailAddresses::supportName());
                 $message->to($user->email); // Envía el correo al usuario.
                 $message->subject('Pago aprobado - Sport Generation'); // Asigna el asunto del correo.
             });
@@ -741,10 +757,12 @@ class AdminPanelController extends Controller
     /**
      * Envía el correo de aviso de impago y registra errores.
      */
-    private function sendPaymentUnpaidEmail(User $user, string $origen, string $context): void
+    private function sendPaymentUnpaidEmail(User $user, string $origen, string $context): array
     {
         $metodo = $this->paymentMethodLabel($user->metodo_pago);
         $proximoCobro = $this->formatNextPaymentDate($user);
+        $enviadoInterno = false;
+        $enviadoCliente = false;
 
         try {
             $internalEmail = $this->unpaidNotificationEmail();
@@ -756,6 +774,7 @@ class AdminPanelController extends Controller
                     $proximoCobro,
                     $origen
                 ));
+                $enviadoInterno = true;
             }
         } catch (\Throwable $e) {
             Log::error("Error al enviar correo interno de impago ({$context}).", [
@@ -772,6 +791,7 @@ class AdminPanelController extends Controller
                 $proximoCobro,
                 $origen
             ));
+            $enviadoCliente = true;
         } catch (\Throwable $e) {
             Log::error("Error al enviar correo de impago al cliente ({$context}).", [
                 'user_id' => $user->id,
@@ -779,6 +799,11 @@ class AdminPanelController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+
+        return [
+            'interno' => $enviadoInterno,
+            'cliente' => $enviadoCliente,
+        ];
     }
 
     /**
@@ -792,7 +817,7 @@ class AdminPanelController extends Controller
 
         $email = trim((string) AppSetting::getValue(
             self::UNPAID_NOTIFICATION_EMAIL_KEY,
-            MailAddresses::DEFAULT_ADMIN_NOTIFICATION_EMAIL
+            MailAddresses::defaultAdminNotificationEmail()
         ));
 
         return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : null;

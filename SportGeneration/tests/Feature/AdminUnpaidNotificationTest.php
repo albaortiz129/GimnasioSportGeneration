@@ -18,7 +18,7 @@ class AdminUnpaidNotificationTest extends TestCase
     {
         Mail::fake();
 
-        AppSetting::setValue('unpaid_notification_email', 'alba.ortiz129@gmail.com');
+        AppSetting::setValue('unpaid_notification_email', 'impagos@example.com');
 
         $admin = User::factory()->create([
             'email' => 'admin@example.com',
@@ -40,7 +40,7 @@ class AdminUnpaidNotificationTest extends TestCase
         $this->assertSame('impagado', $client->refresh()->payment_status);
 
         Mail::assertSent(PaymentUnpaidAdminMail::class, function (PaymentUnpaidAdminMail $mail) use ($client) {
-            return $mail->hasTo('alba.ortiz129@gmail.com')
+            return $mail->hasTo('impagos@example.com')
                 && $mail->user->is($client)
                 && $mail->origen === 'Cuenta marcada como impagada por administración';
         });
@@ -56,7 +56,7 @@ class AdminUnpaidNotificationTest extends TestCase
     {
         Mail::fake();
 
-        AppSetting::setValue('unpaid_notification_email', 'alba.ortiz129@gmail.com');
+        AppSetting::setValue('unpaid_notification_email', 'impagos@example.com');
 
         $admin = User::factory()->create([
             'email' => 'admin@example.com',
@@ -76,7 +76,7 @@ class AdminUnpaidNotificationTest extends TestCase
             ->assertRedirect();
 
         Mail::assertSent(PaymentUnpaidAdminMail::class, function (PaymentUnpaidAdminMail $mail) use ($client) {
-            return $mail->hasTo('alba.ortiz129@gmail.com')
+            return $mail->hasTo('impagos@example.com')
                 && $mail->user->is($client)
                 && str_contains($mail->origen, 'Aviso reenviado');
         });

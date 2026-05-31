@@ -37,6 +37,7 @@
 
     <script>
         (() => {
+            const supportEmail = @json(config('services.ai_chat.support_email', 'soporte@example.com'));
             // Referencias de la interfaz del chat.
             const toggleBtn = document.getElementById('ai-chat-toggle');
             const closeBtn = document.getElementById('ai-chat-close');
@@ -104,10 +105,10 @@
                     });
 
                     const data = await res.json();
-                    const reply = data?.reply || 'No tengo esa información ahora. Puedes contactar en noreply.sportgeneration@gmail.com.';
+                    const reply = data?.reply || `No tengo esa información ahora. Puedes contactar en ${supportEmail}.`;
                     addMessage(reply, 'bot');
                 } catch (error) {
-                    addMessage('No tengo esa información ahora. Puedes contactar en noreply.sportgeneration@gmail.com.', 'bot');
+                    addMessage(`No tengo esa información ahora. Puedes contactar en ${supportEmail}.`, 'bot');
                 } finally {
                     input.disabled = false;
                     input.focus();
@@ -116,4 +117,3 @@
         })();
     </script>
 @endif
-

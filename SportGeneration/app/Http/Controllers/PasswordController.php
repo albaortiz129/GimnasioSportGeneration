@@ -53,7 +53,7 @@ class PasswordController extends Controller
 
         try {
             Mail::send('emails.password-reset', ['token' => $token], function ($message) use ($email) {
-                $message->from(MailAddresses::SUPPORT_ADDRESS, MailAddresses::SUPPORT_NAME);
+                $message->from(MailAddresses::supportAddress(), MailAddresses::supportName());
                 $message->to($email); // Envía el correo al usuario.
                 $message->subject('Recuperar contraseña de Sport Generation'); // Asunto del correo.
             });

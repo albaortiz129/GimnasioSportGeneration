@@ -26,7 +26,7 @@ class PaymentUnpaidAdminMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address(MailAddresses::SUPPORT_ADDRESS, MailAddresses::SUPPORT_NAME),
+            from: new Address(MailAddresses::supportAddress(), MailAddresses::supportName()),
             subject: 'Aviso interno de impago - Sport Generation',
         );
     }

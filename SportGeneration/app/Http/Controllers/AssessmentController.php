@@ -43,9 +43,9 @@ class AssessmentController extends Controller
             // Enviamos un correo simple con todos los datos de la solicitud.
             Mail::send('emails.trainer-request', ['data' => $data], function ($message) use ($data) {
                 // Remitente fijo del gimnasio.
-                $message->from(MailAddresses::SUPPORT_ADDRESS, MailAddresses::SUPPORT_NAME);
+                $message->from(MailAddresses::supportAddress(), MailAddresses::supportName());
                 // Destinatario del entrenador.
-                $message->to(MailAddresses::TRAINER_REQUEST_RECIPIENT);
+                $message->to(MailAddresses::trainerRequestRecipient());
                 // El entrenador puede responder directamente al socio.
                 $message->replyTo($data['email'], $data['nombre']);
                 $message->subject('Nueva solicitud de entrenador personal Sport Generation');

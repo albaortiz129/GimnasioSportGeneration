@@ -24,7 +24,7 @@ class AiChatController extends Controller
 
         $mensaje = trim((string) $data['message']); // Valida el mensaje
 
-        $emailSoporte = (string) config('services.ai_chat.support_email', 'soporte.seafit@gmail.com'); // Obtiene el email de soporte
+        $emailSoporte = (string) config('services.ai_chat.support_email', 'soporte@example.com'); // Obtiene el email de soporte
         $rules = config('entrenar_IA.rules', []); // Obtiene las reglas de entrenamiento
         $rules = is_array($rules) ? $rules : []; // Si las reglas no son un array, las convierte a un array vacío
 
@@ -152,4 +152,3 @@ class AiChatController extends Controller
         return "No tengo esa información ahora. Puedes contactar con nosotros en {$emailSoporte}.";
     }
 }
-

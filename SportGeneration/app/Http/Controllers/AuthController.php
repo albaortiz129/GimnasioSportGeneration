@@ -77,7 +77,7 @@ class AuthController extends Controller
      */
     private function resolveAdminEmail(): ?string
     {
-        $configuredEmail = strtolower(trim((string) env('ADMIN_EMAIL', '')));
+        $configuredEmail = strtolower(trim((string) config('services.sport_generation.admin_email', '')));
 
         if ($configuredEmail !== '') {
             return $configuredEmail;

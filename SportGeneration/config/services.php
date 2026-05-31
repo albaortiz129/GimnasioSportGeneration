@@ -50,7 +50,14 @@ return [
         'enabled' => env('AI_CHAT_ENABLED', true),
 
         // Correo mostrado cuando no hay respuesta fiable.
-        'support_email' => env('AI_SUPPORT_EMAIL', 'noreply.sportgeneration@gmail.com'),
+        'support_email' => env('AI_SUPPORT_EMAIL', env('MAIL_FROM_ADDRESS', 'soporte@example.com')),
+    ],
+
+    'sport_generation' => [
+        'admin_email' => env('ADMIN_EMAIL', env('MAIL_FROM_ADDRESS', 'admin@example.com')),
+        'admin_password' => env('ADMIN_PASSWORD'),
+        'trainer_request_email' => env('TRAINER_REQUEST_EMAIL', env('MAIL_FROM_ADDRESS', 'soporte@example.com')),
+        'unpaid_notification_email' => env('UNPAID_NOTIFICATION_EMAIL'),
     ],
 
 ];

@@ -75,7 +75,7 @@ class BookingController extends Controller
                 'sala' => (string) ($datosClase['sala'] ?? 'Sin sala'),
                 'instructor' => (string) ($datosClase['instructor'] ?? 'Sin instructor'),
             ], function ($message) use ($user) {
-                $message->from(MailAddresses::SUPPORT_ADDRESS, MailAddresses::SUPPORT_NAME);
+                $message->from(MailAddresses::supportAddress(), MailAddresses::supportName());
                 $message->to($user->email);
                 $message->subject('Reserva confirmada - Sport Generation');
             });

@@ -328,7 +328,7 @@ class RegistrationController extends Controller
                 'proximoCobro' => $proximoCobro,
                 'origen' => $origen,
             ], function ($message) use ($user) {
-                $message->from(MailAddresses::SUPPORT_ADDRESS, MailAddresses::SUPPORT_NAME);
+                $message->from(MailAddresses::supportAddress(), MailAddresses::supportName());
                 $message->to($user->email);
                 $message->subject('Pago aprobado - Sport Generation');
             });
