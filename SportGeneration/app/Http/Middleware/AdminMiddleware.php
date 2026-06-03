@@ -5,6 +5,7 @@
  */
 namespace App\Http\Middleware;
 
+use App\Services\BillingStatusService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,8 @@ class AdminMiddleware
     {
         // Solo deja pasar si hay sesión y rol de administrador.
         if (auth()->check() && auth()->user()->is_admin) {
+            app(BillingStatusService::class)->markOverduePayments();
+
             return $next($request);
         }
         // Si no cumple permisos, se devuelve al inicio con un mensaje de error.

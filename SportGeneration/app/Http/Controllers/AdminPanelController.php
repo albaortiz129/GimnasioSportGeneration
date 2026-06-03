@@ -6,11 +6,10 @@
  */
 namespace App\Http\Controllers;
 
-use App\Mail\PaymentUnpaidAdminMail;
-use App\Mail\PaymentUnpaidUserMail;
 use App\Models\AppSetting;
 use App\Models\GymClass;
 use App\Models\User;
+use App\Services\BillingStatusService;
 use App\Support\MailAddresses;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
@@ -25,6 +24,10 @@ use Illuminate\Validation\Rule;
 class AdminPanelController extends Controller
 {
     private const UNPAID_NOTIFICATION_EMAIL_KEY = 'unpaid_notification_email';
+
+    public function __construct(private BillingStatusService $billingStatusService)
+    {
+    }
 
     /**
      * Muestra el dashboard con usuarios e impagados.
@@ -298,7 +301,7 @@ class AdminPanelController extends Controller
 
         // Si el estado cambia a impagado desde la edición, se notifica por correo.
         if ($estadoAnteriorPago !== 'impagado' && (string) $user->payment_status === 'impagado') {
-            $envios = $this->sendPaymentUnpaidEmail(
+            $envios = $this->billingStatusService->sendPaymentUnpaidEmail(
                 $user,
                 'Estado de pago actualizado a impagado por administración',
                 'update'
@@ -431,7 +434,7 @@ class AdminPanelController extends Controller
         }
 
         if ((string) $user->payment_status === 'impagado') {
-            $envios = $this->sendPaymentUnpaidEmail(
+            $envios = $this->billingStatusService->sendPaymentUnpaidEmail(
                 $user,
                 'Cliente ya estaba marcado como impagado. Aviso reenviado por administración',
                 'markUnpaid:already_unpaid'
@@ -448,7 +451,7 @@ class AdminPanelController extends Controller
             'payment_status' => 'impagado', // Pasa a estado de impago.
         ]);
 
-        $envios = $this->sendPaymentUnpaidEmail(
+        $envios = $this->billingStatusService->sendPaymentUnpaidEmail(
             $user,
             'Cuenta marcada como impagada por administración',
             'markUnpaid'
@@ -752,58 +755,6 @@ class AdminPanelController extends Controller
                 'error' => $e->getMessage(), // Obtiene el error.
             ]);
         }
-    }
-
-    /**
-     * Envía el correo de aviso de impago y registra errores.
-     */
-    private function sendPaymentUnpaidEmail(User $user, string $origen, string $context): array
-    {
-        $metodo = $this->paymentMethodLabel($user->metodo_pago);
-        $proximoCobro = $this->formatNextPaymentDate($user);
-        $enviadoInterno = false;
-        $enviadoCliente = false;
-
-        try {
-            $internalEmail = $this->unpaidNotificationEmail();
-
-            if ($internalEmail) {
-                Mail::to($internalEmail)->send(new PaymentUnpaidAdminMail(
-                    $user,
-                    $metodo,
-                    $proximoCobro,
-                    $origen
-                ));
-                $enviadoInterno = true;
-            }
-        } catch (\Throwable $e) {
-            Log::error("Error al enviar correo interno de impago ({$context}).", [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'error' => $e->getMessage(),
-            ]);
-        }
-
-        try {
-            Mail::to($user->email)->send(new PaymentUnpaidUserMail(
-                $user,
-                $metodo,
-                $proximoCobro,
-                $origen
-            ));
-            $enviadoCliente = true;
-        } catch (\Throwable $e) {
-            Log::error("Error al enviar correo de impago al cliente ({$context}).", [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'error' => $e->getMessage(),
-            ]);
-        }
-
-        return [
-            'interno' => $enviadoInterno,
-            'cliente' => $enviadoCliente,
-        ];
     }
 
     /**

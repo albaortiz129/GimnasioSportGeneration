@@ -6,6 +6,7 @@
  */
 namespace App\Http\Middleware;
 
+use App\Services\BillingStatusService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,6 +21,10 @@ class MemberMiddleware
         // Un administrador no debe navegar por la zona de socio.
         if (auth()->check() && auth()->user()->is_admin) {
             return redirect()->route('admin.dashboard')->with('error', 'Esta zona es solo para socios.');
+        }
+
+        if (auth()->check()) {
+            app(BillingStatusService::class)->markOverduePayments();
         }
 
         return $next($request);
