@@ -8,6 +8,18 @@
             <a href="{{ route('admin.dashboard') }}" class="text-[#265e1f] font-bold">Volver al panel</a>
         </div>
 
+        @if(session('error'))
+            <div class="bg-red-100 text-red-700 p-4 rounded mb-4">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if(session('success'))
+            <div class="bg-green-100 text-green-700 p-4 rounded mb-4">
+                {{ session('success') }}
+            </div>
+        @endif
+
         @if($errors->any())
             <div class="bg-red-100 text-red-700 p-4 rounded mb-4">
                 {{ $errors->first() }}
@@ -111,8 +123,8 @@
 
             <div>
                 <label class="block font-bold">Próximo cobro</label>
-                <input type="date" name="next_payment_at"
-                    value="{{ old('next_payment_at', optional($user->next_payment_at)->format('Y-m-d')) }}"
+                <input type="text" name="next_payment_at" inputmode="numeric" placeholder="dd/mm/aaaa"
+                    value="{{ old('next_payment_at', optional($user->next_payment_at)->format('d/m/Y')) }}"
                     class="w-full border rounded p-2">
             </div>
 

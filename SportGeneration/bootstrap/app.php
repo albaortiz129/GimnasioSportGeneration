@@ -23,10 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'member' => \App\Http\Middleware\MemberMiddleware::class,
             'force.password' => \App\Http\Middleware\ForcePasswordChangeMiddleware::class,
         ]);
-
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Vuelve al formulario por CSRF caducado.
         $exceptions->render(function (TokenMismatchException $e, $request) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -36,6 +34,16 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return back()
                 ->withInput($request->except('_token'))
-                ->with('error', 'Tu sesión ha caducado. Hemos recargado seguridad; vuelve a enviar el formulario.');
+                ->with('error', 'Tu sesión ha caducado. Vuelve a guardar el formulario.');
+        });
+
+        $exceptions->respond(function ($response, $exception, $request) {
+            if ($response->getStatusCode() !== 419 || $request->expectsJson()) {
+                return $response;
+            }
+
+            return back()
+                ->withInput($request->except('_token'))
+                ->with('error', 'Tu sesión ha caducado. Vuelve a guardar el formulario.');
         });
     })->create();

@@ -250,6 +250,7 @@ class AdminPanelController extends Controller
 
         $request->merge([
             'metodo_pago' => strtolower(trim((string) $request->input('metodo_pago', ''))),
+            'next_payment_at' => trim((string) $request->input('next_payment_at', '')),
         ]);
 
         // Campos editables del cliente desde el panel.
@@ -264,7 +265,7 @@ class AdminPanelController extends Controller
             'tarifa' => 'required|in:mensual,trimestral,anual,cancelada',
             'metodo_pago' => 'required|in:visa,efectivo',
             'payment_status' => 'required|in:al_dia,pendiente,impagado',
-            'next_payment_at' => 'nullable|date',
+            'next_payment_at' => 'nullable|date_format:d/m/Y',
             'password' => [
                 'nullable',
                 'string',
@@ -286,6 +287,9 @@ class AdminPanelController extends Controller
         $data['email'] = strtolower(trim($data['email']));
         $data['telefono'] = trim($data['telefono']);
         $data['domicilio'] = trim($data['domicilio']);
+        $data['next_payment_at'] = $data['next_payment_at'] !== ''
+            ? Carbon::createFromFormat('d/m/Y', $data['next_payment_at'])->toDateString()
+            : null;
 
         if (!empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
